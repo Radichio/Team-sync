@@ -9,10 +9,10 @@
 
 :root {
     /* Dark mode colors (default) */
-    --bg-primary: #0a0e1a;
+    --bg-primary: #050608;
     --bg-secondary: rgba(15, 23, 42, 0.4);
-    --bg-card: rgba(15, 23, 42, 0.4);
-    --bg-nav: rgba(10, 14, 26, 0.7);
+    --bg-card: rgba(25, 35, 55, 0.7);
+    --bg-nav: rgba(10, 14, 26, 0.85);
     --bg-command: rgba(15, 23, 42, 0.95);
     
     --text-primary: #ffffff;
@@ -20,17 +20,17 @@
     --text-tertiary: #cbd5e1;
     --text-muted: #64748b;
     
-    --border-primary: rgba(255, 255, 255, 0.06);
-    --border-secondary: rgba(255, 255, 255, 0.1);
+    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-secondary: rgba(255, 255, 255, 0.15);
     
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.25), 0 20px 40px rgba(0, 0, 0, 0.2);
     
-    --gradient-bg-1: rgba(99, 102, 241, 0.08);
-    --gradient-bg-2: rgba(139, 92, 246, 0.08);
+    --gradient-bg-1: rgba(99, 102, 241, 0.06);
+    --gradient-bg-2: rgba(139, 92, 246, 0.06);
     
-    --grid-line: rgba(255, 255, 255, 0.02);
+    --grid-line: rgba(255, 255, 255, 0.015);
     --shimmer-start: rgba(255, 255, 255, 0.03);
     --shimmer-mid: rgba(255, 255, 255, 0.08);
     --shimmer-end: rgba(255, 255, 255, 0.03);
@@ -41,10 +41,10 @@
 
 body.light-mode {
     /* Light mode colors */
-    --bg-primary: #f8fafc;
+    --bg-primary: #e8ecf2;
     --bg-secondary: rgba(255, 255, 255, 0.8);
-    --bg-card: rgba(255, 255, 255, 0.9);
-    --bg-nav: rgba(255, 255, 255, 0.8);
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --bg-nav: rgba(255, 255, 255, 0.9);
     --bg-command: rgba(255, 255, 255, 0.98);
     
     --text-primary: #0f172a;
@@ -52,17 +52,17 @@ body.light-mode {
     --text-tertiary: #334155;
     --text-muted: #94a3b8;
     
-    --border-primary: rgba(0, 0, 0, 0.08);
-    --border-secondary: rgba(0, 0, 0, 0.12);
+    --border-primary: rgba(0, 0, 0, 0.1);
+    --border-secondary: rgba(0, 0, 0, 0.15);
     
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1), 0 20px 40px rgba(0, 0, 0, 0.06);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12), 0 20px 40px rgba(0, 0, 0, 0.08);
     
-    --gradient-bg-1: rgba(99, 102, 241, 0.05);
-    --gradient-bg-2: rgba(139, 92, 246, 0.05);
+    --gradient-bg-1: rgba(99, 102, 241, 0.04);
+    --gradient-bg-2: rgba(139, 92, 246, 0.04);
     
-    --grid-line: rgba(0, 0, 0, 0.02);
+    --grid-line: rgba(0, 0, 0, 0.03);
     --shimmer-start: rgba(0, 0, 0, 0.02);
     --shimmer-mid: rgba(0, 0, 0, 0.06);
     --shimmer-end: rgba(0, 0, 0, 0.02);
