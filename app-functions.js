@@ -1124,36 +1124,61 @@ function analyzeTeamChemistry() {
 }
 
 /**
- * Simulate instant results workflow with delays for realism
+ * Simulate instant results workflow with AI optimization
  * @param {string} teamName - Name of the team
  */
 function simulateInstantResults(teamName) {
   const statusText = document.getElementById('statusText');
   
-  // Get selected members
+  // Get selected members (this is the POOL of candidates)
   const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
-  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  const selectedPool = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
   
-  // Calculate chemistry score
-  const chemistryScore = calculateTeamChemistry(selectedMembers);
-  
-  // Step 1: Finding optimal configuration (1 second delay)
+  // Step 1: Show pool analysis (1 second delay)
   setTimeout(() => {
     if (statusText) {
-      statusText.textContent = 'Finding optimal configuration...';
+      statusText.textContent = 'Analyzing pool of ' + selectedPool.length + ' candidates...';
     }
     
-    // Step 2: Optimization complete (2 seconds total)
+    // Step 2: Run AI optimization to find best team
     setTimeout(() => {
       if (statusText) {
-        statusText.textContent = 'Optimization complete!';
+        statusText.textContent = 'AI finding optimal configuration...';
       }
       
-      // Step 3: Add team card and reset (2.5 seconds total)
+      // THIS IS THE KEY CHANGE - Use findOptimalTeam to get AI recommendation
+      let optimalResult;
+      
+      if (AppState.currentQuizType === 'dyad') {
+        // For dyad, find best 2-member combination
+        optimalResult = findOptimalTeam(selectedPool, 2, 2);
+      } else {
+        // For team, find best 3-5 member combination from pool
+        const maxSize = Math.min(5, selectedPool.length);
+        optimalResult = findOptimalTeam(selectedPool, 3, maxSize);
+      }
+      
+      // Store the AI-recommended optimal configuration
+      window.currentOptimalTeam = optimalResult.members.map(m => m.id);
+      window.currentOptimalScore = optimalResult.chemistry;
+      window.currentTeamPool = selectedPool; // Store full pool for optimizer
+      
+      const optimalChemistry = optimalResult.chemistry;
+      const optimalSize = optimalResult.members.length;
+      
+      // Step 3: Show AI results (2 seconds total)
       setTimeout(() => {
-        addNewTeamToList(teamName, selectedMembers.length, chemistryScore);
-        resetFormAfterSuccess();
-      }, 500);
+        if (statusText) {
+          const configType = AppState.currentQuizType === 'dyad' ? 'pair' : 'team';
+          statusText.textContent = `AI found optimal ${configType}: ${optimalSize} members with ${optimalChemistry}% chemistry!`;
+        }
+        
+        // Step 4: Add team card and reset (2.5 seconds total)
+        setTimeout(() => {
+          addNewTeamToList(teamName, optimalSize, optimalChemistry, optimalResult.members);
+          resetFormAfterSuccess();
+        }, 500);
+      }, 1000);
     }, 1000);
   }, 1000);
 }
@@ -1161,10 +1186,11 @@ function simulateInstantResults(teamName) {
 /**
  * Add new team card to Active Assessments list
  * @param {string} teamName - Name of the team
- * @param {number} memberCount - Number of members
+ * @param {number} memberCount - Number of members in optimal team
  * @param {number} chemistryScore - Chemistry percentage
+ * @param {Array} optimalMembers - Array of optimal member objects (optional)
  */
-function addNewTeamToList(teamName, memberCount, chemistryScore) {
+function addNewTeamToList(teamName, memberCount, chemistryScore, optimalMembers = []) {
   const existingTeamsList = document.getElementById('existingTeamsList');
   if (!existingTeamsList) return;
   
@@ -1174,9 +1200,20 @@ function addNewTeamToList(teamName, memberCount, chemistryScore) {
     emptyState.remove();
   }
   
+  // Store team data for optimizer view
+  const teamData = {
+    name: teamName,
+    chemistry: chemistryScore,
+    memberCount: memberCount,
+    optimalMembers: optimalMembers.length > 0 ? optimalMembers : window.currentOptimalTeam || [],
+    quizType: AppState.currentQuizType,
+    createdAt: new Date().toISOString()
+  };
+  
   // Create team card HTML
   const teamCard = document.createElement('div');
   teamCard.className = 'team-card';
+  teamCard.setAttribute('data-team-name', teamName);
   teamCard.innerHTML = `
     <div class="team-card-header">
       <div class="team-card-info">
@@ -1187,12 +1224,15 @@ function addNewTeamToList(teamName, memberCount, chemistryScore) {
         <div class="team-progress-dots">
           ${Array(memberCount).fill('<div class="progress-dot completed"></div>').join('')}
         </div>
-        <button class="chemistry-badge" onclick="alert('Optimizer view coming in Phase 3!')">
+        <button class="chemistry-badge" onclick="openOptimizerForTeam('${teamName}', ${chemistryScore})">
           ${chemistryScore}% Chemistry
         </button>
       </div>
     </div>
   `;
+  
+  // Store team data in DOM for later retrieval
+  teamCard.teamData = teamData;
   
   // Add animation class
   teamCard.style.opacity = '0';
@@ -1258,6 +1298,16 @@ function resetFormAfterSuccess() {
   }
 }
 
+/**
+ * Open Optimizer view for a specific team (Phase 3)
+ * @param {string} teamName - Name of the team
+ * @param {number} chemistry - Chemistry score
+ */
+function openOptimizerForTeam(teamName, chemistry) {
+  // Phase 3 will complete this - for now show preview
+  alert(`Optimizer View (Coming in Phase 3)\n\nTeam: ${teamName}\nChemistry: ${chemistry}%\n\nWill show:\n- AI-optimized team configuration\n- Drag-drop interface\n- Real-time chemistry recalculation\n- Override checkbox for alternatives\n- Deploy to Slack`);
+}
+
 // ========================================
 // INITIALIZATION
 // ========================================
@@ -1314,6 +1364,7 @@ window.TeamSyncApp = {
   simulateInstantResults,
   addNewTeamToList,
   resetFormAfterSuccess,
+  openOptimizerForTeam,
   
   // Legacy Functions
   calculateChemistryScore,
