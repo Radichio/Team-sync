@@ -17,7 +17,11 @@ const AppState = {
   selectedMembers: [],
   draggedMember: null,
   optimizationTeam: null,
-  conflictPair: [null, null]
+  conflictPair: [null, null],
+  // Phase 2B - Build Team state
+  currentQuizType: 'team',
+  selectedMemberIds: [],
+  currentNameIndex: 0
 };
 
 // ========================================
@@ -842,6 +846,251 @@ function copySlackPrompt() {
 }
 
 // ========================================
+// PHASE 2B - BUILD TEAM MODULE FUNCTIONS
+// ========================================
+
+/**
+ * Initialize both member pools on Build Team view load
+ */
+function populateBothPools() {
+  populatePool('team', 'teamMemberSelection');
+  populatePool('dyad', 'dyadMemberSelection');
+}
+
+/**
+ * Calculate quiz freshness class based on date
+ * @param {string} dateStr - Quiz date in YYYY-MM-DD format
+ * @returns {string} CSS class name (fresh/recent/stale/old/none)
+ */
+function formatQuizDate(dateStr) {
+  if (!dateStr) return 'none';
+  
+  const quizDate = new Date(dateStr);
+  const today = new Date();
+  const daysDiff = Math.floor((today - quizDate) / (1000 * 60 * 60 * 24));
+  
+  if (daysDiff <= 7) return 'fresh';
+  if (daysDiff <= 30) return 'recent';
+  if (daysDiff <= 90) return 'stale';
+  return 'old';
+}
+
+/**
+ * Populate a member pool with member cards
+ * @param {string} poolType - 'team' or 'dyad'
+ * @param {string} containerId - DOM element ID to populate
+ */
+function populatePool(poolType, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const pool = memberPools[poolType];
+  if (!pool) return;
+  
+  container.innerHTML = pool.map(member => {
+    const freshnessClass = formatQuizDate(member.quizDate);
+    const isSelected = AppState.selectedMemberIds.includes(member.id);
+    
+    let badgeText = '';
+    let badgeClass = 'member-badge ';
+    
+    if (freshnessClass === 'none') {
+      badgeText = 'No Quiz';
+      badgeClass += 'badge-none';
+    } else {
+      const quizDate = new Date(member.quizDate);
+      const today = new Date();
+      const daysDiff = Math.floor((today - quizDate) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff === 0) badgeText = 'Today';
+      else if (daysDiff === 1) badgeText = '1 day ago';
+      else if (daysDiff <= 30) badgeText = `${daysDiff} days ago`;
+      else if (daysDiff <= 60) badgeText = '1 month ago';
+      else if (daysDiff <= 90) badgeText = `${Math.floor(daysDiff / 30)} months ago`;
+      else badgeText = '3+ months ago';
+      
+      badgeClass += `badge-${freshnessClass}`;
+    }
+    
+    return `
+      <div class="member-card ${isSelected ? 'selected' : ''}" 
+           data-member-id="${member.id}" 
+           data-pool="${poolType}"
+           onclick="toggleMember('${poolType}', '${member.id}')">
+        <div class="member-avatar">${member.initials}</div>
+        <div class="member-info">
+          <div class="member-name">${member.name}</div>
+          <span class="${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="member-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Toggle between Team and Dyad quiz types
+ * @param {string} type - 'team' or 'dyad'
+ */
+function selectQuizType(type) {
+  AppState.currentQuizType = type;
+  
+  // Update button states
+  const teamBtn = document.getElementById('teamQuizBtn');
+  const dyadBtn = document.getElementById('dyadQuizBtn');
+  
+  if (type === 'team') {
+    teamBtn?.classList.add('active');
+    dyadBtn?.classList.remove('active');
+  } else {
+    teamBtn?.classList.remove('active');
+    dyadBtn?.classList.add('active');
+  }
+  
+  // Toggle pool visibility
+  const teamPool = document.getElementById('teamPoolSection');
+  const dyadPool = document.getElementById('dyadPoolSection');
+  
+  if (type === 'team') {
+    teamPool?.classList.add('active');
+    dyadPool?.classList.remove('active');
+  } else {
+    teamPool?.classList.remove('active');
+    dyadPool?.classList.add('active');
+  }
+  
+  // Update selection hint
+  const selectionHint = document.getElementById('selectionHint');
+  if (selectionHint) {
+    selectionHint.textContent = type === 'team' 
+      ? '(Select 3-8 members for Team assessment)'
+      : '(Select exactly 2 members for Dyad assessment)';
+  }
+  
+  // Clear selections when switching types
+  AppState.selectedMemberIds = [];
+  
+  // Refresh both pools to clear selection states
+  populateBothPools();
+  updateSelectionCounter();
+  validateForm();
+}
+
+/**
+ * Toggle member selection
+ * @param {string} poolType - 'team' or 'dyad'
+ * @param {string} memberId - Member ID to toggle
+ */
+function toggleMember(poolType, memberId) {
+  const index = AppState.selectedMemberIds.indexOf(memberId);
+  
+  if (index > -1) {
+    // Remove member
+    AppState.selectedMemberIds.splice(index, 1);
+  } else {
+    // Add member
+    AppState.selectedMemberIds.push(memberId);
+  }
+  
+  // Update the visual state of the clicked card
+  const card = document.querySelector(`[data-member-id="${memberId}"]`);
+  if (card) {
+    card.classList.toggle('selected');
+  }
+  
+  updateSelectionCounter();
+  validateForm();
+}
+
+/**
+ * Filter members by search query
+ * @param {string} poolType - 'team' or 'dyad'
+ */
+function filterMembers(poolType) {
+  const searchId = poolType === 'team' ? 'teamMemberSearch' : 'dyadMemberSearch';
+  const searchInput = document.getElementById(searchId);
+  const query = searchInput?.value.toLowerCase() || '';
+  
+  const containerId = poolType === 'team' ? 'teamMemberSelection' : 'dyadMemberSelection';
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const memberCards = container.querySelectorAll('.member-card');
+  
+  memberCards.forEach(card => {
+    const memberName = card.querySelector('.member-name')?.textContent.toLowerCase() || '';
+    if (memberName.includes(query)) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+/**
+ * Update selection counter display
+ */
+function updateSelectionCounter() {
+  const counter = document.getElementById('selectedCount');
+  if (counter) {
+    counter.textContent = AppState.selectedMemberIds.length;
+  }
+}
+
+/**
+ * Validate form and enable/disable Analyze button
+ */
+function validateForm() {
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const teamNameInput = document.getElementById('teamNameInput');
+  
+  if (!analyzeBtn || !teamNameInput) return;
+  
+  const hasName = teamNameInput.value.trim().length > 0;
+  const memberCount = AppState.selectedMemberIds.length;
+  
+  let isValid = false;
+  
+  if (AppState.currentQuizType === 'team') {
+    // Team needs 3-8 members + name
+    isValid = hasName && memberCount >= 3 && memberCount <= 8;
+  } else {
+    // Dyad needs exactly 2 members + name
+    isValid = hasName && memberCount === 2;
+  }
+  
+  analyzeBtn.disabled = !isValid;
+}
+
+/**
+ * Refresh team name suggestion
+ */
+function refreshTeamName() {
+  AppState.currentNameIndex = (AppState.currentNameIndex + 1) % TEAM_NAMES.length;
+  const suggestedName = document.getElementById('suggestedName');
+  if (suggestedName) {
+    suggestedName.textContent = TEAM_NAMES[AppState.currentNameIndex];
+  }
+}
+
+/**
+ * Use suggested team name (click handler)
+ */
+function useSuggestedName() {
+  const teamNameInput = document.getElementById('teamNameInput');
+  const suggestedName = document.getElementById('suggestedName');
+  
+  if (teamNameInput && suggestedName) {
+    teamNameInput.value = suggestedName.textContent;
+    validateForm();
+  }
+}
+
+// ========================================
 // INITIALIZATION
 // ========================================
 
@@ -879,6 +1128,18 @@ window.TeamSyncApp = {
   calculateSubscaleAlignment,
   findOptimalTeam,
   getCombinations,
+  
+  // Phase 2B - Build Team Functions
+  populateBothPools,
+  populatePool,
+  formatQuizDate,
+  selectQuizType,
+  toggleMember,
+  filterMembers,
+  updateSelectionCounter,
+  validateForm,
+  refreshTeamName,
+  useSuggestedName,
   
   // Legacy Functions
   calculateChemistryScore,

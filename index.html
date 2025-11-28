@@ -343,9 +343,10 @@
                         <label class="form-label inline-label">Team Name</label>
                         <div class="input-with-suggestion">
                             <input type="text" class="team-name-input compact" id="teamNameInput" 
-                                   placeholder="Enter team name">
+                                   placeholder="Enter team name"
+                                   onkeyup="validateForm()">
                             <span class="inline-suggestion" id="inlineSuggestion">
-                                or use: <strong id="suggestedName">All Systems Go</strong>
+                                or use: <strong id="suggestedName" onclick="useSuggestedName()" style="cursor: pointer;">All Systems Go</strong>
                             </span>
                         </div>
                         <button class="refresh-name compact-refresh" onclick="refreshTeamName()" title="Get new suggestion">↻</button>

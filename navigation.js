@@ -102,6 +102,11 @@ function navigateToModule(moduleName) {
     
     const viewName = moduleMap[moduleName] || moduleName;
     showView(viewName);
+    
+    // Phase 2B - Populate member pools when Build Team view loads
+    if (viewName === 'build' && typeof populateBothPools === 'function') {
+        populateBothPools();
+    }
 }
 
 /**
