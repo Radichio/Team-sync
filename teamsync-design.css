@@ -1842,6 +1842,90 @@ body.light-mode .ripple-effect {
     margin-top: 48px;
 }
 
+/* Team Cards */
+.team-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+}
+
+.team-card:hover {
+    border-color: var(--border-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.team-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.team-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.team-card-name {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.team-card-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.team-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.team-progress-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-primary);
+    transition: all 0.2s ease;
+}
+
+.progress-dot.completed {
+    background: #10b981;
+}
+
+.chemistry-badge {
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.chemistry-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+}
+
+.chemistry-badge:active {
+    transform: translateY(0);
+}
+
 .empty-state {
     text-align: center;
     color: var(--text-secondary);

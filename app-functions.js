@@ -1091,6 +1091,174 @@ function useSuggestedName() {
 }
 
 // ========================================
+// PHASE 2C - ANALYSIS WORKFLOW FUNCTIONS
+// ========================================
+
+/**
+ * Main entry point - Analyze Team Chemistry button click
+ */
+function analyzeTeamChemistry() {
+  const teamNameInput = document.getElementById('teamNameInput');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const processingStatus = document.getElementById('processingStatus');
+  const statusText = document.getElementById('statusText');
+  
+  if (!teamNameInput || !analyzeBtn) return;
+  
+  const teamName = teamNameInput.value.trim();
+  if (!teamName || AppState.selectedMemberIds.length === 0) return;
+  
+  // Disable button and show processing
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = 'Analyzing...';
+  
+  if (processingStatus) {
+    processingStatus.style.display = 'block';
+  }
+  if (statusText) {
+    statusText.textContent = 'Analyzing team composition...';
+  }
+  
+  // Run async simulation
+  simulateInstantResults(teamName);
+}
+
+/**
+ * Simulate instant results workflow with delays for realism
+ * @param {string} teamName - Name of the team
+ */
+function simulateInstantResults(teamName) {
+  const statusText = document.getElementById('statusText');
+  
+  // Get selected members
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  
+  // Calculate chemistry score
+  const chemistryScore = calculateTeamChemistry(selectedMembers);
+  
+  // Step 1: Finding optimal configuration (1 second delay)
+  setTimeout(() => {
+    if (statusText) {
+      statusText.textContent = 'Finding optimal configuration...';
+    }
+    
+    // Step 2: Optimization complete (2 seconds total)
+    setTimeout(() => {
+      if (statusText) {
+        statusText.textContent = 'Optimization complete!';
+      }
+      
+      // Step 3: Add team card and reset (2.5 seconds total)
+      setTimeout(() => {
+        addNewTeamToList(teamName, selectedMembers.length, chemistryScore);
+        resetFormAfterSuccess();
+      }, 500);
+    }, 1000);
+  }, 1000);
+}
+
+/**
+ * Add new team card to Active Assessments list
+ * @param {string} teamName - Name of the team
+ * @param {number} memberCount - Number of members
+ * @param {number} chemistryScore - Chemistry percentage
+ */
+function addNewTeamToList(teamName, memberCount, chemistryScore) {
+  const existingTeamsList = document.getElementById('existingTeamsList');
+  if (!existingTeamsList) return;
+  
+  // Remove empty state if present
+  const emptyState = existingTeamsList.querySelector('.empty-state');
+  if (emptyState) {
+    emptyState.remove();
+  }
+  
+  // Create team card HTML
+  const teamCard = document.createElement('div');
+  teamCard.className = 'team-card';
+  teamCard.innerHTML = `
+    <div class="team-card-header">
+      <div class="team-card-info">
+        <div class="team-card-name">${teamName}</div>
+        <div class="team-card-meta">${memberCount} members • Created just now</div>
+      </div>
+      <div class="team-card-actions">
+        <div class="team-progress-dots">
+          ${Array(memberCount).fill('<div class="progress-dot completed"></div>').join('')}
+        </div>
+        <button class="chemistry-badge" onclick="alert('Optimizer view coming in Phase 3!')">
+          ${chemistryScore}% Chemistry
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Add animation class
+  teamCard.style.opacity = '0';
+  teamCard.style.transform = 'translateY(-20px)';
+  
+  // Insert at top of list
+  existingTeamsList.insertBefore(teamCard, existingTeamsList.firstChild);
+  
+  // Trigger animation
+  setTimeout(() => {
+    teamCard.style.transition = 'all 0.4s ease';
+    teamCard.style.opacity = '1';
+    teamCard.style.transform = 'translateY(0)';
+  }, 10);
+}
+
+/**
+ * Reset form after successful team creation
+ */
+function resetFormAfterSuccess() {
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const processingStatus = document.getElementById('processingStatus');
+  const teamNameInput = document.getElementById('teamNameInput');
+  
+  // Hide processing status
+  if (processingStatus) {
+    processingStatus.style.display = 'none';
+  }
+  
+  // Reset button
+  if (analyzeBtn) {
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'Analyze Team Chemistry';
+  }
+  
+  // Clear team name
+  if (teamNameInput) {
+    teamNameInput.value = '';
+  }
+  
+  // Clear selections
+  AppState.selectedMemberIds = [];
+  
+  // Refresh pools to clear visual selection states
+  populateBothPools();
+  
+  // Update counter
+  updateSelectionCounter();
+  
+  // Show brief success message
+  const statusText = document.getElementById('statusText');
+  if (statusText && processingStatus) {
+    statusText.textContent = 'Team created successfully!';
+    processingStatus.style.display = 'block';
+    processingStatus.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1))';
+    processingStatus.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+    
+    setTimeout(() => {
+      processingStatus.style.display = 'none';
+      processingStatus.style.background = '';
+      processingStatus.style.borderColor = '';
+    }, 2000);
+  }
+}
+
+// ========================================
 // INITIALIZATION
 // ========================================
 
@@ -1140,6 +1308,12 @@ window.TeamSyncApp = {
   validateForm,
   refreshTeamName,
   useSuggestedName,
+  
+  // Phase 2C - Analysis Workflow Functions
+  analyzeTeamChemistry,
+  simulateInstantResults,
+  addNewTeamToList,
+  resetFormAfterSuccess,
   
   // Legacy Functions
   calculateChemistryScore,
