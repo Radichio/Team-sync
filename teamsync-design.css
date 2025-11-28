@@ -178,6 +178,16 @@ body::after {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.03em;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.logo-text:hover {
+    opacity: 0.8;
+}
+
+.logo-text:active {
+    opacity: 0.6;
 }
 
 .connection-status {
