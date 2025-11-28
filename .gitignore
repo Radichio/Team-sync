@@ -1,0 +1,15 @@
+# Backup files
+*_bac*.html
+*_bac*.js
+*_bac*.css
+# Browser saved files
+index_files/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+.vscode/
