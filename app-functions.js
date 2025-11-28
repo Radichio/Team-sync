@@ -107,7 +107,223 @@ const SUPERVISORS = [
 ];
 
 // ========================================
+// V45 DATA - MENTAL SYNCHRONY MEMBER POOLS
+// ========================================
+
+// SpaceX-style team names for suggestions
+const TEAM_NAMES = [
+  "All Systems Go",
+  "Escape Velocity", 
+  "Mission Success",
+  "The Catalysts",
+  "Optimal Configuration",
+  "Peak Performance",
+  "Full Throttle",
+  "Maximum Efficiency Achieved",
+  "Operating at Capacity",
+  "Launch Sequence Initiated",
+  "Synchronization Complete",
+  "The Golden Record",
+  "Hypothesis Confirmed",
+  "Results: Reproducible",
+  "The Proof of Concept",
+  "Five Star Review",
+  "Achievement Unlocked",
+  "Version Final",
+  "The Resonance",
+  "Perfect Pitch"
+];
+
+// Member pools with Mental Synchrony profiles from quiz responses
+const memberPools = {
+  team: [
+    { id: 'T001', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-12-19', hasDual: true,
+      msScore: 72, subscales: { understanding: 68, trust: 80, ease: 72, integration: 70 } },
+    { id: 'T002', name: 'Michael Chen', initials: 'MC', quizDate: '2024-12-18',
+      msScore: 68, subscales: { understanding: 64, trust: 76, ease: 66, integration: 68 } },
+    { id: 'T003', name: 'Emily Parker', initials: 'EP', quizDate: '2024-12-16',
+      msScore: 78, subscales: { understanding: 76, trust: 82, ease: 80, integration: 74 } },
+    { id: 'T004', name: 'David Wilson', initials: 'DW', quizDate: '2024-12-05',
+      msScore: 65, subscales: { understanding: 60, trust: 72, ease: 64, integration: 66 } },
+    { id: 'T005', name: 'Jessica Rodriguez', initials: 'JR', quizDate: '2024-11-20',
+      msScore: 74, subscales: { understanding: 72, trust: 78, ease: 70, integration: 76 } },
+    { id: 'T006', name: 'Robert Kim', initials: 'RK', quizDate: '2024-10-15',
+      msScore: 61, subscales: { understanding: 56, trust: 68, ease: 60, integration: 62 } },
+    { id: 'T007', name: 'Amanda Foster', initials: 'AF', quizDate: '2024-09-30',
+      msScore: 70, subscales: { understanding: 68, trust: 74, ease: 66, integration: 72 } },
+    { id: 'T008', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-08-01', hasDual: true,
+      msScore: 76, subscales: { understanding: 80, trust: 72, ease: 78, integration: 74 } },
+    { id: 'T009', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-06-15', hasDual: true,
+      msScore: 58, subscales: { understanding: 54, trust: 66, ease: 56, integration: 58 } },
+    { id: 'T010', name: 'Kevin Brown', initials: 'KB', quizDate: null,
+      msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } }
+  ],
+  dyad: [
+    { id: 'D001', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-12-19', hasDual: true,
+      msScore: 76, subscales: { understanding: 80, trust: 72, ease: 78, integration: 74 } },
+    { id: 'D002', name: 'Rachel Smith', initials: 'RS', quizDate: '2024-12-17',
+      msScore: 71, subscales: { understanding: 70, trust: 76, ease: 68, integration: 72 } },
+    { id: 'D003', name: 'Daniel Martinez', initials: 'DM', quizDate: '2024-12-12',
+      msScore: 66, subscales: { understanding: 62, trust: 70, ease: 68, integration: 64 } },
+    { id: 'D004', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-11-25', hasDual: true,
+      msScore: 58, subscales: { understanding: 54, trust: 66, ease: 56, integration: 58 } },
+    { id: 'D005', name: 'Marcus Johnson', initials: 'MJ', quizDate: '2024-11-01',
+      msScore: 73, subscales: { understanding: 76, trust: 78, ease: 66, integration: 74 } },
+    { id: 'D006', name: 'Nina Patel', initials: 'NP', quizDate: '2024-10-01',
+      msScore: 79, subscales: { understanding: 82, trust: 84, ease: 72, integration: 78 } },
+    { id: 'D007', name: 'Oliver Chen', initials: 'OC', quizDate: '2024-07-15',
+      msScore: 60, subscales: { understanding: 58, trust: 64, ease: 62, integration: 56 } },
+    { id: 'D008', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-03-20', hasDual: true,
+      msScore: 72, subscales: { understanding: 68, trust: 80, ease: 72, integration: 70 } }
+  ]
+};
+
+// ========================================
 // MENTAL SYNCHRONY ALGORITHM
+// ========================================
+
+/**
+ * V45 Mental Synchrony Team Chemistry Calculation
+ * Calculates team chemistry based on member MS scores and subscale alignment
+ * @param {Array} members - Array of member objects with msScore and subscales
+ * @returns {Number} Chemistry percentage (45-88 range)
+ */
+function calculateTeamChemistry(members) {
+  if (members.length < 2) return 50;
+  
+  // Calculate average MS score
+  const msScores = members.map(m => m.msScore);
+  const avgMS = msScores.reduce((a, b) => a + b, 0) / msScores.length;
+  
+  // Calculate range factor (optimal range is 15-30 points)
+  const range = Math.max(...msScores) - Math.min(...msScores);
+  let rangeFactor;
+  if (range < 10) {
+    rangeFactor = 0.92; // Too similar, less dynamic
+  } else if (range <= 15) {
+    rangeFactor = 0.98; // Good diversity
+  } else if (range <= 25) {
+    rangeFactor = 1.0; // Optimal diversity
+  } else if (range <= 35) {
+    rangeFactor = 0.95; // Getting too diverse
+  } else {
+    rangeFactor = 0.88; // Too much variance
+  }
+  
+  // Calculate trust foundation (critical for team function)
+  const avgTrust = members.reduce((sum, m) => sum + m.subscales.trust, 0) / members.length;
+  const trustFactor = avgTrust < 60 ? 0.85 : 
+                     avgTrust < 70 ? 0.92 :
+                     avgTrust < 75 ? 1.0 :
+                     1.02; // High trust bonus
+  
+  // Calculate subscale alignment
+  const alignmentScore = calculateSubscaleAlignment(members);
+  
+  // Team size modifier
+  let sizeModifier;
+  if (members.length === 2) {
+    sizeModifier = 0.98; // Dyad
+  } else if (members.length === 3) {
+    sizeModifier = 1.0; // Small team
+  } else if (members.length === 4) {
+    sizeModifier = 1.02; // Optimal team size
+  } else if (members.length === 5) {
+    sizeModifier = 1.0; // Good size
+  } else {
+    sizeModifier = 0.96 - (members.length - 6) * 0.02; // Larger teams have coordination challenges
+  }
+  
+  // Combine factors for final chemistry score
+  const baseScore = (avgMS * 0.6 + alignmentScore * 0.4);
+  const finalScore = baseScore * rangeFactor * trustFactor * sizeModifier;
+  
+  // Ensure realistic range (45-88%)
+  return Math.min(88, Math.max(45, Math.round(finalScore)));
+}
+
+/**
+ * Calculate subscale alignment across all 4 dimensions
+ * Lower variance = better alignment
+ * @param {Array} members - Array of member objects with subscales
+ * @returns {Number} Average alignment score across dimensions
+ */
+function calculateSubscaleAlignment(members) {
+  const dimensions = ['understanding', 'trust', 'ease', 'integration'];
+  let totalAlignment = 0;
+  
+  dimensions.forEach(dim => {
+    const values = members.map(m => m.subscales[dim]);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
+    
+    // Lower variance = better alignment
+    // Variance of 0-100 scaled to alignment score of 100-60
+    const alignmentForDim = Math.max(60, 100 - variance * 0.4);
+    totalAlignment += alignmentForDim;
+  });
+  
+  return totalAlignment / dimensions.length;
+}
+
+/**
+ * Find optimal team configurations from available members
+ * Tests all possible combinations within size constraints
+ * @param {Array} availableMembers - Pool of members to choose from
+ * @param {Number} minSize - Minimum team size
+ * @param {Number} maxSize - Maximum team size
+ * @returns {Array} Top 5 configurations sorted by chemistry score
+ */
+function findOptimalTeam(availableMembers, minSize = 3, maxSize = 5) {
+  const allConfigurations = [];
+  
+  // Test all team sizes within range
+  for (let size = minSize; size <= Math.min(maxSize, availableMembers.length); size++) {
+    const combinations = getCombinations(availableMembers, size);
+    
+    combinations.forEach(combo => {
+      const chemistry = calculateTeamChemistry(combo);
+      allConfigurations.push({
+        members: combo,
+        chemistry: chemistry
+      });
+    });
+  }
+  
+  // Sort by chemistry score descending
+  allConfigurations.sort((a, b) => b.chemistry - a.chemistry);
+  
+  // Return top 5 configurations
+  return allConfigurations.slice(0, 5);
+}
+
+/**
+ * Generate all combinations of array elements of specific size
+ * @param {Array} arr - Source array
+ * @param {Number} size - Combination size
+ * @returns {Array} Array of all combinations
+ */
+function getCombinations(arr, size) {
+  if (size > arr.length) return [];
+  if (size === 1) return arr.map(item => [item]);
+  
+  const combinations = [];
+  
+  for (let i = 0; i <= arr.length - size; i++) {
+    const first = arr[i];
+    const rest = arr.slice(i + 1);
+    const subCombos = getCombinations(rest, size - 1);
+    
+    subCombos.forEach(combo => {
+      combinations.push([first, ...combo]);
+    });
+  }
+  
+  return combinations;
+}
+
+// ========================================
+// LEGACY CHEMISTRY ALGORITHM (Keep for compatibility)
 // ========================================
 
 /**
@@ -658,7 +874,13 @@ window.TeamSyncApp = {
   // State
   state: AppState,
   
-  // Functions
+  // V45 Functions - Mental Synchrony Algorithms
+  calculateTeamChemistry,
+  calculateSubscaleAlignment,
+  findOptimalTeam,
+  getCombinations,
+  
+  // Legacy Functions
   calculateChemistryScore,
   calculateConflictRisk,
   getConflictFactors,
@@ -671,7 +893,11 @@ window.TeamSyncApp = {
   copySlackPrompt,
   initializeDragAndDrop,
   
-  // Data
-  memberPools: MEMBER_POOLS,
+  // V45 Data
+  memberPools: memberPools,
+  teamNames: TEAM_NAMES,
+  
+  // Legacy Data
+  memberPoolsLegacy: MEMBER_POOLS,
   supervisors: SUPERVISORS
 };
