@@ -423,41 +423,29 @@ function toggleDemoMode() {
   AppState.demoMode = !AppState.demoMode;
   
   const button = document.querySelector('.populate-btn');
-  const userAvatar = document.querySelector('.user-avatar');
+  const badge = document.querySelector('.value-badge');
   const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
-    // Activate demo mode - Switch to Hannah persona
+    // Activate demo mode
     button.classList.add('active');
     button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
-    
-    // Update user avatar to Hannah
-    if (userAvatar) {
-      userAvatar.textContent = 'HH';
-      userAvatar.title = 'Hannah Harris (Demo User)';
-    }
     
     // Animate badge counts
     animateBadgeCounts();
     
     // Update welcome message
     if (welcomeMsg) {
-      welcomeMsg.textContent = 'Demo mode active - Viewing as Hannah Harris';
+      welcomeMsg.textContent = 'Demo mode active - Explore features with sample data';
     }
     
     // Populate sample data
     populateSampleData();
     
   } else {
-    // Deactivate demo mode - Return to New User
+    // Deactivate demo mode
     button.classList.remove('active');
     button.textContent = 'Populate';
-    
-    // Reset user avatar to New User
-    if (userAvatar) {
-      userAvatar.textContent = 'NU';
-      userAvatar.title = 'New User';
-    }
     
     // Reset badge counts
     resetBadgeCounts();
@@ -647,30 +635,9 @@ function initializeApp() {
   
   // Load demo mode state
   const savedDemoMode = localStorage.getItem('teamsync-demo-mode');
-  const userAvatar = document.querySelector('.user-avatar');
-  
   if (savedDemoMode === 'true') {
     AppState.demoMode = true;
     populateSampleData();
-    
-    // Set Hannah avatar
-    if (userAvatar) {
-      userAvatar.textContent = 'HH';
-      userAvatar.title = 'Hannah Harris (Demo User)';
-    }
-    
-    // Set demo button state
-    const button = document.querySelector('.populate-btn');
-    if (button) {
-      button.classList.add('active');
-      button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
-    }
-  } else {
-    // Set New User avatar
-    if (userAvatar) {
-      userAvatar.textContent = 'NU';
-      userAvatar.title = 'New User';
-    }
   }
   
   console.log('TeamSync AI initialized');

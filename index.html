@@ -3,337 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeamSync AI - Mental Synchrony Dashboard</title>
+    <title>TeamSync AI - Intelligent Team Optimization Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="teamsync-design.css">
 </head>
-<body class="dark-theme">
+<body>
     
-    <!-- Navigation Bar -->
-    <nav>
-        <div class="nav-left">
-            <div class="logo">TeamSync AI</div>
-            <div class="status-indicator">
-                <span class="status-dot"></span>
-                <span>Connected to Slack</span>
+    <!-- ============================================ -->
+    <!-- COMMAND PALETTE (Cmd+K) -->
+    <!-- ============================================ -->
+    
+    <div class="command-palette-backdrop" id="commandPaletteBackdrop">
+        <div class="command-palette" id="commandPalette">
+            <div class="command-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; opacity: 0.5;">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input 
+                    type="text" 
+                    class="command-input" 
+                    id="commandInput" 
+                    placeholder="Search modules, actions..."
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+                <kbd class="command-kbd">ESC</kbd>
             </div>
-            <div class="value-badge">Mental Synchrony™</div>
+            <div class="command-results" id="commandResults">
+                <!-- Results populated by JavaScript -->
+            </div>
+            <div class="command-footer">
+                <div class="command-hint">
+                    <kbd>↑</kbd><kbd>↓</kbd> Navigate
+                </div>
+                <div class="command-hint">
+                    <kbd>↵</kbd> Select
+                </div>
+                <div class="command-hint">
+                    <kbd>ESC</kbd> Close
+                </div>
+            </div>
         </div>
-        <div class="nav-right">
-            <button class="populate-btn" onclick="TeamSyncApp.toggleDemoMode()">
-                Populate
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TOP NAVIGATION BAR -->
+    <!-- ============================================ -->
+    
+    <nav class="top-nav">
+        <div class="logo-section">
+            <div class="logo-text">TeamSync</div>
+            <div class="connection-status">
+                <span class="status-dot"></span>
+                Connected to Slack
+            </div>
+        </div>
+        <div class="user-section">
+            <button class="demo-toggle" id="demoToggle" title="Toggle between new user and populated views">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span id="toggleLabel">Populate</span>
             </button>
-            <button class="settings-btn" title="Settings">
-                ⚙️
+            <svg class="settings-icon" id="settingsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
             </button>
-            <button class="theme-btn" onclick="TeamSyncApp.toggleTheme()" title="Toggle Theme">
-                <span class="theme-icon">🌙</span>
-            </button>
-            <div class="user-avatar" title="New User">NU</div>
+            <div class="user-avatar" id="userAvatar">NU</div>
         </div>
     </nav>
 
-    <!-- Back Button -->
-    <button id="back-button" onclick="TeamSyncNav.goBackToLanding()">
-        ← Back to Dashboard
-    </button>
-
-    <!-- Main Container -->
-    <div class="container">
-        
-        <!-- Landing Page -->
-        <div id="landing-page" class="page active">
-            <div class="hero">
-                <h1>TeamSync AI</h1>
-                <p>Build high-performing teams with Mental Synchrony™ technology</p>
-                <p class="welcome-message">Select a module to get started</p>
-            </div>
-
-            <div class="modules-grid">
-                
-                <!-- Build a Team Module -->
-                <div class="module-card" onclick="TeamSyncNav.handleModuleClick(event, 'build')" data-module="build">
-                    <div class="module-header">
-                        <div class="module-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            👥
-                        </div>
-                        <span class="module-badge">0</span>
-                    </div>
-                    <h3 class="module-title">Build a Team</h3>
-                    <p class="module-description">
-                        Create optimal teams using chemistry assessments and Mental Synchrony analysis
-                    </p>
-                    
-                    <!-- Hover Details - Hidden by Default -->
-                    <div class="hover-details">
-                        <ul>
-                            <li>Deploy Slack chemistry surveys</li>
-                            <li>Dyadic analysis (2 people)</li>
-                            <li>Group optimization (3+ people)</li>
-                            <li>Real-time progress tracking</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Optimize Team Module -->
-                <div class="module-card" onclick="TeamSyncNav.handleModuleClick(event, 'optimize')" data-module="optimize">
-                    <div class="module-header">
-                        <div class="module-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                            ⚡
-                        </div>
-                        <span class="module-badge">0</span>
-                    </div>
-                    <h3 class="module-title">Optimize Team</h3>
-                    <p class="module-description">
-                        Fine-tune team composition with drag-and-drop chemistry optimization
-                    </p>
-                    
-                    <!-- Hover Details -->
-                    <div class="hover-details">
-                        <ul>
-                            <li>Drag-and-drop team builder</li>
-                            <li>Real-time chemistry scores</li>
-                            <li>Core/Extended/Bench zones</li>
-                            <li>Mental Synchrony factors</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Match Supervisor Module -->
-                <div class="module-card" onclick="TeamSyncNav.handleModuleClick(event, 'supervisor')" data-module="supervisor">
-                    <div class="module-header">
-                        <div class="module-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            🎯
-                        </div>
-                        <span class="module-badge" style="background: rgba(249, 115, 192, 0.1); color: #f973c0;">0</span>
-                    </div>
-                    <h3 class="module-title">Match Supervisor</h3>
-                    <p class="module-description">
-                        Find the best leadership match based on team chemistry and working styles
-                    </p>
-                    
-                    <!-- Hover Details -->
-                    <div class="hover-details">
-                        <ul>
-                            <li>Supervisor compatibility scoring</li>
-                            <li>Leadership style analysis</li>
-                            <li>Strength & concern breakdown</li>
-                            <li>Best fit recommendations</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Resolve Conflict Module -->
-                <div class="module-card" onclick="TeamSyncNav.handleModuleClick(event, 'conflict')" data-module="conflict">
-                    <div class="module-header">
-                        <div class="module-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            🤝
-                        </div>
-                        <span class="module-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">0</span>
-                    </div>
-                    <h3 class="module-title">Resolve Conflict</h3>
-                    <p class="module-description">
-                        Identify and address team conflicts with evidence-based interventions
-                    </p>
-                    
-                    <!-- Hover Details -->
-                    <div class="hover-details">
-                        <ul>
-                            <li>Dyadic conflict analysis</li>
-                            <li>Risk factor identification</li>
-                            <li>CBT-based interventions</li>
-                            <li>Structured resolution plans</li>
-                        </ul>
-                    </div>
-                </div>
-
+    <!-- ============================================ -->
+    <!-- LANDING PAGE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="dashboard-container" id="landingView">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeTitle">Welcome to TeamSync</h1>
+            <p class="welcome-subtitle" id="welcomeSubtitle">Select a module to begin optimizing your teams</p>
+            <div class="value-prop" id="valueProp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Quick 2-minute assessments unlock instant team chemistry insights</span>
             </div>
         </div>
 
-        <!-- Build Team Page -->
-        <div id="build-page" class="page">
-            <h2 class="page-title">Build a Team</h2>
-            <p class="page-description">Select team members and deploy chemistry assessments</p>
-            
-            <div class="build-interface">
-                <!-- Team Info -->
-                <div class="card">
-                    <h3>Team Information</h3>
-                    <div class="form-group">
-                        <label>Team Name</label>
-                        <input type="text" id="team-name" class="input-field" placeholder="e.g., Project Phoenix">
-                    </div>
-                    <div class="form-group">
-                        <label>Team Purpose</label>
-                        <textarea id="team-purpose" class="input-field" rows="3" placeholder="e.g., Q4 Product Launch"></textarea>
+        <!-- Modules Section -->
+        <h2 class="section-title">Choose Your Tool</h2>
+        <div class="modules-grid">
+            <!-- Build a Team -->
+            <div class="module-card blue" id="buildCard" data-module="build-team">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Build a Team</h3>
+                        <span class="module-badge badge-blue" id="badge-build">Start</span>
                     </div>
                 </div>
+                <p class="module-description">
+                    Create new teams with chemistry scoring
+                </p>
+                <ul class="module-features">
+                    <li>Dyadic (2 people)</li>
+                    <li>Group (3+ people)</li>
+                </ul>
+                <div class="module-action">
+                    Start Building <span class="arrow">→</span>
+                </div>
+            </div>
 
-                <!-- Member Pools -->
-                <div class="member-pools">
-                    <div class="card">
-                        <h3>Engineering Pool</h3>
-                        <div id="engineering-pool" class="members-grid"></div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Product & Design Pool</h3>
-                        <div id="product-pool" class="members-grid"></div>
+            <!-- Optimize Existing Team -->
+            <div class="module-card purple" id="optimizeCard" data-module="optimize-team">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="m12 14 4-4"/>
+                        <path d="M3.34 19a10 10 0 1 1 17.32 0"/>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Optimize Existing Team</h3>
+                        <span class="module-badge badge-purple" id="badge-optimize">Analyze</span>
                     </div>
                 </div>
-
-                <!-- Selected Members -->
-                <div class="card">
-                    <h3>Selected Members</h3>
-                    <div id="selected-members-preview"></div>
+                <p class="module-description">
+                    Test configurations and improve performance
+                </p>
+                <ul class="module-features">
+                    <li>Performance metrics</li>
+                    <li>Configuration testing</li>
+                    <li>Recommendations</li>
+                </ul>
+                <div class="module-action">
+                    Optimize Now <span class="arrow">→</span>
                 </div>
+            </div>
 
-                <!-- Deploy Button -->
-                <button class="btn-primary" onclick="TeamSyncApp.startSlackSimulation()">
+            <!-- Match a Supervisor -->
+            <div class="module-card pink" id="supervisorCard" data-module="match-supervisor">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <polyline points="16 11 18 13 22 9"/>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Match a Supervisor</h3>
+                        <span class="module-badge badge-pink" id="badge-supervisor">Explore</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Find leaders for your team
+                </p>
+                <ul class="module-features">
+                    <li>Leadership compatibility</li>
+                    <li>Team synergy scoring</li>
+                    <li>Style matching</li>
+                </ul>
+                <div class="module-action">
+                    Find Supervisor <span class="arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Resolve Conflict -->
+            <div class="module-card green" id="conflictCard" data-module="resolve-conflict">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="m11 17 2 2a1 1 0 1 0 3-3"/>
+                        <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/>
+                        <path d="m21 3 1 11h-2"/>
+                        <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/>
+                        <path d="M3 4h8"/>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Resolve Conflict</h3>
+                        <span class="module-badge badge-green" id="badge-conflict">Diagnose</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Diagnose and resolve team issues
+                </p>
+                <ul class="module-features">
+                    <li>Conflict diagnostics</li>
+                    <li>Communication analysis</li>
+                    <li>Intervention strategies</li>
+                </ul>
+                <div class="module-action">
+                    Diagnose Issues <span class="arrow">→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BUILD TEAMS MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="buildView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Build a Team</h1>
+                <p class="welcome-subtitle">Select members and deploy chemistry assessments</p>
+            </div>
+            <button class="demo-toggle" id="backFromBuild">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Member Pool: Engineering -->
+            <div class="module-card blue">
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Engineering</h3>
+                        <span class="module-badge badge-green">Fresh: 2 days</span>
+                    </div>
+                </div>
+                <div class="module-description" style="margin-bottom: 16px;">
+                    <div class="member-item" data-member="alex-smith">
+                        <input type="checkbox" id="member-alex">
+                        <label for="member-alex">Alex Smith - Senior Engineer</label>
+                    </div>
+                    <div class="member-item" data-member="jordan-davis">
+                        <input type="checkbox" id="member-jordan">
+                        <label for="member-jordan">Jordan Davis - Full Stack Developer</label>
+                    </div>
+                    <div class="member-item" data-member="morgan-chen">
+                        <input type="checkbox" id="member-morgan">
+                        <label for="member-morgan">Morgan Chen - Backend Engineer</label>
+                    </div>
+                    <div class="member-item" data-member="taylor-park">
+                        <input type="checkbox" id="member-taylor">
+                        <label for="member-taylor">Taylor Park - DevOps Engineer</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Pool: Product & Design -->
+            <div class="module-card purple">
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Product & Design</h3>
+                        <span class="module-badge badge-green">Fresh: 1 day</span>
+                    </div>
+                </div>
+                <div class="module-description" style="margin-bottom: 16px;">
+                    <div class="member-item" data-member="sam-johnson">
+                        <input type="checkbox" id="member-sam">
+                        <label for="member-sam">Sam Johnson - Product Manager</label>
+                    </div>
+                    <div class="member-item" data-member="riley-lee">
+                        <input type="checkbox" id="member-riley">
+                        <label for="member-riley">Riley Lee - UX Designer</label>
+                    </div>
+                    <div class="member-item" data-member="casey-brown">
+                        <input type="checkbox" id="member-casey">
+                        <label for="member-casey">Casey Brown - UI Designer</label>
+                    </div>
+                    <div class="member-item" data-member="avery-white">
+                        <input type="checkbox" id="member-avery">
+                        <label for="member-avery">Avery White - Product Designer</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-card blue" style="margin-top: 32px;">
+            <h3 class="module-title">Team Details</h3>
+            <div class="module-description">
+                <label for="teamName">Team Name:</label>
+                <input type="text" id="teamName" placeholder="e.g., Mission Success" style="width: 100%; padding: 8px; margin: 8px 0;">
+                
+                <label for="teamPurpose">Team Purpose (Optional):</label>
+                <textarea id="teamPurpose" placeholder="Describe the team's mission..." style="width: 100%; padding: 8px; margin: 8px 0; min-height: 80px;"></textarea>
+                
+                <div id="selectedMembersPreview" style="margin: 16px 0;"></div>
+                
+                <button class="demo-toggle" id="deployAssessment" style="width: 100%; margin-top: 16px;">
                     Deploy Chemistry Assessment
                 </button>
-
-                <!-- Slack Prompt -->
-                <div class="card">
-                    <h3>Slack Message Template</h3>
-                    <div class="slack-prompt-container">
-                        <pre id="slack-prompt-text"></pre>
-                        <button class="btn-secondary" onclick="TeamSyncApp.copySlackPrompt()">
-                            Copy to Clipboard
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- Optimize Team Page -->
-        <div id="optimize-page" class="page">
-            <h2 class="page-title">Optimize Team</h2>
-            <p class="page-description">Drag members between zones to optimize chemistry</p>
-            
-            <div class="optimize-interface">
-                <!-- Chemistry Display -->
-                <div class="card chemistry-card">
-                    <h3>Team Chemistry Score</h3>
-                    <div class="chemistry-display">
-                        <div id="chemistry-score" class="score">70%</div>
-                        <div id="chemistry-factors" class="factors-list"></div>
-                    </div>
+        <!-- Existing Teams -->
+        <div class="module-card green" style="margin-top: 32px;">
+            <h3 class="module-title">Active Team Assessments</h3>
+            <div class="module-description">
+                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
+                    <strong>Mission Success</strong> <span class="module-badge badge-green">89%</span>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">5 members • Created 2 hours ago</p>
                 </div>
-
-                <!-- Drag Zones -->
-                <div class="drag-zones">
-                    <div id="core-team" class="drop-zone">
-                        <h4>Core Team (3-5 optimal)</h4>
-                        <div class="members-grid"></div>
-                    </div>
-                    
-                    <div id="extended-team" class="drop-zone">
-                        <h4>Extended Team (2-4 optimal)</h4>
-                        <div class="members-grid"></div>
-                    </div>
-                    
-                    <div id="bench" class="drop-zone">
-                        <h4>Bench</h4>
-                        <div class="members-grid"></div>
-                    </div>
-                    
-                    <div id="available-pool" class="drop-zone">
-                        <h4>Available Pool</h4>
-                        <div class="members-grid"></div>
-                    </div>
-                </div>
-
-                <!-- Team Lists -->
-                <div class="team-lists">
-                    <div class="card">
-                        <h3>Optimized Teams</h3>
-                        <div id="completed-teams-list"></div>
-                    </div>
-                    
-                    <div class="card">
-                        <h3>Teams in Waiting</h3>
-                        <div id="pending-teams-list"></div>
-                    </div>
+                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
+                    <strong>Innovation Squad</strong> <span class="module-badge badge-purple">76%</span>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">4 members • Created yesterday</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Match Supervisor Page -->
-        <div id="supervisor-page" class="page">
-            <h2 class="page-title">Match Supervisor</h2>
-            <p class="page-description">Find the best leadership match for your team</p>
-            
-            <div id="supervisors-grid" class="supervisors-grid"></div>
-        </div>
-
-        <!-- Resolve Conflict Page -->
-        <div id="conflict-page" class="page">
-            <h2 class="page-title">Resolve Conflict</h2>
-            <p class="page-description">Analyze dyadic relationships and identify interventions</p>
-            
-            <div class="conflict-interface">
-                <!-- Person Selection -->
-                <div class="card">
-                    <h3>Select Two People</h3>
-                    <div class="person-selectors">
-                        <select id="conflict-member-1" class="input-field">
-                            <option value="">Select first person...</option>
-                        </select>
-                        <select id="conflict-member-2" class="input-field">
-                            <option value="">Select second person...</option>
-                        </select>
-                    </div>
-                    <button class="btn-primary" onclick="analyzeConflict()">
-                        Analyze Relationship
-                    </button>
-                </div>
-
-                <!-- Conflict Analysis Results -->
-                <div id="conflict-results" class="card hidden">
-                    <h3>Conflict Risk Analysis</h3>
-                    <div id="conflict-score-display"></div>
-                    <div id="conflict-factors"></div>
-                    <div id="conflict-interventions"></div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Command Palette -->
-    <div id="command-palette">
-        <div class="command-palette-content">
-            <div class="command-search">
-                <input 
-                    type="text" 
-                    id="command-input" 
-                    placeholder="Search modules... (Cmd+K)"
-                    oninput="filterCommands()"
-                >
-            </div>
-            <div id="command-results"></div>
         </div>
     </div>
 
-    <!-- Slack Simulation Widget -->
-    <div id="slack-widget" class="slack-widget hidden">
-        <div class="slack-header">
-            <strong>TeamSync Bot</strong>
-            <span class="slack-status">●</span>
+    <!-- ============================================ -->
+    <!-- OPTIMIZE TEAM MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="optimizeView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Optimize Team</h1>
+                <p class="welcome-subtitle">Drag members between zones to optimize chemistry</p>
+            </div>
+            <button class="demo-toggle" id="backFromOptimize">
+                ← Back to Dashboard
+            </button>
         </div>
-        <div id="slack-messages" class="slack-messages"></div>
-        <div class="quiz-progress-container">
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
+
+        <div class="modules-grid">
+            <!-- Core Team Zone -->
+            <div class="module-card blue" id="coreTeamZone">
+                <h3 class="module-title">Core Team</h3>
+                <p class="module-description">Primary contributors with high interaction</p>
+                <div id="coreMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="alex-smith">Alex Smith - Senior Engineer</div>
+                    <div class="member-item" draggable="true" data-member="jordan-davis">Jordan Davis - Full Stack Developer</div>
+                    <div class="member-item" draggable="true" data-member="sam-johnson">Sam Johnson - Product Manager</div>
+                </div>
+            </div>
+
+            <!-- Extended Team Zone -->
+            <div class="module-card purple" id="extendedTeamZone">
+                <h3 class="module-title">Extended Team</h3>
+                <p class="module-description">Part-time contributors and collaborators</p>
+                <div id="extendedMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="morgan-chen">Morgan Chen - Backend Engineer</div>
+                    <div class="member-item" draggable="true" data-member="riley-lee">Riley Lee - UX Designer</div>
+                </div>
+            </div>
+
+            <!-- Bench Zone -->
+            <div class="module-card pink" id="benchTeamZone">
+                <h3 class="module-title">Bench</h3>
+                <p class="module-description">Available members for rotation</p>
+                <div id="benchMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="taylor-park">Taylor Park - DevOps Engineer</div>
+                    <div class="member-item" draggable="true" data-member="casey-brown">Casey Brown - UI Designer</div>
+                </div>
+            </div>
+
+            <!-- Available Members Zone -->
+            <div class="module-card green" id="availableTeamZone">
+                <h3 class="module-title">Available Members</h3>
+                <p class="module-description">Drag members to add to team</p>
+                <div id="availableMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="avery-white">Avery White - Product Designer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chemistry Display -->
+        <div class="module-card blue" style="margin-top: 32px;">
+            <h3 class="module-title">Team Chemistry</h3>
+            <div style="text-align: center; padding: 32px;">
+                <div style="font-size: 4rem; font-weight: 800; color: #34d399;" id="chemistryScore">85</div>
+                <div class="module-badge badge-green" id="chemistryStatus">Excellent Chemistry</div>
+                <p class="module-description" style="margin-top: 24px;">
+                    This team configuration shows strong collaborative potential. The core team has 
+                    complementary work styles and communication preferences.
+                </p>
+            </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- ============================================ -->
+    <!-- SUPERVISOR MATCH MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="supervisorView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Match Supervisor</h1>
+                <p class="welcome-subtitle">Find the optimal leadership fit for your team</p>
+            </div>
+            <button class="demo-toggle" id="backFromSupervisor">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Supervisor 1 -->
+            <div class="module-card blue">
+                <h3 class="module-title">Dr. Maya Patel</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Engineering Director</p>
+                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">92%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Strong technical mentorship style<br>
+                    Collaborative decision-making approach<br>
+                    High emotional intelligence scores<br>
+                    Matches team communication style
+                </p>
+            </div>
+
+            <!-- Supervisor 2 -->
+            <div class="module-card purple">
+                <h3 class="module-title">James Chen</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Product VP</p>
+                <div class="module-badge badge-purple" style="font-size: 1.5rem; padding: 12px 24px;">78%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Results-oriented leadership<br>
+                    Strong strategic vision<br>
+                    Cross-functional experience<br>
+                    More directive style than team prefers
+                </p>
+            </div>
+
+            <!-- Supervisor 3 -->
+            <div class="module-card pink">
+                <h3 class="module-title">Sarah Kim</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Design Lead</p>
+                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">88%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Empathetic leadership approach<br>
+                    Creative problem-solving style<br>
+                    Excellent at conflict resolution<br>
+                    Promotes psychological safety
+                </p>
+            </div>
+
+            <!-- Supervisor 4 -->
+            <div class="module-card green">
+                <h3 class="module-title">Marcus Rodriguez</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Operations Manager</p>
+                <div class="module-badge badge-pink" style="font-size: 1.5rem; padding: 12px 24px;">64%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Strong process optimization skills<br>
+                    Clear communication style<br>
+                    Less flexible with autonomy<br>
+                    Prefers hierarchical structure
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFLICT RESOLUTION MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="conflictView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Resolve Conflict</h1>
+                <p class="welcome-subtitle">Evidence-based interventions for team friction</p>
+            </div>
+            <button class="demo-toggle" id="backFromConflict">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Conflict Score -->
+            <div class="module-card purple">
+                <h3 class="module-title">Conflict Risk Score</h3>
+                <div style="text-align: center; padding: 32px;">
+                    <div style="font-size: 4rem; font-weight: 800; color: #f59e0b;">38</div>
+                    <p class="module-description" style="margin-top: 16px;">
+                        Moderate conflict risk detected. Proactive interventions recommended.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Conflict Factors -->
+            <div class="module-card blue">
+                <h3 class="module-title">Conflict Factors</h3>
+                <div class="module-description">
+                    <div style="margin: 16px 0;">
+                        <strong>Communication Gaps</strong> <span class="module-badge badge-purple">42</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 42%; height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Mismatched communication preferences causing delays</p>
+                    </div>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Workload Balance</strong> <span class="module-badge badge-pink">56</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 56%; height: 100%; background: linear-gradient(90deg, #ef4444, #dc2626); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Uneven task distribution creating stress</p>
+                    </div>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Role Ambiguity</strong> <span class="module-badge badge-blue">28</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 28%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Minor overlap in responsibilities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interventions -->
+        <div class="module-card green" style="margin-top: 32px;">
+            <h3 class="module-title">Recommended Interventions</h3>
+            <div class="module-description">
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Communication Protocol Workshop</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Implement structured communication channels based on urgency and complexity. 
+                        Use CBT techniques to identify and address communication anxiety patterns.
+                    </p>
+                </div>
+                
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Workload Rebalancing Session</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Facilitate data-driven workload analysis. Apply job crafting principles to 
+                        redistribute tasks according to individual strengths and capacity.
+                    </p>
+                </div>
+                
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Role Clarity Exercise</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Define RACI matrix for key processes. Use organizational psychology frameworks 
+                        to establish clear boundaries while maintaining collaborative flexibility.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="app-functions.js"></script>
     <script src="navigation.js"></script>
-
 </body>
 </html>
