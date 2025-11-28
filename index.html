@@ -301,104 +301,140 @@
     <!-- BUILD TEAMS MODULE VIEW -->
     <!-- ============================================ -->
     
+    <!-- ============================================ -->
+    <!-- BUILD TEAM MODULE VIEW -->
+    <!-- ============================================ -->
+    
     <div class="app-container hidden" id="buildView">
         <div class="app-header">
             <div>
                 <h1 class="welcome-title">Build a Team</h1>
-                <p class="welcome-subtitle">Select members and deploy chemistry assessments</p>
+                <p class="welcome-subtitle">Create team assessment with chemistry scoring</p>
             </div>
-            <button class="demo-toggle" id="backFromBuild">
+            <button class="back-btn" onclick="goToLanding()">
                 ← Back to Dashboard
             </button>
         </div>
 
-        <div class="modules-grid">
-            <!-- Member Pool: Engineering -->
-            <div class="module-card blue">
-                <div class="module-header">
-                    <div>
-                        <h3 class="module-title">Engineering</h3>
-                        <span class="module-badge badge-green">Fresh: 2 days</span>
+        <!-- Create New Team Section -->
+        <div class="team-form-container">
+            <h2 class="form-section-title">Create New Team Assessment</h2>
+            <p class="form-section-subtitle">Select assessment type, name your team, and choose members</p>
+            
+            <div class="team-form">
+                <!-- Quiz Type Selection -->
+                <div class="form-group">
+                    <label class="form-label">Select Assessment Type</label>
+                    <div class="quiz-type-selector">
+                        <div class="quiz-type-btn active" onclick="selectQuizType('team')" id="teamQuizBtn">
+                            <div class="quiz-type-title">Team Chemistry</div>
+                            <div class="quiz-type-desc">3-8 members working together</div>
+                        </div>
+                        <div class="quiz-type-btn" onclick="selectQuizType('dyad')" id="dyadQuizBtn">
+                            <div class="quiz-type-title">Dyad Partnership</div>
+                            <div class="quiz-type-desc">2 members partnership assessment</div>
+                        </div>
                     </div>
                 </div>
-                <div class="module-description" style="margin-bottom: 16px;">
-                    <div class="member-item" data-member="alex-smith">
-                        <input type="checkbox" id="member-alex">
-                        <label for="member-alex">Alex Smith - Senior Engineer</label>
-                    </div>
-                    <div class="member-item" data-member="jordan-davis">
-                        <input type="checkbox" id="member-jordan">
-                        <label for="member-jordan">Jordan Davis - Full Stack Developer</label>
-                    </div>
-                    <div class="member-item" data-member="morgan-chen">
-                        <input type="checkbox" id="member-morgan">
-                        <label for="member-morgan">Morgan Chen - Backend Engineer</label>
-                    </div>
-                    <div class="member-item" data-member="taylor-park">
-                        <input type="checkbox" id="member-taylor">
-                        <label for="member-taylor">Taylor Park - DevOps Engineer</label>
+                
+                <!-- Team Name -->
+                <div class="form-group compact-name-group">
+                    <div class="team-name-row">
+                        <label class="form-label inline-label">Team Name</label>
+                        <div class="input-with-suggestion">
+                            <input type="text" class="team-name-input compact" id="teamNameInput" 
+                                   placeholder="Enter team name">
+                            <span class="inline-suggestion" id="inlineSuggestion">
+                                or use: <strong id="suggestedName">All Systems Go</strong>
+                            </span>
+                        </div>
+                        <button class="refresh-name compact-refresh" onclick="refreshTeamName()" title="Get new suggestion">↻</button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Member Pool: Product & Design -->
-            <div class="module-card purple">
-                <div class="module-header">
-                    <div>
-                        <h3 class="module-title">Product & Design</h3>
-                        <span class="module-badge badge-green">Fresh: 1 day</span>
+                
+                <!-- Side-by-side Member Pools -->
+                <div class="form-group">
+                    <label class="form-label">Select Members from Pool</label>
+                    
+                    <div class="member-pools-container">
+                        <!-- Team Pool -->
+                        <div id="teamPoolSection" class="member-pool-section active">
+                            <div class="pool-header">
+                                <span class="pool-title">Team Members Pool</span>
+                                <span class="pool-badge">3-8 MEMBERS</span>
+                            </div>
+                            <input type="text" class="member-search" id="teamMemberSearch" 
+                                   placeholder="Search team members..." onkeyup="filterMembers('team')">
+                            <div class="member-selection" id="teamMemberSelection">
+                                <!-- Team members will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- Dyad Pool -->
+                        <div id="dyadPoolSection" class="member-pool-section">
+                            <div class="pool-header">
+                                <span class="pool-title">Dyad Partnership Pool</span>
+                                <span class="pool-badge">2 MEMBERS</span>
+                            </div>
+                            <input type="text" class="member-search" id="dyadMemberSearch" 
+                                   placeholder="Search dyad members..." onkeyup="filterMembers('dyad')">
+                            <div class="member-selection" id="dyadMemberSelection">
+                                <!-- Dyad members will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="selection-counter">
+                        <span id="selectedCount">0</span> members selected
+                        <span id="selectionHint" style="margin-left: 10px; color: var(--text-secondary);">(Select 3-8 members for Team assessment)</span>
+                    </div>
+                    
+                    <!-- Freshness Legend -->
+                    <div class="freshness-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot fresh"></div>
+                            <span class="legend-label">≤7 days (Current)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot recent"></div>
+                            <span class="legend-label">8-30 days (Recent)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot stale"></div>
+                            <span class="legend-label">31-90 days (Update needed)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot old"></div>
+                            <span class="legend-label">>90 days (Outdated)</span>
+                        </div>
                     </div>
                 </div>
-                <div class="module-description" style="margin-bottom: 16px;">
-                    <div class="member-item" data-member="sam-johnson">
-                        <input type="checkbox" id="member-sam">
-                        <label for="member-sam">Sam Johnson - Product Manager</label>
-                    </div>
-                    <div class="member-item" data-member="riley-lee">
-                        <input type="checkbox" id="member-riley">
-                        <label for="member-riley">Riley Lee - UX Designer</label>
-                    </div>
-                    <div class="member-item" data-member="casey-brown">
-                        <input type="checkbox" id="member-casey">
-                        <label for="member-casey">Casey Brown - UI Designer</label>
-                    </div>
-                    <div class="member-item" data-member="avery-white">
-                        <input type="checkbox" id="member-avery">
-                        <label for="member-avery">Avery White - Product Designer</label>
+                
+                <!-- Generate Command Button -->
+                <div class="action-buttons">
+                    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeTeamChemistry()" disabled>
+                        Analyze Team Chemistry
+                    </button>
+                </div>
+                
+                <!-- Processing Status (Hidden initially) -->
+                <div id="processingStatus" class="processing-status" style="display: none;">
+                    <div class="status-message">
+                        <div class="status-content">
+                            <div class="status-dot"></div>
+                            <span id="statusText">Analyzing team composition...</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="module-card blue" style="margin-top: 32px;">
-            <h3 class="module-title">Team Details</h3>
-            <div class="module-description">
-                <label for="teamName">Team Name:</label>
-                <input type="text" id="teamName" placeholder="e.g., Mission Success" style="width: 100%; padding: 8px; margin: 8px 0;">
-                
-                <label for="teamPurpose">Team Purpose (Optional):</label>
-                <textarea id="teamPurpose" placeholder="Describe the team's mission..." style="width: 100%; padding: 8px; margin: 8px 0; min-height: 80px;"></textarea>
-                
-                <div id="selectedMembersPreview" style="margin: 16px 0;"></div>
-                
-                <button class="demo-toggle" id="deployAssessment" style="width: 100%; margin-top: 16px;">
-                    Deploy Chemistry Assessment
-                </button>
-            </div>
-        </div>
-
-        <!-- Existing Teams -->
-        <div class="module-card green" style="margin-top: 32px;">
-            <h3 class="module-title">Active Team Assessments</h3>
-            <div class="module-description">
-                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
-                    <strong>Mission Success</strong> <span class="module-badge badge-green">89%</span>
-                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">5 members • Created 2 hours ago</p>
-                </div>
-                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
-                    <strong>Innovation Squad</strong> <span class="module-badge badge-purple">76%</span>
-                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">4 members • Created yesterday</p>
-                </div>
+        <!-- Existing Teams Section -->
+        <div class="existing-teams-section">
+            <h2 class="form-section-title">Active Team Assessments</h2>
+            <div id="existingTeamsList">
+                <!-- Team cards will be populated by JavaScript or demo mode -->
+                <p class="empty-state">No active assessments yet. Create your first team above!</p>
             </div>
         </div>
     </div>
