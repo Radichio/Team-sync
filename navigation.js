@@ -20,6 +20,55 @@ const views = {
 
 let currentView = 'landing';
 
+// ========================================
+// DROPDOWN MENUS
+// ========================================
+
+/**
+ * Toggle settings dropdown menu
+ */
+function toggleSettingsMenu() {
+    const settingsMenu = document.getElementById('settingsMenu');
+    const userMenu = document.getElementById('userMenu');
+    
+    // Close user menu if open
+    if (userMenu) userMenu.classList.remove('show');
+    
+    // Toggle settings menu
+    if (settingsMenu) settingsMenu.classList.toggle('show');
+}
+
+/**
+ * Toggle user dropdown menu
+ */
+function toggleUserMenu() {
+    const settingsMenu = document.getElementById('settingsMenu');
+    const userMenu = document.getElementById('userMenu');
+    
+    // Close settings menu if open
+    if (settingsMenu) settingsMenu.classList.remove('show');
+    
+    // Toggle user menu
+    if (userMenu) userMenu.classList.toggle('show');
+}
+
+/**
+ * Close all dropdowns when clicking outside
+ */
+function initializeDropdowns() {
+    document.addEventListener('click', function(event) {
+        const settingsMenu = document.getElementById('settingsMenu');
+        const userMenu = document.getElementById('userMenu');
+        
+        // Check if click is outside dropdowns
+        if (!event.target.closest('.dropdown-container') && 
+            !event.target.closest('.settings-icon')) {
+            if (settingsMenu) settingsMenu.classList.remove('show');
+            if (userMenu) userMenu.classList.remove('show');
+        }
+    });
+}
+
 /**
  * Show a specific view and hide others
  */
@@ -507,11 +556,12 @@ function initializeNavigation() {
     initializeCommandPalette();
     initializeDemoToggle();
     initializeThemeToggle();
+    initializeDropdowns();
     
     // Show landing view by default
     showView('landing');
     
-    console.log('Navigation system initialized');
+    console.log('Navigation system initialized with 3D tilt effects');
 }
 
 // Initialize when DOM is ready
@@ -531,5 +581,7 @@ window.TeamSyncNav = {
     goToLanding,
     toggleCommandPalette,
     toggleTheme,
+    toggleSettingsMenu,
+    toggleUserMenu,
     executeCommand
 };

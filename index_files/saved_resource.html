@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<!-- saved from url=(0012)about:srcdoc -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js" integrity="sha512-iZ2ORl595Wx6miw+GuadDet4WQbdSWS3JLMoNfY8cRGoEFy6oT3G9IbcrBeL6AfkgpA51ETt/faX6yLV+/gFJg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function() {
+        const originalConsole = window.console;
+        window.console = {
+          log: (...args) => {
+            originalConsole.log(...args);
+            window.parent.postMessage({ type: 'console', message: args.join(' ') }, '*');
+          },
+          error: (...args) => {
+            originalConsole.error(...args);
+            window.parent.postMessage({ type: 'console', message: 'Error: ' + args.join(' ') }, '*');
+          },
+          warn: (...args) => {
+            originalConsole.warn(...args);
+            window.parent.postMessage({ type: 'console', message: 'Warning: ' + args.join(' ') }, '*');
+          }
+        };
+
+        let requestId = 0;
+        let callbacksMap = new Map();
+        let streamControllers = new Map();
+        
+        window.claude = {
+          complete: (prompt) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'claudeComplete', id, prompt }, '*');
+            });
+          }
+        };
+
+        window.storage = {
+          get: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageGet', id, key, shared }, '*');
+            });
+          },
+          set: (key, value, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageSet', id, key, value, shared }, '*');
+            });
+          },
+          delete: (key, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageDelete', id, key, shared }, '*');
+            });
+          },
+          list: (prefix, shared = false) => {
+            return new Promise((resolve, reject) => {
+              const id = requestId++;
+              callbacksMap.set(id, { resolve, reject });
+              window.parent.postMessage({ type: 'storageList', id, prefix, shared }, '*');
+            });
+          }
+        };
+
+        let pendingBlobs = new Map();
+        URL.createObjectURL = (blob) => {
+          // Store the blob and create an ID and URL for it
+          const blobId = `blob-${Date.now()}-${Math.random()}`;
+          pendingBlobs.set(blobId, blob);
+          return `blob-request://${blobId}`;
+        };
+
+        URL.revokeObjectURL = (url) => {
+          // Remove the blob from our store
+          const blobId = url.replace("blob-request://", "");
+          pendingBlobs.delete(blobId);
+        };
+
+        const getBlobFromURL = (url) => {
+          const blobId = url.replace("blob-request://", "");
+          return pendingBlobs.get(blobId);
+        };
+
+        // Override global fetch with streaming support
+        window.fetch = (url, init = {}) => {
+          return new Promise((resolve, reject) => {
+            const id = requestId++;
+            const channelId = `fetch-${id}-${Date.now()}`;
+            
+            callbacksMap.set(id, { 
+              resolve: (response) => {
+                // Create a ReadableStream for the response body
+                const stream = new ReadableStream({
+                  start(controller) {
+                    streamControllers.set(channelId, controller);
+                  },
+                  cancel() {
+                    streamControllers.delete(channelId);
+                  }
+                });
+                
+                // Create and return the Response with the stream
+                resolve(new Response(stream, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  headers: response.headers
+                }));
+              },
+              reject,
+              channelId
+            });
+            
+            window.parent.postMessage({
+              type: 'proxyFetch',
+              id,
+              url,
+              init,
+              channelId
+            }, '*');
+          });
+        };
+
+        window.addEventListener('message', async (event) => {
+          if (event.data.type === 'takeScreenshot') {
+            const rootElement = document.getElementById('artifacts-component-root-html');
+            if (!rootElement) {
+              window.parent.postMessage({
+                type: 'screenshotError',
+                error: new Error('Root element not found'),
+              }, '*');
+            }
+            const screenshot = await htmlToImage.toPng(rootElement, {
+              imagePlaceholder:
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjePDgwX8ACOQDoNsk0PMAAAAASUVORK5CYII=",
+            });
+            window.parent.postMessage({
+              type: 'screenshotData',
+              data: screenshot,
+            }, '*');
+          } else if (event.data.type === 'claudeComplete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.completion);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'proxyFetchResponse') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+              callbacksMap.delete(event.data.id);
+            } else {
+              // Initial response with headers, status, etc.
+              callback.resolve({
+                status: event.data.status,
+                statusText: event.data.statusText,
+                headers: event.data.headers
+              });
+              // Don't delete the callback yet if streaming
+              if (!event.data.body) {
+                callbacksMap.delete(event.data.id);
+              }
+            }
+          } else if (event.data.type === 'proxyFetchStream') {
+            // Handle streaming data chunks
+            const controller = streamControllers.get(event.data.channelId);
+            if (controller) {
+              if (event.data.error) {
+                controller.error(new Error(event.data.error));
+                streamControllers.delete(event.data.channelId);
+              } else if (event.data.done) {
+                controller.close();
+                streamControllers.delete(event.data.channelId);
+                // Clean up the callback
+                const callback = Array.from(callbacksMap.entries()).find(
+                  ([_, value]) => value.channelId === event.data.channelId
+                );
+                if (callback) {
+                  callbacksMap.delete(callback[0]);
+                }
+              } else if (event.data.chunk) {
+                controller.enqueue(new Uint8Array(event.data.chunk));
+              }
+            }
+          } else if (event.data.type === 'storageGet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageSet') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageDelete') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          } else if (event.data.type === 'storageList') {
+            const callback = callbacksMap.get(event.data.id);
+            if (event.data.error) {
+              callback.reject(new Error(event.data.error));
+            } else {
+              callback.resolve(event.data.result);
+            }
+            callbacksMap.delete(event.data.id);
+          }
+        });
+
+        window.addEventListener('click', (event) => {
+          const isEl = event.target instanceof HTMLElement;
+          if (!isEl) return;
+    
+          // find ancestor links
+          const linkEl = event.target.closest("a");
+          if (!linkEl || !linkEl.href) return;
+    
+          event.preventDefault();
+          event.stopImmediatePropagation();
+    
+          if (linkEl.href.startsWith("blob-request:")) {
+            const blob = getBlobFromURL(linkEl.href);
+            if (!blob) return;
+            void blob.arrayBuffer().then((data) => {
+              window.parent.postMessage({
+                type: "downloadFile",
+                filename: linkEl.download,
+                data,
+                mimeType: blob.type || "application/octet-stream",
+              });
+            });
+          } else if (linkEl.href.startsWith("data:")) {
+            const [header, base64Data] = linkEl.href.split(",");
+            const mimeMatch = header.match(/data:([^;]+)/);
+            const mimeType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+            const binaryString = atob(base64Data);
+            const data = Uint8Array.from(binaryString, (c) =>
+              c.charCodeAt(0),
+            ).buffer;
+            window.parent.postMessage({
+              type: "downloadFile",
+              filename: linkEl.download,
+              data,
+              mimeType,
+            });
+          } else {
+            let linkUrl;
+            try {
+              linkUrl = new URL(linkEl.href);
+            } catch (error) {
+              return;
+            }
+    
+            if (linkUrl.hostname === window.location.hostname) return;
+      
+            window.parent.postMessage({
+              type: 'openExternal',
+              href: linkEl.href,
+            }, '*');
+          }
+      });
+
+        const originalOpen = window.open;
+        window.open = function (url) {
+          window.parent.postMessage({
+            type: "openExternal",
+            href: url,
+          }, "*");
+        };
+
+        window.addEventListener('error', (event) => {
+          window.parent.postMessage({ type: 'console', message: 'Uncaught Error: ' + event.message }, '*');
+        });
+      })();
+    </script>
+  
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamSync AI - Intelligent Team Optimization Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.claudeusercontent.com/teamsync-design.css">
+</head>
+<body id="artifacts-component-root-html">
+    
+    <!-- ============================================ -->
+    <!-- COMMAND PALETTE (Cmd+K) -->
+    <!-- ============================================ -->
+    
+    <div class="command-palette-backdrop" id="commandPaletteBackdrop">
+        <div class="command-palette" id="commandPalette">
+            <div class="command-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; opacity: 0.5;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <input type="text" class="command-input" id="commandInput" placeholder="Search modules, actions..." autocomplete="off" spellcheck="false">
+                <kbd class="command-kbd">ESC</kbd>
+            </div>
+            <div class="command-results" id="commandResults">
+                <!-- Results populated by JavaScript -->
+            </div>
+            <div class="command-footer">
+                <div class="command-hint">
+                    <kbd>↑</kbd><kbd>↓</kbd> Navigate
+                </div>
+                <div class="command-hint">
+                    <kbd>↵</kbd> Select
+                </div>
+                <div class="command-hint">
+                    <kbd>ESC</kbd> Close
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TOP NAVIGATION BAR -->
+    <!-- ============================================ -->
+    
+    <nav class="top-nav">
+        <div class="logo-section">
+            <div class="logo-text">TeamSync</div>
+            <div class="connection-status">
+                <span class="status-dot"></span>
+                Connected to Slack
+            </div>
+        </div>
+        <div class="user-section">
+            <button class="demo-toggle" id="demoToggle" title="Toggle between new user and populated views">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+                <span id="toggleLabel">Populate</span>
+            </button>
+            
+            <!-- Settings Dropdown -->
+            <div class="dropdown-container">
+                <svg class="settings-icon" id="settingsIcon" onclick="toggleSettingsMenu()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <div class="dropdown-menu" id="settingsMenu">
+                    <div class="dropdown-header">Platform Settings</div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Integration &amp; Connectivity</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"></path><path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path><path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"></path><path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"></path></svg>Slack Workspace Settings</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Microsoft Teams Connection</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>API Keys &amp; Webhooks</div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Assessment Management</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Quiz Frequency &amp; Scheduling</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Response Reminder Settings</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>Archive Past Assessments</div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Organization Configuration</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Department &amp; Team Structure</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>Supervisor Pool Management</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Member Directory Settings</div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Data &amp; Compliance</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export Team Data (CSV/JSON)</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Privacy &amp; Data Retention</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>Audit Logs</div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-section-title">Advanced Features</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>Chemistry Algorithm Weights</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>Custom Report Templates</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            
+            <!-- User Avatar Dropdown -->
+            <div class="dropdown-container">
+                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">NU</div>
+                <div class="dropdown-menu dropdown-menu-right" id="userMenu">
+                    <div class="dropdown-header">Account &amp; Profile</div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Edit Profile Information</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Change Password</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notification Preferences</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>Email Notifications</div>
+                        <div class="dropdown-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Time Zone Settings</div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section">
+                        <div class="dropdown-item dropdown-item-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Log Out</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================ -->
+    <!-- LANDING PAGE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="dashboard-container" id="landingView">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title" id="welcomeTitle">Welcome to TeamSync</h1>
+            <p class="welcome-subtitle" id="welcomeSubtitle">Select a module to begin optimizing your teams</p>
+            <div class="value-prop" id="valueProp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Quick 2-minute assessments unlock instant team chemistry insights</span>
+            </div>
+        </div>
+
+        <!-- Modules Section -->
+        <h2 class="section-title">Choose Your Tool</h2>
+        <div class="modules-grid">
+            <!-- Build a Team -->
+            <div class="module-card blue" id="buildCard" data-module="build-team">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Build a Team</h3>
+                        <span class="module-badge badge-blue" id="badge-build">Start</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Create new teams with chemistry scoring
+                </p>
+                <ul class="module-features">
+                    <li>Dyadic (2 people)</li>
+                    <li>Group (3+ people)</li>
+                </ul>
+                <div class="module-action">
+                    Start Building <span class="arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Optimize Existing Team -->
+            <div class="module-card purple" id="optimizeCard" data-module="optimize-team">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="m12 14 4-4"></path>
+                        <path d="M3.34 19a10 10 0 1 1 17.32 0"></path>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Optimize Existing Team</h3>
+                        <span class="module-badge badge-purple" id="badge-optimize">Analyze</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Test configurations and improve performance
+                </p>
+                <ul class="module-features">
+                    <li>Performance metrics</li>
+                    <li>Configuration testing</li>
+                    <li>Recommendations</li>
+                </ul>
+                <div class="module-action">
+                    Optimize Now <span class="arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Match a Supervisor -->
+            <div class="module-card pink" id="supervisorCard" data-module="match-supervisor">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <polyline points="16 11 18 13 22 9"></polyline>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Match a Supervisor</h3>
+                        <span class="module-badge badge-pink" id="badge-supervisor">Explore</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Find leaders for your team
+                </p>
+                <ul class="module-features">
+                    <li>Leadership compatibility</li>
+                    <li>Team synergy scoring</li>
+                    <li>Style matching</li>
+                </ul>
+                <div class="module-action">
+                    Find Supervisor <span class="arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Resolve Conflict -->
+            <div class="module-card green" id="conflictCard" data-module="resolve-conflict">
+                <div class="module-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 64px; height: 64px;">
+                        <path d="m11 17 2 2a1 1 0 1 0 3-3"></path>
+                        <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path>
+                        <path d="m21 3 1 11h-2"></path>
+                        <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path>
+                        <path d="M3 4h8"></path>
+                    </svg>
+                </div>
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Resolve Conflict</h3>
+                        <span class="module-badge badge-green" id="badge-conflict">Diagnose</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Diagnose and resolve team issues
+                </p>
+                <ul class="module-features">
+                    <li>Conflict diagnostics</li>
+                    <li>Communication analysis</li>
+                    <li>Intervention strategies</li>
+                </ul>
+                <div class="module-action">
+                    Diagnose Issues <span class="arrow">→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- BUILD TEAMS MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="buildView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Build a Team</h1>
+                <p class="welcome-subtitle">Select members and deploy chemistry assessments</p>
+            </div>
+            <button class="demo-toggle" id="backFromBuild">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Member Pool: Engineering -->
+            <div class="module-card blue">
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Engineering</h3>
+                        <span class="module-badge badge-green">Fresh: 2 days</span>
+                    </div>
+                </div>
+                <div class="module-description" style="margin-bottom: 16px;">
+                    <div class="member-item" data-member="alex-smith">
+                        <input type="checkbox" id="member-alex">
+                        <label for="member-alex">Alex Smith - Senior Engineer</label>
+                    </div>
+                    <div class="member-item" data-member="jordan-davis">
+                        <input type="checkbox" id="member-jordan">
+                        <label for="member-jordan">Jordan Davis - Full Stack Developer</label>
+                    </div>
+                    <div class="member-item" data-member="morgan-chen">
+                        <input type="checkbox" id="member-morgan">
+                        <label for="member-morgan">Morgan Chen - Backend Engineer</label>
+                    </div>
+                    <div class="member-item" data-member="taylor-park">
+                        <input type="checkbox" id="member-taylor">
+                        <label for="member-taylor">Taylor Park - DevOps Engineer</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Pool: Product & Design -->
+            <div class="module-card purple">
+                <div class="module-header">
+                    <div>
+                        <h3 class="module-title">Product &amp; Design</h3>
+                        <span class="module-badge badge-green">Fresh: 1 day</span>
+                    </div>
+                </div>
+                <div class="module-description" style="margin-bottom: 16px;">
+                    <div class="member-item" data-member="sam-johnson">
+                        <input type="checkbox" id="member-sam">
+                        <label for="member-sam">Sam Johnson - Product Manager</label>
+                    </div>
+                    <div class="member-item" data-member="riley-lee">
+                        <input type="checkbox" id="member-riley">
+                        <label for="member-riley">Riley Lee - UX Designer</label>
+                    </div>
+                    <div class="member-item" data-member="casey-brown">
+                        <input type="checkbox" id="member-casey">
+                        <label for="member-casey">Casey Brown - UI Designer</label>
+                    </div>
+                    <div class="member-item" data-member="avery-white">
+                        <input type="checkbox" id="member-avery">
+                        <label for="member-avery">Avery White - Product Designer</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-card blue" style="margin-top: 32px;">
+            <h3 class="module-title">Team Details</h3>
+            <div class="module-description">
+                <label for="teamName">Team Name:</label>
+                <input type="text" id="teamName" placeholder="e.g., Mission Success" style="width: 100%; padding: 8px; margin: 8px 0;">
+                
+                <label for="teamPurpose">Team Purpose (Optional):</label>
+                <textarea id="teamPurpose" placeholder="Describe the team&#39;s mission..." style="width: 100%; padding: 8px; margin: 8px 0; min-height: 80px;"></textarea>
+                
+                <div id="selectedMembersPreview" style="margin: 16px 0;"></div>
+                
+                <button class="demo-toggle" id="deployAssessment" style="width: 100%; margin-top: 16px;">
+                    Deploy Chemistry Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- Existing Teams -->
+        <div class="module-card green" style="margin-top: 32px;">
+            <h3 class="module-title">Active Team Assessments</h3>
+            <div class="module-description">
+                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
+                    <strong>Mission Success</strong> <span class="module-badge badge-green">89%</span>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">5 members • Created 2 hours ago</p>
+                </div>
+                <div style="border-bottom: 1px solid var(--border-primary); padding: 16px 0; margin: 8px 0;">
+                    <strong>Innovation Squad</strong> <span class="module-badge badge-purple">76%</span>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">4 members • Created yesterday</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OPTIMIZE TEAM MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="optimizeView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Optimize Team</h1>
+                <p class="welcome-subtitle">Drag members between zones to optimize chemistry</p>
+            </div>
+            <button class="demo-toggle" id="backFromOptimize">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Core Team Zone -->
+            <div class="module-card blue" id="coreTeamZone">
+                <h3 class="module-title">Core Team</h3>
+                <p class="module-description">Primary contributors with high interaction</p>
+                <div id="coreMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="alex-smith">Alex Smith - Senior Engineer</div>
+                    <div class="member-item" draggable="true" data-member="jordan-davis">Jordan Davis - Full Stack Developer</div>
+                    <div class="member-item" draggable="true" data-member="sam-johnson">Sam Johnson - Product Manager</div>
+                </div>
+            </div>
+
+            <!-- Extended Team Zone -->
+            <div class="module-card purple" id="extendedTeamZone">
+                <h3 class="module-title">Extended Team</h3>
+                <p class="module-description">Part-time contributors and collaborators</p>
+                <div id="extendedMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="morgan-chen">Morgan Chen - Backend Engineer</div>
+                    <div class="member-item" draggable="true" data-member="riley-lee">Riley Lee - UX Designer</div>
+                </div>
+            </div>
+
+            <!-- Bench Zone -->
+            <div class="module-card pink" id="benchTeamZone">
+                <h3 class="module-title">Bench</h3>
+                <p class="module-description">Available members for rotation</p>
+                <div id="benchMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="taylor-park">Taylor Park - DevOps Engineer</div>
+                    <div class="member-item" draggable="true" data-member="casey-brown">Casey Brown - UI Designer</div>
+                </div>
+            </div>
+
+            <!-- Available Members Zone -->
+            <div class="module-card green" id="availableTeamZone">
+                <h3 class="module-title">Available Members</h3>
+                <p class="module-description">Drag members to add to team</p>
+                <div id="availableMembers" class="zone-members">
+                    <div class="member-item" draggable="true" data-member="avery-white">Avery White - Product Designer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chemistry Display -->
+        <div class="module-card blue" style="margin-top: 32px;">
+            <h3 class="module-title">Team Chemistry</h3>
+            <div style="text-align: center; padding: 32px;">
+                <div style="font-size: 4rem; font-weight: 800; color: #34d399;" id="chemistryScore">85</div>
+                <div class="module-badge badge-green" id="chemistryStatus">Excellent Chemistry</div>
+                <p class="module-description" style="margin-top: 24px;">
+                    This team configuration shows strong collaborative potential. The core team has 
+                    complementary work styles and communication preferences.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SUPERVISOR MATCH MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="supervisorView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Match Supervisor</h1>
+                <p class="welcome-subtitle">Find the optimal leadership fit for your team</p>
+            </div>
+            <button class="demo-toggle" id="backFromSupervisor">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Supervisor 1 -->
+            <div class="module-card blue">
+                <h3 class="module-title">Dr. Maya Patel</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Engineering Director</p>
+                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">92%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Strong technical mentorship style<br>
+                    Collaborative decision-making approach<br>
+                    High emotional intelligence scores<br>
+                    Matches team communication style
+                </p>
+            </div>
+
+            <!-- Supervisor 2 -->
+            <div class="module-card purple">
+                <h3 class="module-title">James Chen</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Product VP</p>
+                <div class="module-badge badge-purple" style="font-size: 1.5rem; padding: 12px 24px;">78%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Results-oriented leadership<br>
+                    Strong strategic vision<br>
+                    Cross-functional experience<br>
+                    More directive style than team prefers
+                </p>
+            </div>
+
+            <!-- Supervisor 3 -->
+            <div class="module-card pink">
+                <h3 class="module-title">Sarah Kim</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Design Lead</p>
+                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">88%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Empathetic leadership approach<br>
+                    Creative problem-solving style<br>
+                    Excellent at conflict resolution<br>
+                    Promotes psychological safety
+                </p>
+            </div>
+
+            <!-- Supervisor 4 -->
+            <div class="module-card green">
+                <h3 class="module-title">Marcus Rodriguez</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Operations Manager</p>
+                <div class="module-badge badge-pink" style="font-size: 1.5rem; padding: 12px 24px;">64%</div>
+                <p class="module-description" style="margin-top: 16px;">
+                    Strong process optimization skills<br>
+                    Clear communication style<br>
+                    Less flexible with autonomy<br>
+                    Prefers hierarchical structure
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONFLICT RESOLUTION MODULE VIEW -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="conflictView">
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title">Resolve Conflict</h1>
+                <p class="welcome-subtitle">Evidence-based interventions for team friction</p>
+            </div>
+            <button class="demo-toggle" id="backFromConflict">
+                ← Back to Dashboard
+            </button>
+        </div>
+
+        <div class="modules-grid">
+            <!-- Conflict Score -->
+            <div class="module-card purple">
+                <h3 class="module-title">Conflict Risk Score</h3>
+                <div style="text-align: center; padding: 32px;">
+                    <div style="font-size: 4rem; font-weight: 800; color: #f59e0b;">38</div>
+                    <p class="module-description" style="margin-top: 16px;">
+                        Moderate conflict risk detected. Proactive interventions recommended.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Conflict Factors -->
+            <div class="module-card blue">
+                <h3 class="module-title">Conflict Factors</h3>
+                <div class="module-description">
+                    <div style="margin: 16px 0;">
+                        <strong>Communication Gaps</strong> <span class="module-badge badge-purple">42</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 42%; height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Mismatched communication preferences causing delays</p>
+                    </div>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Workload Balance</strong> <span class="module-badge badge-pink">56</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 56%; height: 100%; background: linear-gradient(90deg, #ef4444, #dc2626); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Uneven task distribution creating stress</p>
+                    </div>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Role Ambiguity</strong> <span class="module-badge badge-blue">28</span>
+                        <div style="height: 8px; background: var(--border-primary); border-radius: 4px; margin: 8px 0;">
+                            <div style="width: 28%; height: 100%; background: linear-gradient(90deg, #10b981, #059669); border-radius: 4px;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">Minor overlap in responsibilities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interventions -->
+        <div class="module-card green" style="margin-top: 32px;">
+            <h3 class="module-title">Recommended Interventions</h3>
+            <div class="module-description">
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Communication Protocol Workshop</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Implement structured communication channels based on urgency and complexity. 
+                        Use CBT techniques to identify and address communication anxiety patterns.
+                    </p>
+                </div>
+                
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Workload Rebalancing Session</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Facilitate data-driven workload analysis. Apply job crafting principles to 
+                        redistribute tasks according to individual strengths and capacity.
+                    </p>
+                </div>
+                
+                <div style="border-left: 4px solid #10b981; padding-left: 16px; margin: 16px 0;">
+                    <strong>Role Clarity Exercise</strong>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        Define RACI matrix for key processes. Use organizational psychology frameworks 
+                        to establish clear boundaries while maintaining collaborative flexibility.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.claudeusercontent.com/app-functions.js"></script>
+    <script src="https://www.claudeusercontent.com/navigation.js"></script>
+
+</body></html>
