@@ -1146,25 +1146,28 @@ function simulateInstantResults(teamName) {
         statusText.textContent = 'AI finding optimal configuration...';
       }
       
-      // THIS IS THE KEY CHANGE - Use findOptimalTeam to get AI recommendation
-      let optimalResult;
+      // Run findOptimalTeam - returns ARRAY of top 5 results
+      let optimalResults;
       
       if (AppState.currentQuizType === 'dyad') {
         // For dyad, find best 2-member combination
-        optimalResult = findOptimalTeam(selectedPool, 2, 2);
+        optimalResults = findOptimalTeam(selectedPool, 2, 2);
       } else {
         // For team, find best 3-5 member combination from pool
         const maxSize = Math.min(5, selectedPool.length);
-        optimalResult = findOptimalTeam(selectedPool, 3, maxSize);
+        optimalResults = findOptimalTeam(selectedPool, 3, maxSize);
       }
       
+      // Get the BEST result (first in array)
+      const bestResult = optimalResults[0];
+      
       // Store the AI-recommended optimal configuration
-      window.currentOptimalTeam = optimalResult.members.map(m => m.id);
-      window.currentOptimalScore = optimalResult.chemistry;
+      window.currentOptimalTeam = bestResult.members.map(m => m.id);
+      window.currentOptimalScore = bestResult.chemistry;
       window.currentTeamPool = selectedPool; // Store full pool for optimizer
       
-      const optimalChemistry = optimalResult.chemistry;
-      const optimalSize = optimalResult.members.length;
+      const optimalChemistry = bestResult.chemistry;
+      const optimalSize = bestResult.members.length;
       
       // Step 3: Show AI results (2 seconds total)
       setTimeout(() => {
@@ -1175,7 +1178,7 @@ function simulateInstantResults(teamName) {
         
         // Step 4: Add team card and reset (2.5 seconds total)
         setTimeout(() => {
-          addNewTeamToList(teamName, optimalSize, optimalChemistry, optimalResult.members);
+          addNewTeamToList(teamName, optimalSize, optimalChemistry, bestResult.members);
           resetFormAfterSuccess();
         }, 500);
       }, 1000);
