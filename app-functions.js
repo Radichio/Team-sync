@@ -1850,22 +1850,28 @@ function recalculateChemistry() {
   
   const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
   const minTeamSize = quizType === 'dyad' ? 2 : 3;
+  const maxTeamSize = quizType === 'dyad' ? 2 : 8;
   
   // Get member objects for current team
   const teamMembers = currentOptimalTeam
     .map(id => currentTeamPool.find(m => m.id === id))
     .filter(m => m); // Remove any nulls
   
-  // Check if team size is valid
-  if (teamMembers.length < minTeamSize) {
-    // Not enough members for chemistry calculation
+  // Check if team size is valid (must be within min and max range)
+  if (teamMembers.length < minTeamSize || teamMembers.length > maxTeamSize) {
+    // Invalid team size - show N/A
     document.getElementById('heroChemistryScore').textContent = 'N/A';
     document.getElementById('liveChemistryScore').textContent = '--';
     document.getElementById('subscaleUnderstanding').textContent = 'N/A';
     document.getElementById('subscaleTrust').textContent = 'N/A';
     document.getElementById('subscaleEase').textContent = 'N/A';
     document.getElementById('subscaleIntegration').textContent = 'N/A';
-    console.log(`Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
+    
+    if (teamMembers.length < minTeamSize) {
+      console.log(`Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
+    } else {
+      console.log(`Team too large (${teamMembers.length}), maximum is ${maxTeamSize} for ${quizType} mode`);
+    }
     return;
   }
   
