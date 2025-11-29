@@ -1576,6 +1576,12 @@ function populateOptimizerView() {
     `${remainingMembers.length} member${remainingMembers.length !== 1 ? 's' : ''}`;
   
   console.log('Optimizer View populated successfully');
+  
+  // Initialize drag and drop
+  initializeOptimizerDragDrop();
+  
+  // Calculate and display chemistry
+  recalculateChemistry();
 }
 
 /**
@@ -1614,6 +1620,234 @@ function createOptimizerMemberCard(member, isOptimal) {
   `;
   
   return card;
+}
+
+/**
+ * Toggle subscale components display (Phase 3C)
+ */
+function toggleSubscales() {
+  const toggle = document.getElementById('subscaleToggle');
+  const content = document.getElementById('subscaleContent');
+  
+  const isExpanded = content.classList.contains('expanded');
+  
+  if (isExpanded) {
+    content.classList.remove('expanded');
+    toggle.classList.remove('expanded');
+    content.style.display = 'none';
+  } else {
+    content.classList.add('expanded');
+    toggle.classList.add('expanded');
+    content.style.display = 'block';
+  }
+}
+
+/**
+ * Initialize drag and drop for optimizer view (Phase 3C)
+ */
+function initializeOptimizerDragDrop() {
+  console.log('Initializing drag and drop...');
+  
+  const optimalContainer = document.getElementById('optimalTeamContainer');
+  const remainingContainer = document.getElementById('remainingPoolContainer');
+  const optimalDropZone = document.getElementById('optimalDropZone');
+  const poolDropZone = document.getElementById('poolDropZone');
+  
+  // Enable drag events on containers
+  [optimalContainer, remainingContainer].forEach(container => {
+    container.addEventListener('dragover', handleDragOver);
+    container.addEventListener('drop', handleDrop);
+    container.addEventListener('dragleave', handleDragLeave);
+  });
+  
+  // Initialize draggable cards
+  updateDraggableCards();
+  
+  console.log('Drag and drop initialized');
+}
+
+/**
+ * Update draggable cards with event listeners
+ */
+function updateDraggableCards() {
+  const cards = document.querySelectorAll('.optimizer-member-card');
+  
+  cards.forEach(card => {
+    card.addEventListener('dragstart', handleDragStart);
+    card.addEventListener('dragend', handleDragEnd);
+  });
+}
+
+/**
+ * Handle drag start
+ */
+function handleDragStart(e) {
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member-id'));
+  e.target.style.opacity = '0.5';
+  
+  // Show appropriate drop zone
+  const isOptimal = e.target.classList.contains('optimal');
+  if (isOptimal) {
+    document.getElementById('poolDropZone').style.display = 'flex';
+  } else {
+    document.getElementById('optimalDropZone').style.display = 'flex';
+  }
+}
+
+/**
+ * Handle drag end
+ */
+function handleDragEnd(e) {
+  e.target.style.opacity = '1';
+  
+  // Hide all drop zones
+  document.getElementById('optimalDropZone').style.display = 'none';
+  document.getElementById('poolDropZone').style.display = 'none';
+}
+
+/**
+ * Handle drag over
+ */
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  
+  // Highlight drop zone
+  const container = e.currentTarget;
+  if (container.id === 'optimalTeamContainer') {
+    const dropZone = document.getElementById('optimalDropZone');
+    if (dropZone.style.display === 'flex') {
+      dropZone.classList.add('active');
+    }
+  } else if (container.id === 'remainingPoolContainer') {
+    const dropZone = document.getElementById('poolDropZone');
+    if (dropZone.style.display === 'flex') {
+      dropZone.classList.add('active');
+    }
+  }
+}
+
+/**
+ * Handle drag leave
+ */
+function handleDragLeave(e) {
+  // Remove highlight from drop zones
+  document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
+    zone.classList.remove('active');
+  });
+}
+
+/**
+ * Handle drop
+ */
+function handleDrop(e) {
+  e.preventDefault();
+  
+  const memberId = e.dataTransfer.getData('text/plain');
+  const targetContainer = e.currentTarget;
+  
+  console.log('Dropped member:', memberId, 'into:', targetContainer.id);
+  
+  // Move member between lists
+  if (targetContainer.id === 'optimalTeamContainer') {
+    moveToOptimalTeam(memberId);
+  } else if (targetContainer.id === 'remainingPoolContainer') {
+    moveToRemainingPool(memberId);
+  }
+  
+  // Remove drop zone highlights
+  document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
+    zone.classList.remove('active');
+  });
+}
+
+/**
+ * Move member to optimal team
+ */
+function moveToOptimalTeam(memberId) {
+  if (!window.optimizerState) return;
+  
+  // Add to optimal team if not already there
+  if (!window.optimizerState.currentOptimalTeam.includes(memberId)) {
+    window.optimizerState.currentOptimalTeam.push(memberId);
+    
+    // Mark as overridden
+    window.optimizerState.isOverridden = true;
+    document.getElementById('overrideCheckbox').checked = true;
+    handleOverrideToggle();
+    
+    // Repopulate view
+    populateOptimizerView();
+    
+    // Recalculate chemistry
+    recalculateChemistry();
+    
+    // Reinitialize drag and drop
+    updateDraggableCards();
+  }
+}
+
+/**
+ * Move member to remaining pool
+ */
+function moveToRemainingPool(memberId) {
+  if (!window.optimizerState) return;
+  
+  // Remove from optimal team
+  const index = window.optimizerState.currentOptimalTeam.indexOf(memberId);
+  if (index > -1) {
+    window.optimizerState.currentOptimalTeam.splice(index, 1);
+    
+    // Mark as overridden
+    window.optimizerState.isOverridden = true;
+    document.getElementById('overrideCheckbox').checked = true;
+    handleOverrideToggle();
+    
+    // Repopulate view
+    populateOptimizerView();
+    
+    // Recalculate chemistry
+    recalculateChemistry();
+    
+    // Reinitialize drag and drop
+    updateDraggableCards();
+  }
+}
+
+/**
+ * Recalculate team chemistry based on current optimal team
+ */
+function recalculateChemistry() {
+  if (!window.optimizerState) return;
+  
+  const { currentOptimalTeam, currentTeamPool } = window.optimizerState;
+  
+  // Get member objects for current team
+  const teamMembers = currentOptimalTeam
+    .map(id => currentTeamPool.find(m => m.id === id))
+    .filter(m => m); // Remove any nulls
+  
+  if (teamMembers.length < 2) {
+    // Not enough members for chemistry calculation
+    document.getElementById('liveChemistryScore').textContent = '--';
+    return;
+  }
+  
+  // Calculate chemistry using Mental Synchrony algorithm
+  const chemistry = calculateTeamChemistry(teamMembers);
+  const subscales = calculateSubscaleAlignment(teamMembers);
+  
+  // Update main chemistry score
+  document.getElementById('liveChemistryScore').textContent = chemistry;
+  
+  // Update subscale scores
+  document.getElementById('subscaleUnderstanding').textContent = subscales.understanding + '%';
+  document.getElementById('subscaleTrust').textContent = subscales.trust + '%';
+  document.getElementById('subscaleEase').textContent = subscales.ease + '%';
+  document.getElementById('subscaleIntegration').textContent = subscales.integration + '%';
+  
+  console.log('Chemistry recalculated:', chemistry, 'Subscales:', subscales);
 }
 
 /**
@@ -1694,20 +1928,42 @@ function deployTeamToSlack() {
 }
 
 /**
- * Reset to AI Recommendation (Phase 3C placeholder)
+ * Reset to AI Recommendation (Phase 3C)
  */
 function resetToAIRecommendation() {
   console.log('Resetting to AI recommendation');
   
-  // Uncheck override
-  const checkbox = document.getElementById('overrideCheckbox');
-  checkbox.checked = false;
+  if (!window.optimizerState) return;
   
-  // Trigger UI update
-  handleOverrideToggle();
+  // Find the original team data
+  const teamName = window.optimizerState.teamName;
+  const teamCards = document.querySelectorAll('.team-card');
+  let originalTeamData = null;
   
-  // Phase 3C will restore original optimal team members
-  console.log('Phase 3C will restore original optimal team configuration');
+  for (let card of teamCards) {
+    if (card.getAttribute('data-team-name') === teamName) {
+      originalTeamData = card.teamData;
+      break;
+    }
+  }
+  
+  if (originalTeamData) {
+    // Restore original optimal team
+    window.optimizerState.currentOptimalTeam = [...originalTeamData.optimalMembers];
+    window.optimizerState.isOverridden = false;
+    
+    // Uncheck override
+    const checkbox = document.getElementById('overrideCheckbox');
+    checkbox.checked = false;
+    
+    // Trigger UI update
+    handleOverrideToggle();
+    
+    // Repopulate view with original team
+    populateOptimizerView();
+    
+    console.log('Restored to AI recommendation:', originalTeamData.optimalMembers);
+  }
 }
 
 // ========================================
@@ -1779,6 +2035,19 @@ window.TeamSyncApp = {
   // Phase 3B - Optimizer Member Population
   populateOptimizerView,
   createOptimizerMemberCard,
+  
+  // Phase 3C - Drag & Drop and Chemistry Recalculation
+  toggleSubscales,
+  initializeOptimizerDragDrop,
+  updateDraggableCards,
+  handleDragStart,
+  handleDragEnd,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
+  moveToOptimalTeam,
+  moveToRemainingPool,
+  recalculateChemistry,
   
   // Legacy Functions
   calculateChemistryScore,
