@@ -1544,6 +1544,9 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('buildView').classList.add('hidden');
   document.getElementById('optimizerView').classList.remove('hidden');
   
+  // Scroll to top of page
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
   console.log('Optimizer View opened successfully');
 }
 
@@ -1818,17 +1821,8 @@ function moveToOptimalTeam(memberId) {
 function moveToRemainingPool(memberId) {
   if (!window.optimizerState) return;
   
-  const { currentOptimalTeam, quizType } = window.optimizerState;
-  const minTeamSize = quizType === 'dyad' ? 2 : 3;
-  
-  // Prevent removing if at minimum team size
-  if (currentOptimalTeam.length <= minTeamSize) {
-    console.log(`Cannot remove member: minimum team size is ${minTeamSize}`);
-    return;
-  }
-  
-  // Remove from optimal team
-  const index = currentOptimalTeam.indexOf(memberId);
+  // Allow removal - we'll show N/A if team becomes too small
+  const index = window.optimizerState.currentOptimalTeam.indexOf(memberId);
   if (index > -1) {
     window.optimizerState.currentOptimalTeam.splice(index, 1);
     
@@ -1840,7 +1834,7 @@ function moveToRemainingPool(memberId) {
     // Repopulate view
     populateOptimizerView();
     
-    // Recalculate chemistry
+    // Recalculate chemistry (will show N/A if too small)
     recalculateChemistry();
     
     // Reinitialize drag and drop
@@ -1879,12 +1873,16 @@ function recalculateChemistry() {
   const chemistry = calculateTeamChemistry(teamMembers);
   
   // Calculate individual subscale scores by averaging member subscales
+  console.log('Team members for subscale calc:', teamMembers.map(m => ({ id: m.id, subscales: m.subscales })));
+  
   const subscales = {
-    understanding: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.understanding, 0) / teamMembers.length),
-    trust: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.trust, 0) / teamMembers.length),
-    ease: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.ease, 0) / teamMembers.length),
-    integration: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.integration, 0) / teamMembers.length)
+    understanding: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.understanding || 0), 0) / teamMembers.length),
+    trust: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.trust || 0), 0) / teamMembers.length),
+    ease: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.ease || 0), 0) / teamMembers.length),
+    integration: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.integration || 0), 0) / teamMembers.length)
   };
+  
+  console.log('Calculated subscales:', subscales);
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
@@ -1893,10 +1891,22 @@ function recalculateChemistry() {
   document.getElementById('liveChemistryScore').textContent = chemistry;
   
   // Update subscale scores
-  document.getElementById('subscaleUnderstanding').textContent = subscales.understanding + '%';
-  document.getElementById('subscaleTrust').textContent = subscales.trust + '%';
-  document.getElementById('subscaleEase').textContent = subscales.ease + '%';
-  document.getElementById('subscaleIntegration').textContent = subscales.integration + '%';
+  const understandingEl = document.getElementById('subscaleUnderstanding');
+  const trustEl = document.getElementById('subscaleTrust');
+  const easeEl = document.getElementById('subscaleEase');
+  const integrationEl = document.getElementById('subscaleIntegration');
+  
+  if (understandingEl) understandingEl.textContent = subscales.understanding + '%';
+  if (trustEl) trustEl.textContent = subscales.trust + '%';
+  if (easeEl) easeEl.textContent = subscales.ease + '%';
+  if (integrationEl) integrationEl.textContent = subscales.integration + '%';
+  
+  console.log('Subscale elements updated:', {
+    understanding: understandingEl?.textContent,
+    trust: trustEl?.textContent,
+    ease: easeEl?.textContent,
+    integration: integrationEl?.textContent
+  });
   
   console.log('Chemistry recalculated:', chemistry, 'Subscales:', subscales);
 }

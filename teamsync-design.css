@@ -2100,7 +2100,7 @@ body.light-mode .ripple-effect {
 .remaining-pool-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     min-height: 300px;
 }
 
@@ -2109,7 +2109,7 @@ body.light-mode .ripple-effect {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: 8px;
@@ -2136,15 +2136,15 @@ body.light-mode .ripple-effect {
 
 /* Member Avatar */
 .optimizer-member-avatar {
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: white;
     flex-shrink: 0;
 }
@@ -2156,10 +2156,10 @@ body.light-mode .ripple-effect {
 }
 
 .optimizer-member-name {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 2px;
+    margin-bottom: 0;
 }
 
 .optimizer-member-role {
