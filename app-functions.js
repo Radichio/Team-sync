@@ -853,8 +853,24 @@ function copySlackPrompt() {
  * Initialize both member pools on Build Team view load
  */
 function populateBothPools() {
+  console.log('Populating both pools...');
+  
+  // CRITICAL: Explicitly clear both pool containers FIRST
+  const teamContainer = document.getElementById('teamMemberSelection');
+  const dyadContainer = document.getElementById('dyadMemberSelection');
+  
+  if (teamContainer) {
+    teamContainer.innerHTML = '';
+  }
+  if (dyadContainer) {
+    dyadContainer.innerHTML = '';
+  }
+  
+  // Now populate fresh
   populatePool('team', 'teamMemberSelection');
   populatePool('dyad', 'dyadMemberSelection');
+  
+  console.log('Both pools populated');
 }
 
 /**
@@ -1005,6 +1021,10 @@ function toggleMember(poolType, memberId) {
   }
   
   updateSelectionCounter();
+  
+  // AUTO-POPULATE NAME: If name is empty and we have valid member count, auto-fill name
+  autoPopulateTeamName();
+  
   validateForm();
 }
 
@@ -1040,6 +1060,36 @@ function updateSelectionCounter() {
   const counter = document.getElementById('selectedCount');
   if (counter) {
     counter.textContent = AppState.selectedMemberIds.length;
+  }
+}
+
+/**
+ * Auto-populate team name if empty and member count is valid
+ */
+function autoPopulateTeamName() {
+  const teamNameInput = document.getElementById('teamNameInput');
+  if (!teamNameInput) return;
+  
+  // Only auto-populate if field is currently empty
+  if (teamNameInput.value.trim().length > 0) return;
+  
+  const memberCount = AppState.selectedMemberIds.length;
+  const quizType = AppState.currentQuizType;
+  
+  let shouldAutoPopulate = false;
+  
+  if (quizType === 'team' && memberCount >= 3) {
+    // Team mode: auto-populate when we have at least 3 members
+    shouldAutoPopulate = true;
+  } else if (quizType === 'dyad' && memberCount >= 2) {
+    // Dyad mode: auto-populate when we have 2 members
+    shouldAutoPopulate = true;
+  }
+  
+  if (shouldAutoPopulate) {
+    // Use current name from rotation
+    teamNameInput.value = TEAM_NAMES[AppState.currentNameIndex];
+    console.log('Auto-populated team name:', teamNameInput.value);
   }
 }
 
@@ -1137,9 +1187,15 @@ function initializeBuildTeamView() {
   if (teamPool) teamPool.classList.add('active');
   if (dyadPool) dyadPool.classList.remove('active');
   
-  // Clear team name
+  // Clear team name input
   const teamNameInput = document.getElementById('teamNameInput');
   if (teamNameInput) teamNameInput.value = '';
+  
+  // Set up name suggestion (show current name in rotation)
+  const suggestedName = document.getElementById('suggestedName');
+  if (suggestedName) {
+    suggestedName.textContent = TEAM_NAMES[AppState.currentNameIndex];
+  }
   
   // Hide processing status
   const processingStatus = document.getElementById('processingStatus');
@@ -1148,7 +1204,7 @@ function initializeBuildTeamView() {
   // Run validation to set button state
   validateForm();
   
-  console.log('Build Team view initialized');
+  console.log('Build Team view initialized, suggested name:', TEAM_NAMES[AppState.currentNameIndex]);
 }
 
 // ========================================
@@ -1317,6 +1373,8 @@ function addNewTeamToList(teamName, memberCount, chemistryScore, optimalMembers 
  * Reset form after successful team creation
  */
 function resetFormAfterSuccess() {
+  console.log('RESETTING FORM AFTER SUCCESS...');
+  
   const analyzeBtn = document.getElementById('analyzeBtn');
   const processingStatus = document.getElementById('processingStatus');
   const teamNameInput = document.getElementById('teamNameInput');
@@ -1337,8 +1395,19 @@ function resetFormAfterSuccess() {
     teamNameInput.value = '';
   }
   
+  // ROTATE NAME INDEX: Next team gets different name
+  AppState.currentNameIndex = (AppState.currentNameIndex + 1) % TEAM_NAMES.length;
+  console.log('Next team name will be:', TEAM_NAMES[AppState.currentNameIndex]);
+  
+  // Update suggested name display
+  const suggestedName = document.getElementById('suggestedName');
+  if (suggestedName) {
+    suggestedName.textContent = TEAM_NAMES[AppState.currentNameIndex];
+  }
+  
   // CRITICAL: Clear all selections from state
   AppState.selectedMemberIds = [];
+  console.log('Cleared selected members');
   
   // CRITICAL: Refresh both pools to clear visual selection states
   populateBothPools();
@@ -1349,10 +1418,12 @@ function resetFormAfterSuccess() {
   // CRITICAL: Run validation to ensure form is in correct state
   validateForm();
   
+  console.log('Form reset complete, ready for next team');
+  
   // Show brief success message
   const statusText = document.getElementById('statusText');
   if (statusText && processingStatus) {
-    statusText.textContent = 'Team created successfully!';
+    statusText.textContent = 'Team created successfully! Ready for next team.';
     processingStatus.style.display = 'block';
     processingStatus.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1))';
     processingStatus.style.borderColor = 'rgba(16, 185, 129, 0.3)';
@@ -1364,6 +1435,8 @@ function resetFormAfterSuccess() {
       
       // CRITICAL: Ensure validation runs one more time after success message clears
       validateForm();
+      
+      console.log('Success message cleared, form fully ready');
     }, 2000);
   }
 }
@@ -1425,6 +1498,7 @@ window.TeamSyncApp = {
   toggleMember,
   filterMembers,
   updateSelectionCounter,
+  autoPopulateTeamName,
   validateForm,
   refreshTeamName,
   useSuggestedName,
