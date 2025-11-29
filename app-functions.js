@@ -271,6 +271,29 @@ function calculateSubscaleAlignment(members) {
 }
 
 /**
+ * Calculate individual subscale scores for display
+ * @param {Array} members - Team members
+ * @returns {Object} Object with understanding, trust, ease, integration scores
+ */
+function calculateIndividualSubscales(members) {
+  const dimensions = ['understanding', 'trust', 'ease', 'integration'];
+  const subscaleScores = {};
+  
+  dimensions.forEach(dim => {
+    const values = members.map(m => m.subscales[dim]);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
+    
+    // Lower variance = better alignment
+    // Variance of 0-100 scaled to alignment score of 100-60
+    const alignmentForDim = Math.max(60, 100 - variance * 0.4);
+    subscaleScores[dim] = Math.round(alignmentForDim);
+  });
+  
+  return subscaleScores;
+}
+
+/**
  * Find optimal team configurations from available members
  * Tests all possible combinations within size constraints
  * @param {Array} availableMembers - Pool of members to choose from
@@ -1508,6 +1531,9 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('optimizerTeamName').textContent = teamName;
   document.getElementById('optimizerChemistry').textContent = chemistry;
   
+  // Update hero chemistry score
+  document.getElementById('heroChemistryScore').textContent = chemistry;
+  
   // Update large chemistry score display
   document.getElementById('liveChemistryScore').textContent = chemistry;
   
@@ -1614,7 +1640,6 @@ function createOptimizerMemberCard(member, isOptimal) {
     <div class="optimizer-member-avatar">${initials.toUpperCase()}</div>
     <div class="optimizer-member-info">
       <div class="optimizer-member-name">${member.name}</div>
-      <div class="optimizer-member-role">${member.role}</div>
     </div>
     <div class="optimizer-member-badge ${freshnessClass}">${freshnessLabel}</div>
   `;
@@ -1836,7 +1861,10 @@ function recalculateChemistry() {
   
   // Calculate chemistry using Mental Synchrony algorithm
   const chemistry = calculateTeamChemistry(teamMembers);
-  const subscales = calculateSubscaleAlignment(teamMembers);
+  const subscales = calculateIndividualSubscales(teamMembers);
+  
+  // Update hero chemistry score
+  document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update main chemistry score
   document.getElementById('liveChemistryScore').textContent = chemistry;
@@ -2002,6 +2030,7 @@ window.TeamSyncApp = {
   // V45 Functions - Mental Synchrony Algorithms
   calculateTeamChemistry,
   calculateSubscaleAlignment,
+  calculateIndividualSubscales,
   findOptimalTeam,
   getCombinations,
   
