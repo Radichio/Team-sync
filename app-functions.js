@@ -274,11 +274,11 @@ function calculateSubscaleAlignment(members) {
  * Find optimal team configurations from available members
  * Tests all possible combinations within size constraints
  * @param {Array} availableMembers - Pool of members to choose from
- * @param {Number} minSize - Minimum team size
- * @param {Number} maxSize - Maximum team size
+ * @param {Number} minSize - Minimum team size (default: 3)
+ * @param {Number} maxSize - Maximum team size (default: 8)
  * @returns {Array} Top 5 configurations sorted by chemistry score
  */
-function findOptimalTeam(availableMembers, minSize = 3, maxSize = 5) {
+function findOptimalTeam(availableMembers, minSize = 3, maxSize = 8) {
   const allConfigurations = [];
   
   // Test all team sizes within range
@@ -983,8 +983,8 @@ function selectQuizType(type) {
   const selectionHint = document.getElementById('selectionHint');
   if (selectionHint) {
     selectionHint.textContent = type === 'team' 
-      ? '(Select 3-8 members for Team assessment)'
-      : '(Select exactly 2 members for Dyad assessment)';
+      ? '(Select 3+ candidates - AI will find optimal team from this pool)'
+      : '(Select 2+ candidates - AI will find optimal pair from this pool)';
   }
   
   // Clear selections when switching types
@@ -1121,20 +1121,20 @@ function validateForm() {
   let reason = '';
   
   if (quizType === 'team') {
-    // Team needs 3-8 members + name
-    isValid = hasName && memberCount >= 3 && memberCount <= 8;
+    // Team needs at least 3 members in pool + name
+    // AI will find optimal 3-5 person team from this pool
+    isValid = hasName && memberCount >= 3;
     if (!isValid) {
       if (!hasName) reason = 'Missing name';
-      else if (memberCount < 3) reason = 'Need 3+ members';
-      else if (memberCount > 8) reason = 'Too many members (max 8)';
+      else if (memberCount < 3) reason = 'Need at least 3 candidates in pool';
     }
   } else if (quizType === 'dyad') {
-    // Dyad needs exactly 2 members + name
-    isValid = hasName && memberCount === 2;
+    // Dyad needs at least 2 members in pool + name
+    // AI will find optimal 2-person pair from this pool
+    isValid = hasName && memberCount >= 2;
     if (!isValid) {
       if (!hasName) reason = 'Missing name';
-      else if (memberCount < 2) reason = 'Need 2 members';
-      else if (memberCount > 2) reason = 'Too many members (need exactly 2)';
+      else if (memberCount < 2) reason = 'Need at least 2 candidates in pool';
     }
   }
   
@@ -1147,10 +1147,11 @@ function validateForm() {
     hasName,
     nameValue: teamNameInput.value,
     memberCount,
+    poolSize: memberCount,
     selectedIds: AppState.selectedMemberIds,
     isValid,
     buttonDisabled: analyzeBtn.disabled,
-    reason: isValid ? 'VALID ✅' : reason
+    reason: isValid ? 'VALID ✅ - AI will optimize from this pool' : reason
   });
 }
 
@@ -1291,8 +1292,8 @@ function simulateInstantResults(teamName) {
         // For dyad, find best 2-member combination
         optimalResults = findOptimalTeam(selectedPool, 2, 2);
       } else {
-        // For team, find best 3-5 member combination from pool
-        const maxSize = Math.min(5, selectedPool.length);
+        // For team, find best 3-8 member combination from pool
+        const maxSize = Math.min(8, selectedPool.length);
         optimalResults = findOptimalTeam(selectedPool, 3, maxSize);
       }
       
