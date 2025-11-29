@@ -977,6 +977,8 @@ function selectQuizType(type) {
   // Refresh both pools to clear selection states
   populateBothPools();
   updateSelectionCounter();
+  
+  // CRITICAL: Run validation after switching to update button state
   validateForm();
 }
 
@@ -1048,22 +1050,37 @@ function validateForm() {
   const analyzeBtn = document.getElementById('analyzeBtn');
   const teamNameInput = document.getElementById('teamNameInput');
   
-  if (!analyzeBtn || !teamNameInput) return;
+  // Guard clause - elements must exist
+  if (!analyzeBtn || !teamNameInput) {
+    console.warn('validateForm: Missing DOM elements');
+    return;
+  }
   
   const hasName = teamNameInput.value.trim().length > 0;
   const memberCount = AppState.selectedMemberIds.length;
+  const quizType = AppState.currentQuizType;
   
   let isValid = false;
   
-  if (AppState.currentQuizType === 'team') {
+  if (quizType === 'team') {
     // Team needs 3-8 members + name
     isValid = hasName && memberCount >= 3 && memberCount <= 8;
-  } else {
+  } else if (quizType === 'dyad') {
     // Dyad needs exactly 2 members + name
     isValid = hasName && memberCount === 2;
   }
   
+  // Update button state
   analyzeBtn.disabled = !isValid;
+  
+  // Debug logging (can be removed later)
+  console.log('Validation:', {
+    quizType,
+    hasName,
+    memberCount,
+    isValid,
+    buttonDisabled: analyzeBtn.disabled
+  });
 }
 
 /**
@@ -1088,6 +1105,50 @@ function useSuggestedName() {
     teamNameInput.value = suggestedName.textContent;
     validateForm();
   }
+}
+
+/**
+ * Initialize Build Team view - called when view loads
+ */
+function initializeBuildTeamView() {
+  console.log('Initializing Build Team view...');
+  
+  // Ensure default quiz type
+  AppState.currentQuizType = 'team';
+  
+  // Clear any existing selections
+  AppState.selectedMemberIds = [];
+  
+  // Populate both pools
+  populateBothPools();
+  
+  // Update UI elements
+  updateSelectionCounter();
+  
+  // Set quiz type buttons to correct state
+  const teamBtn = document.getElementById('teamQuizBtn');
+  const dyadBtn = document.getElementById('dyadQuizBtn');
+  if (teamBtn) teamBtn.classList.add('active');
+  if (dyadBtn) dyadBtn.classList.remove('active');
+  
+  // Show correct pool
+  const teamPool = document.getElementById('teamPoolSection');
+  const dyadPool = document.getElementById('dyadPoolSection');
+  if (teamPool) teamPool.classList.add('active');
+  if (dyadPool) dyadPool.classList.remove('active');
+  
+  // Clear team name
+  const teamNameInput = document.getElementById('teamNameInput');
+  if (teamNameInput) teamNameInput.value = '';
+  
+  // Hide processing status
+  const processingStatus = document.getElementById('processingStatus');
+  if (processingStatus) processingStatus.style.display = 'none';
+  
+  // Run validation to set button state
+  validateForm();
+  
+  console.log('Build Team view initialized');
 }
 
 // ========================================
@@ -1276,14 +1337,17 @@ function resetFormAfterSuccess() {
     teamNameInput.value = '';
   }
   
-  // Clear selections
+  // CRITICAL: Clear all selections from state
   AppState.selectedMemberIds = [];
   
-  // Refresh pools to clear visual selection states
+  // CRITICAL: Refresh both pools to clear visual selection states
   populateBothPools();
   
-  // Update counter
+  // CRITICAL: Update counter
   updateSelectionCounter();
+  
+  // CRITICAL: Run validation to ensure form is in correct state
+  validateForm();
   
   // Show brief success message
   const statusText = document.getElementById('statusText');
@@ -1297,6 +1361,9 @@ function resetFormAfterSuccess() {
       processingStatus.style.display = 'none';
       processingStatus.style.background = '';
       processingStatus.style.borderColor = '';
+      
+      // CRITICAL: Ensure validation runs one more time after success message clears
+      validateForm();
     }, 2000);
   }
 }
@@ -1361,6 +1428,7 @@ window.TeamSyncApp = {
   validateForm,
   refreshTeamName,
   useSuggestedName,
+  initializeBuildTeamView,
   
   // Phase 2C - Analysis Workflow Functions
   analyzeTeamChemistry,

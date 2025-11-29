@@ -103,9 +103,12 @@ function navigateToModule(moduleName) {
     const viewName = moduleMap[moduleName] || moduleName;
     showView(viewName);
     
-    // Phase 2B - Populate member pools when Build Team view loads
-    if (viewName === 'build' && typeof populateBothPools === 'function') {
-        populateBothPools();
+    // Phase 2B - Initialize Build Team view when it loads
+    if (viewName === 'build' && typeof initializeBuildTeamView === 'function') {
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            initializeBuildTeamView();
+        }, 10);
     }
 }
 
