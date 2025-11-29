@@ -1516,15 +1516,20 @@ body.light-mode .ripple-effect {
 }
 
 .member-pool-section {
-    display: none;
+    display: block; /* Always visible */
     background: var(--bg-primary);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
     padding: 16px;
+    transition: all 0.3s ease;
+    opacity: 0.4; /* Inactive/grayed out by default */
+    pointer-events: none; /* Disable interaction when inactive */
 }
 
 .member-pool-section.active {
-    display: block;
+    opacity: 1; /* Full brightness when active */
+    pointer-events: auto; /* Enable interaction when active */
+    border-color: rgba(96, 165, 250, 0.3); /* Subtle blue border when active */
 }
 
 .pool-header {

@@ -328,11 +328,11 @@
                     <div class="quiz-type-selector">
                         <div class="quiz-type-btn active" onclick="selectQuizType('team')" id="teamQuizBtn">
                             <div class="quiz-type-title">Team Chemistry</div>
-                            <div class="quiz-type-desc">3-8 members working together</div>
+                            <div class="quiz-type-desc">AI optimizes team from candidate pool</div>
                         </div>
                         <div class="quiz-type-btn" onclick="selectQuizType('dyad')" id="dyadQuizBtn">
                             <div class="quiz-type-title">Dyad Partnership</div>
-                            <div class="quiz-type-desc">2 members partnership assessment</div>
+                            <div class="quiz-type-desc">AI finds optimal pair from candidates</div>
                         </div>
                     </div>
                 </div>
@@ -362,7 +362,7 @@
                         <div id="teamPoolSection" class="member-pool-section active">
                             <div class="pool-header">
                                 <span class="pool-title">Team Members Pool</span>
-                                <span class="pool-badge">3-8 MEMBERS</span>
+                                <span class="pool-badge">OPTIMAL: 3-8</span>
                             </div>
                             <input type="text" class="member-search" id="teamMemberSearch" 
                                    placeholder="Search team members..." onkeyup="filterMembers('team')">
@@ -375,7 +375,7 @@
                         <div id="dyadPoolSection" class="member-pool-section">
                             <div class="pool-header">
                                 <span class="pool-title">Dyad Partnership Pool</span>
-                                <span class="pool-badge">2 MEMBERS</span>
+                                <span class="pool-badge">OPTIMAL: 2</span>
                             </div>
                             <input type="text" class="member-search" id="dyadMemberSearch" 
                                    placeholder="Search dyad members..." onkeyup="filterMembers('dyad')">
@@ -387,7 +387,7 @@
                     
                     <div class="selection-counter">
                         <span id="selectedCount">0</span> members selected
-                        <span id="selectionHint" style="margin-left: 10px; color: var(--text-secondary);">(Select 3-8 members for Team assessment)</span>
+                        <span id="selectionHint" style="margin-left: 10px; color: var(--text-secondary);">(Select 3+ candidates - AI will find optimal team from this pool)</span>
                     </div>
                     
                     <!-- Freshness Legend -->
