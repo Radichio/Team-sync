@@ -1022,10 +1022,9 @@ function toggleMember(poolType, memberId) {
   
   updateSelectionCounter();
   
-  // AUTO-POPULATE NAME: If name is empty and we have valid member count, auto-fill name
+  // AUTO-POPULATE NAME and trigger validation with proper timing
+  // autoPopulateTeamName handles validation internally with setTimeout
   autoPopulateTeamName();
-  
-  validateForm();
 }
 
 /**
@@ -1071,26 +1070,34 @@ function autoPopulateTeamName() {
   if (!teamNameInput) return;
   
   // Only auto-populate if field is currently empty
-  if (teamNameInput.value.trim().length > 0) return;
+  const shouldTryPopulate = teamNameInput.value.trim().length === 0;
   
-  const memberCount = AppState.selectedMemberIds.length;
-  const quizType = AppState.currentQuizType;
-  
-  let shouldAutoPopulate = false;
-  
-  if (quizType === 'team' && memberCount >= 3) {
-    // Team mode: auto-populate when we have at least 3 members
-    shouldAutoPopulate = true;
-  } else if (quizType === 'dyad' && memberCount >= 2) {
-    // Dyad mode: auto-populate when we have 2 members
-    shouldAutoPopulate = true;
+  if (shouldTryPopulate) {
+    const memberCount = AppState.selectedMemberIds.length;
+    const quizType = AppState.currentQuizType;
+    
+    let shouldAutoPopulate = false;
+    
+    if (quizType === 'team' && memberCount >= 3) {
+      // Team mode: auto-populate when we have at least 3 members
+      shouldAutoPopulate = true;
+    } else if (quizType === 'dyad' && memberCount >= 2) {
+      // Dyad mode: auto-populate when we have 2 members
+      shouldAutoPopulate = true;
+    }
+    
+    if (shouldAutoPopulate) {
+      // Use current name from rotation
+      teamNameInput.value = TEAM_NAMES[AppState.currentNameIndex];
+      console.log('✨ Auto-populated team name:', teamNameInput.value);
+    }
   }
   
-  if (shouldAutoPopulate) {
-    // Use current name from rotation
-    teamNameInput.value = TEAM_NAMES[AppState.currentNameIndex];
-    console.log('Auto-populated team name:', teamNameInput.value);
-  }
+  // CRITICAL: ALWAYS trigger validation after any selection change
+  // Use setTimeout to ensure DOM has fully updated
+  setTimeout(() => {
+    validateForm();
+  }, 10);
 }
 
 /**
@@ -1111,25 +1118,39 @@ function validateForm() {
   const quizType = AppState.currentQuizType;
   
   let isValid = false;
+  let reason = '';
   
   if (quizType === 'team') {
     // Team needs 3-8 members + name
     isValid = hasName && memberCount >= 3 && memberCount <= 8;
+    if (!isValid) {
+      if (!hasName) reason = 'Missing name';
+      else if (memberCount < 3) reason = 'Need 3+ members';
+      else if (memberCount > 8) reason = 'Too many members (max 8)';
+    }
   } else if (quizType === 'dyad') {
     // Dyad needs exactly 2 members + name
     isValid = hasName && memberCount === 2;
+    if (!isValid) {
+      if (!hasName) reason = 'Missing name';
+      else if (memberCount < 2) reason = 'Need 2 members';
+      else if (memberCount > 2) reason = 'Too many members (need exactly 2)';
+    }
   }
   
   // Update button state
   analyzeBtn.disabled = !isValid;
   
-  // Debug logging (can be removed later)
-  console.log('Validation:', {
+  // Enhanced debug logging
+  console.log('🔍 VALIDATION CHECK:', {
     quizType,
     hasName,
+    nameValue: teamNameInput.value,
     memberCount,
+    selectedIds: AppState.selectedMemberIds,
     isValid,
-    buttonDisabled: analyzeBtn.disabled
+    buttonDisabled: analyzeBtn.disabled,
+    reason: isValid ? 'VALID ✅' : reason
   });
 }
 
