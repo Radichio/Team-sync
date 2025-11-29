@@ -1507,7 +1507,7 @@ function openOptimizerForTeam(teamName, chemistry) {
   // For now, just switch to the view
   
   // Hide Build Team view, show Optimizer view
-  document.getElementById('buildTeamView').classList.add('hidden');
+  document.getElementById('buildView').classList.add('hidden');
   document.getElementById('optimizerView').classList.remove('hidden');
   
   console.log('Optimizer View opened - Phase 3B will populate members');
@@ -1524,7 +1524,7 @@ function closeOptimizerView() {
   
   // Hide Optimizer view, show Build Team view
   document.getElementById('optimizerView').classList.add('hidden');
-  document.getElementById('buildTeamView').classList.remove('hidden');
+  document.getElementById('buildView').classList.remove('hidden');
 }
 
 /**
