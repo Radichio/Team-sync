@@ -1464,13 +1464,147 @@ function resetFormAfterSuccess() {
 }
 
 /**
- * Open Optimizer view for a specific team (Phase 3)
+ * Open Optimizer view for a specific team (Phase 3A)
  * @param {string} teamName - Name of the team
  * @param {number} chemistry - Chemistry score
  */
 function openOptimizerForTeam(teamName, chemistry) {
-  // Phase 3 will complete this - for now show preview
-  alert(`Optimizer View (Coming in Phase 3)\n\nTeam: ${teamName}\nChemistry: ${chemistry}%\n\nWill show:\n- AI-optimized team configuration\n- Drag-drop interface\n- Real-time chemistry recalculation\n- Override checkbox for alternatives\n- Deploy to Slack`);
+  console.log('Opening Optimizer View for:', teamName, 'Chemistry:', chemistry);
+  
+  // Find team card in DOM to get stored team data
+  const teamCards = document.querySelectorAll('.team-card');
+  let teamData = null;
+  
+  for (let card of teamCards) {
+    if (card.getAttribute('data-team-name') === teamName) {
+      teamData = card.teamData;
+      break;
+    }
+  }
+  
+  if (!teamData) {
+    console.error('Team data not found for:', teamName);
+    return;
+  }
+  
+  // Store optimizer state globally
+  window.optimizerState = {
+    teamName: teamName,
+    originalChemistry: chemistry,
+    currentOptimalTeam: teamData.optimalMembers || [],
+    currentTeamPool: teamData.quizType === 'team' ? memberPools.team : memberPools.dyad,
+    quizType: teamData.quizType,
+    isOverridden: false
+  };
+  
+  console.log('Optimizer state:', window.optimizerState);
+  
+  // Update optimizer view header
+  document.getElementById('optimizerTeamName').textContent = teamName;
+  document.getElementById('optimizerChemistry').textContent = chemistry;
+  
+  // Phase 3B will populate the member lists here
+  // For now, just switch to the view
+  
+  // Hide Build Team view, show Optimizer view
+  document.getElementById('buildTeamView').classList.add('hidden');
+  document.getElementById('optimizerView').classList.remove('hidden');
+  
+  console.log('Optimizer View opened - Phase 3B will populate members');
+}
+
+/**
+ * Close Optimizer View and return to Build Team (Phase 3A)
+ */
+function closeOptimizerView() {
+  console.log('Closing Optimizer View');
+  
+  // Clear optimizer state
+  window.optimizerState = null;
+  
+  // Hide Optimizer view, show Build Team view
+  document.getElementById('optimizerView').classList.add('hidden');
+  document.getElementById('buildTeamView').classList.remove('hidden');
+}
+
+/**
+ * Handle Override Checkbox Toggle (Phase 3A - UI only, logic in Phase 3C)
+ */
+function handleOverrideToggle() {
+  const checkbox = document.getElementById('overrideCheckbox');
+  const isChecked = checkbox.checked;
+  
+  console.log('Override toggled:', isChecked);
+  
+  if (window.optimizerState) {
+    window.optimizerState.isOverridden = isChecked;
+  }
+  
+  // Update UI states
+  const deployBtn = document.getElementById('deployToSlackBtn');
+  const resetBtn = document.getElementById('resetToAIBtn');
+  const comparison = document.getElementById('chemistryComparison');
+  
+  if (isChecked) {
+    // Manual override mode
+    deployBtn.classList.add('overridden');
+    resetBtn.style.display = 'flex';
+    comparison.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--warning);">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span>Manual configuration</span>
+    `;
+    comparison.classList.add('warning');
+  } else {
+    // AI recommendation mode
+    deployBtn.classList.remove('overridden');
+    resetBtn.style.display = 'none';
+    comparison.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--success);">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span>Using AI recommendation</span>
+    `;
+    comparison.classList.remove('warning');
+  }
+  
+  console.log('Override UI updated');
+}
+
+/**
+ * Deploy Team to Slack (Phase 3C placeholder)
+ */
+function deployTeamToSlack() {
+  if (!window.optimizerState) {
+    console.error('No optimizer state found');
+    return;
+  }
+  
+  const isOverridden = window.optimizerState.isOverridden;
+  
+  // Phase 3C will implement actual Slack deployment
+  alert(`Deploy to Slack (Phase 3C)\n\nTeam: ${window.optimizerState.teamName}\nConfiguration: ${isOverridden ? 'Manual Override' : 'AI Recommendation'}\n\nThis will integrate with Slack API in Phase 3C.`);
+}
+
+/**
+ * Reset to AI Recommendation (Phase 3C placeholder)
+ */
+function resetToAIRecommendation() {
+  console.log('Resetting to AI recommendation');
+  
+  // Uncheck override
+  const checkbox = document.getElementById('overrideCheckbox');
+  checkbox.checked = false;
+  
+  // Trigger UI update
+  handleOverrideToggle();
+  
+  // Phase 3C will restore original optimal team members
+  console.log('Phase 3C will restore original optimal team configuration');
 }
 
 // ========================================
@@ -1531,7 +1665,13 @@ window.TeamSyncApp = {
   simulateInstantResults,
   addNewTeamToList,
   resetFormAfterSuccess,
+  
+  // Phase 3A - Optimizer View Functions
   openOptimizerForTeam,
+  closeOptimizerView,
+  handleOverrideToggle,
+  deployTeamToSlack,
+  resetToAIRecommendation,
   
   // Legacy Functions
   calculateChemistryScore,

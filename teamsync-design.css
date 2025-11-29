@@ -1961,6 +1961,432 @@ body.light-mode .ripple-effect {
 }
 
 /* ============================================
+   PHASE 3A: OPTIMIZER VIEW STYLES
+   ============================================ */
+
+/* Main Optimizer Layout */
+.optimizer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+/* Optimizer Sections */
+.optimizer-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 24px;
+    min-height: 400px;
+    position: relative;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 4px 0 0 28px;
+}
+
+.team-size-badge {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.1));
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+/* Member Card Containers */
+.optimal-team-container,
+.remaining-pool-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 300px;
+}
+
+/* Optimizer Member Cards */
+.optimizer-member-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.optimizer-member-card:hover {
+    background: rgba(96, 165, 250, 0.05);
+    border-color: var(--primary-blue);
+    transform: translateX(4px);
+}
+
+.optimizer-member-card:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+/* Optimal team cards have special styling */
+.optimizer-member-card.optimal {
+    border-left: 3px solid var(--primary-blue);
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.05), rgba(16, 185, 129, 0.05));
+}
+
+/* Member Avatar */
+.optimizer-member-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* Member Info */
+.optimizer-member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.optimizer-member-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.optimizer-member-role {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* Member Badge (freshness indicator) */
+.optimizer-member-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.optimizer-member-badge.fresh {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary-green);
+}
+
+.optimizer-member-badge.recent {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--info);
+}
+
+.optimizer-member-badge.stale {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+}
+
+.optimizer-member-badge.old {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error);
+}
+
+/* Drop Zone Indicators */
+.drop-zone-indicator {
+    position: absolute;
+    top: 60px;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    border: 2px dashed var(--primary-blue);
+    border-radius: 8px;
+    background: rgba(96, 165, 250, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.drop-zone-indicator.active {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
+
+/* Chemistry Score & Controls Section */
+.optimizer-controls {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+/* Chemistry Display Card */
+.chemistry-display-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+}
+
+.chemistry-score-section {
+    text-align: center;
+}
+
+.chemistry-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.chemistry-score-large {
+    font-size: 4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.chemistry-score-large::after {
+    content: '%';
+    font-size: 2.5rem;
+    margin-left: 4px;
+}
+
+.chemistry-comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9375rem;
+    color: var(--success);
+    font-weight: 500;
+}
+
+.chemistry-comparison.warning {
+    color: var(--warning);
+}
+
+.chemistry-comparison.warning svg {
+    color: var(--warning) !important;
+    transform: rotate(180deg);
+}
+
+/* Override Section */
+.override-section {
+    padding: 24px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+}
+
+/* Override Checkbox Styling */
+.override-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.override-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s ease;
+    margin-top: 2px;
+}
+
+.override-checkbox-label:hover .checkbox-custom {
+    border-color: var(--primary-blue);
+}
+
+.override-checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.override-checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 4px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-text {
+    flex: 1;
+}
+
+.checkbox-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.checkbox-subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* Optimizer Actions */
+.optimizer-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.action-button.primary {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+    color: white;
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+}
+
+.action-button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+}
+
+.action-button.primary.large {
+    padding: 16px 32px;
+    font-size: 1rem;
+}
+
+.action-button.secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+}
+
+.action-button.secondary:hover {
+    background: rgba(96, 165, 250, 0.05);
+    border-color: var(--primary-blue);
+}
+
+/* Deploy button states */
+.action-button.primary.overridden {
+    background: linear-gradient(135deg, var(--text-secondary), #475569);
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3);
+}
+
+.action-button.primary.overridden:hover {
+    box-shadow: 0 6px 20px rgba(71, 85, 105, 0.4);
+}
+
+/* Info Panel */
+.info-panel {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    margin-bottom: 32px;
+}
+
+.info-icon {
+    color: var(--info);
+    flex-shrink: 0;
+}
+
+.info-content {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.info-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Responsive Design for Optimizer */
+@media (max-width: 1024px) {
+    .optimizer-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .chemistry-display-card {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .optimizer-actions {
+        flex-direction: column;
+    }
+    
+    .action-button {
+        width: 100%;
+    }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

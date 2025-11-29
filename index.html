@@ -441,7 +441,166 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- OPTIMIZE TEAM MODULE VIEW -->
+    <!-- PHASE 3: OPTIMIZER VIEW (AI-RECOMMENDED TEAM) -->
+    <!-- ============================================ -->
+    
+    <div class="app-container hidden" id="optimizerView">
+        <!-- Header with back button -->
+        <div class="app-header">
+            <div>
+                <h1 class="welcome-title" id="optimizerTeamName">Team Phoenix</h1>
+                <p class="welcome-subtitle">AI-optimized configuration with <span id="optimizerChemistry">85</span>% chemistry</p>
+            </div>
+            <button class="action-button secondary" onclick="closeOptimizerView()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Build Team
+            </button>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="optimizer-content">
+            
+            <!-- Left Column: AI-Recommended Team -->
+            <div class="optimizer-section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px; color: var(--primary-blue);">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                                <path d="M2 12l10 5 10-5"/>
+                            </svg>
+                            AI-Recommended Team
+                        </h2>
+                        <p class="section-subtitle">Optimal configuration for maximum chemistry</p>
+                    </div>
+                    <div class="team-size-badge" id="optimalTeamSize">4 members</div>
+                </div>
+
+                <!-- Optimal Team Members Container -->
+                <div class="optimal-team-container" id="optimalTeamContainer">
+                    <!-- Members will be populated by JavaScript -->
+                    <!-- Example structure:
+                    <div class="optimizer-member-card optimal" draggable="true" data-member-id="T001">
+                        <div class="optimizer-member-avatar">AS</div>
+                        <div class="optimizer-member-info">
+                            <div class="optimizer-member-name">Alex Smith</div>
+                            <div class="optimizer-member-role">Senior Engineer</div>
+                        </div>
+                        <div class="optimizer-member-badge fresh">Fresh</div>
+                    </div>
+                    -->
+                </div>
+
+                <!-- Drop Zone Indicator (shows when dragging) -->
+                <div class="drop-zone-indicator" id="optimalDropZone" style="display: none;">
+                    Drop here to add to optimal team
+                </div>
+            </div>
+
+            <!-- Right Column: Remaining Pool -->
+            <div class="optimizer-section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px; color: var(--primary-purple);">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Remaining Pool Members
+                        </h2>
+                        <p class="section-subtitle">Drag members to test alternative configurations</p>
+                    </div>
+                    <div class="team-size-badge" id="remainingPoolSize">6 members</div>
+                </div>
+
+                <!-- Remaining Pool Members Container -->
+                <div class="remaining-pool-container" id="remainingPoolContainer">
+                    <!-- Members will be populated by JavaScript -->
+                </div>
+
+                <!-- Drop Zone Indicator (shows when dragging) -->
+                <div class="drop-zone-indicator" id="poolDropZone" style="display: none;">
+                    Drop here to remove from team
+                </div>
+            </div>
+        </div>
+
+        <!-- Chemistry Score & Controls -->
+        <div class="optimizer-controls">
+            
+            <!-- Live Chemistry Score -->
+            <div class="chemistry-display-card">
+                <div class="chemistry-score-section">
+                    <div class="chemistry-label">Current Chemistry Score</div>
+                    <div class="chemistry-score-large" id="liveChemistryScore">85</div>
+                    <div class="chemistry-comparison" id="chemistryComparison">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--success);">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                        <span>Using AI recommendation</span>
+                    </div>
+                </div>
+
+                <!-- Override Checkbox -->
+                <div class="override-section">
+                    <label class="override-checkbox-label">
+                        <input type="checkbox" id="overrideCheckbox" onchange="handleOverrideToggle()">
+                        <span class="checkbox-custom"></span>
+                        <div class="checkbox-text">
+                            <div class="checkbox-title">Override AI Recommendation</div>
+                            <div class="checkbox-subtitle">Manually adjust team configuration</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="optimizer-actions">
+                <!-- Deploy Button (Green when AI, Gray when overridden) -->
+                <button class="action-button primary large" id="deployToSlackBtn" onclick="deployTeamToSlack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+                        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+                        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+                    </svg>
+                    Deploy to Slack
+                </button>
+
+                <!-- Reset to AI Button (only shows when overridden) -->
+                <button class="action-button secondary" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                    Reset to AI Recommendation
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Panel: How Drag & Drop Works -->
+        <div class="info-panel">
+            <div class="info-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+            </div>
+            <div class="info-content">
+                <strong>How it works:</strong> Drag members between sections to test different configurations. 
+                Chemistry score updates in real-time. Override checkbox enables when you modify the AI recommendation. 
+                Deploy button stays green for AI recommendations, turns gray for manual configurations.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OPTIMIZE TEAM MODULE VIEW (LEGACY) -->
     <!-- ============================================ -->
     
     <div class="app-container hidden" id="optimizeView">
