@@ -1503,14 +1503,106 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('optimizerTeamName').textContent = teamName;
   document.getElementById('optimizerChemistry').textContent = chemistry;
   
-  // Phase 3B will populate the member lists here
-  // For now, just switch to the view
+  // Update large chemistry score display
+  document.getElementById('liveChemistryScore').textContent = chemistry;
+  
+  // Populate member lists (Phase 3B)
+  populateOptimizerView();
   
   // Hide Build Team view, show Optimizer view
   document.getElementById('buildView').classList.add('hidden');
   document.getElementById('optimizerView').classList.remove('hidden');
   
-  console.log('Optimizer View opened - Phase 3B will populate members');
+  console.log('Optimizer View opened successfully');
+}
+
+/**
+ * Populate Optimizer View with member cards (Phase 3B)
+ */
+function populateOptimizerView() {
+  if (!window.optimizerState) {
+    console.error('No optimizer state found');
+    return;
+  }
+  
+  console.log('Populating Optimizer View...');
+  
+  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
+  
+  // Get containers
+  const optimalContainer = document.getElementById('optimalTeamContainer');
+  const remainingContainer = document.getElementById('remainingPoolContainer');
+  
+  // Clear containers
+  optimalContainer.innerHTML = '';
+  remainingContainer.innerHTML = '';
+  
+  // Filter pool to get remaining members (not in optimal team)
+  const remainingMembers = currentTeamPool.filter(member => 
+    !currentOptimalTeam.includes(member.id)
+  );
+  
+  console.log('Optimal team members:', currentOptimalTeam.length);
+  console.log('Remaining pool members:', remainingMembers.length);
+  
+  // Populate optimal team
+  currentOptimalTeam.forEach(memberId => {
+    const member = currentTeamPool.find(m => m.id === memberId);
+    if (member) {
+      optimalContainer.appendChild(createOptimizerMemberCard(member, true));
+    }
+  });
+  
+  // Populate remaining pool
+  remainingMembers.forEach(member => {
+    remainingContainer.appendChild(createOptimizerMemberCard(member, false));
+  });
+  
+  // Update size badges
+  document.getElementById('optimalTeamSize').textContent = 
+    `${currentOptimalTeam.length} member${currentOptimalTeam.length !== 1 ? 's' : ''}`;
+  document.getElementById('remainingPoolSize').textContent = 
+    `${remainingMembers.length} member${remainingMembers.length !== 1 ? 's' : ''}`;
+  
+  console.log('Optimizer View populated successfully');
+}
+
+/**
+ * Create an optimizer member card (Phase 3B)
+ * @param {Object} member - Member data
+ * @param {boolean} isOptimal - Whether this is in the optimal team
+ */
+function createOptimizerMemberCard(member, isOptimal) {
+  const card = document.createElement('div');
+  card.className = `optimizer-member-card${isOptimal ? ' optimal' : ''}`;
+  card.setAttribute('draggable', 'true');
+  card.setAttribute('data-member-id', member.id);
+  
+  // Get initials for avatar
+  const nameParts = member.name.split(' ');
+  const initials = nameParts.length >= 2 
+    ? nameParts[0][0] + nameParts[1][0]
+    : nameParts[0][0] + (nameParts[0][1] || '');
+  
+  // Determine freshness class
+  const freshnessClass = formatQuizDate(member.lastQuiz);
+  
+  // Determine freshness label
+  let freshnessLabel = 'Fresh';
+  if (freshnessClass === 'recent') freshnessLabel = 'Recent';
+  else if (freshnessClass === 'stale') freshnessLabel = 'Stale';
+  else if (freshnessClass === 'old') freshnessLabel = 'Old';
+  
+  card.innerHTML = `
+    <div class="optimizer-member-avatar">${initials.toUpperCase()}</div>
+    <div class="optimizer-member-info">
+      <div class="optimizer-member-name">${member.name}</div>
+      <div class="optimizer-member-role">${member.role}</div>
+    </div>
+    <div class="optimizer-member-badge ${freshnessClass}">${freshnessLabel}</div>
+  `;
+  
+  return card;
 }
 
 /**
@@ -1672,6 +1764,10 @@ window.TeamSyncApp = {
   handleOverrideToggle,
   deployTeamToSlack,
   resetToAIRecommendation,
+  
+  // Phase 3B - Optimizer Member Population
+  populateOptimizerView,
+  createOptimizerMemberCard,
   
   // Legacy Functions
   calculateChemistryScore,
