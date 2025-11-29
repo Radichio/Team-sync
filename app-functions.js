@@ -1347,7 +1347,12 @@ function addNewTeamToList(teamName, memberCount, chemistryScore, optimalMembers 
     name: teamName,
     chemistry: chemistryScore,
     memberCount: memberCount,
-    optimalMembers: optimalMembers.length > 0 ? optimalMembers : window.currentOptimalTeam || [],
+    // Convert member objects to IDs if needed
+    optimalMembers: optimalMembers.length > 0 
+      ? optimalMembers.map(m => typeof m === 'string' ? m : m.id)
+      : (window.currentOptimalTeam || []),
+    // Store the full pool for optimizer view
+    teamPool: window.currentTeamPool || (AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad),
     quizType: AppState.currentQuizType,
     createdAt: new Date().toISOString()
   };
@@ -1492,7 +1497,7 @@ function openOptimizerForTeam(teamName, chemistry) {
     teamName: teamName,
     originalChemistry: chemistry,
     currentOptimalTeam: teamData.optimalMembers || [],
-    currentTeamPool: teamData.quizType === 'team' ? memberPools.team : memberPools.dyad,
+    currentTeamPool: teamData.teamPool || (teamData.quizType === 'team' ? memberPools.team : memberPools.dyad),
     quizType: teamData.quizType,
     isOverridden: false
   };
@@ -1526,8 +1531,12 @@ function populateOptimizerView() {
   }
   
   console.log('Populating Optimizer View...');
+  console.log('Optimizer state:', window.optimizerState);
   
   const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
+  
+  console.log('Current optimal team IDs:', currentOptimalTeam);
+  console.log('Current team pool:', currentTeamPool);
   
   // Get containers
   const optimalContainer = document.getElementById('optimalTeamContainer');
@@ -1550,6 +1559,8 @@ function populateOptimizerView() {
     const member = currentTeamPool.find(m => m.id === memberId);
     if (member) {
       optimalContainer.appendChild(createOptimizerMemberCard(member, true));
+    } else {
+      console.warn('Member not found in pool:', memberId);
     }
   });
   
