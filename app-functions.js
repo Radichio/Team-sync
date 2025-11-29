@@ -1641,7 +1641,6 @@ function createOptimizerMemberCard(member, isOptimal) {
     <div class="optimizer-member-info">
       <div class="optimizer-member-name">${member.name}</div>
     </div>
-    <div class="optimizer-member-badge ${freshnessClass}">${freshnessLabel}</div>
   `;
   
   return card;
@@ -1819,8 +1818,17 @@ function moveToOptimalTeam(memberId) {
 function moveToRemainingPool(memberId) {
   if (!window.optimizerState) return;
   
+  const { currentOptimalTeam, quizType } = window.optimizerState;
+  const minTeamSize = quizType === 'dyad' ? 2 : 3;
+  
+  // Prevent removing if at minimum team size
+  if (currentOptimalTeam.length <= minTeamSize) {
+    console.log(`Cannot remove member: minimum team size is ${minTeamSize}`);
+    return;
+  }
+  
   // Remove from optimal team
-  const index = window.optimizerState.currentOptimalTeam.indexOf(memberId);
+  const index = currentOptimalTeam.indexOf(memberId);
   if (index > -1) {
     window.optimizerState.currentOptimalTeam.splice(index, 1);
     
@@ -1846,22 +1854,37 @@ function moveToRemainingPool(memberId) {
 function recalculateChemistry() {
   if (!window.optimizerState) return;
   
-  const { currentOptimalTeam, currentTeamPool } = window.optimizerState;
+  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
+  const minTeamSize = quizType === 'dyad' ? 2 : 3;
   
   // Get member objects for current team
   const teamMembers = currentOptimalTeam
     .map(id => currentTeamPool.find(m => m.id === id))
     .filter(m => m); // Remove any nulls
   
-  if (teamMembers.length < 2) {
+  // Check if team size is valid
+  if (teamMembers.length < minTeamSize) {
     // Not enough members for chemistry calculation
+    document.getElementById('heroChemistryScore').textContent = 'N/A';
     document.getElementById('liveChemistryScore').textContent = '--';
+    document.getElementById('subscaleUnderstanding').textContent = 'N/A';
+    document.getElementById('subscaleTrust').textContent = 'N/A';
+    document.getElementById('subscaleEase').textContent = 'N/A';
+    document.getElementById('subscaleIntegration').textContent = 'N/A';
+    console.log(`Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
     return;
   }
   
   // Calculate chemistry using Mental Synchrony algorithm
   const chemistry = calculateTeamChemistry(teamMembers);
-  const subscales = calculateIndividualSubscales(teamMembers);
+  
+  // Calculate individual subscale scores by averaging member subscales
+  const subscales = {
+    understanding: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.understanding, 0) / teamMembers.length),
+    trust: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.trust, 0) / teamMembers.length),
+    ease: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.ease, 0) / teamMembers.length),
+    integration: Math.round(teamMembers.reduce((sum, m) => sum + m.subscales.integration, 0) / teamMembers.length)
+  };
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
