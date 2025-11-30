@@ -2575,10 +2575,17 @@ body.light-mode .ripple-effect {
 .subscale-value {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary-blue); /* Fallback for non-gradient browsers */
+}
+
+/* Only apply gradient if background-clip is supported */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+    .subscale-value {
+        background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 }
 
 @media (max-width: 768px) {
