@@ -1902,10 +1902,40 @@ function recalculateChemistry() {
   const easeEl = document.getElementById('subscaleEase');
   const integrationEl = document.getElementById('subscaleIntegration');
   
-  if (understandingEl) understandingEl.textContent = subscales.understanding + '%';
-  if (trustEl) trustEl.textContent = subscales.trust + '%';
-  if (easeEl) easeEl.textContent = subscales.ease + '%';
-  if (integrationEl) integrationEl.textContent = subscales.integration + '%';
+  console.log('Found elements:', {
+    understanding: understandingEl,
+    trust: trustEl,
+    ease: easeEl,
+    integration: integrationEl
+  });
+  
+  if (understandingEl) {
+    understandingEl.textContent = subscales.understanding + '%';
+    console.log('Set understanding to:', understandingEl.textContent);
+  } else {
+    console.error('subscaleUnderstanding element NOT FOUND');
+  }
+  
+  if (trustEl) {
+    trustEl.textContent = subscales.trust + '%';
+    console.log('Set trust to:', trustEl.textContent);
+  } else {
+    console.error('subscaleTrust element NOT FOUND');
+  }
+  
+  if (easeEl) {
+    easeEl.textContent = subscales.ease + '%';
+    console.log('Set ease to:', easeEl.textContent);
+  } else {
+    console.error('subscaleEase element NOT FOUND');
+  }
+  
+  if (integrationEl) {
+    integrationEl.textContent = subscales.integration + '%';
+    console.log('Set integration to:', integrationEl.textContent);
+  } else {
+    console.error('subscaleIntegration element NOT FOUND');
+  }
   
   console.log('Subscale elements updated:', {
     understanding: understandingEl?.textContent,
