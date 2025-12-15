@@ -160,7 +160,9 @@ const memberPools = {
     { id: 'T009', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-06-15', hasDual: true,
       msScore: 58, subscales: { understanding: 54, trust: 66, ease: 56, integration: 58 } },
     { id: 'T010', name: 'Kevin Brown', initials: 'KB', quizDate: null,
-      msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } }
+      msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } },
+    { id: 'T011', name: 'Marcus Rivera', initials: 'MR', quizDate: null,
+      msScore: null, subscales: null } // New candidate - no assessment yet
   ],
   dyad: [
     { id: 'D001', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-12-19', hasDual: true,
@@ -2568,7 +2570,7 @@ function populateSupervisorSelects() {
         const option = document.createElement('option');
         option.value = member.id;
         option.textContent = member.name;
-        option.dataset.chemistry = member.chemistry;
+        option.dataset.chemistry = member.msScore; // Use msScore from member data
         supervisorSelect.appendChild(option);
     });
 
@@ -2599,7 +2601,18 @@ function updateSupervisorMatch() {
     const teamChemistry = getTeamChemistry(teamId);
     const supervisorChemistry = getSupervisorChemistry(supervisorId);
 
-    // Calculate match score and quality
+    // Check if supervisor has completed their assessment
+    if (!supervisorChemistry || supervisorChemistry === 0) {
+        // Show "no assessment" state
+        displayNoAssessmentState(teamChemistry, supervisorId);
+        resultsContainer.style.display = 'block';
+        setTimeout(() => {
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+        return;
+    }
+
+    // Calculate match score and quality (only if both scores exist)
     const matchResult = calculateMatchScore(teamChemistry, supervisorChemistry);
 
     // Display results
@@ -2725,6 +2738,80 @@ function getMatchQuality(matchScore, teamScore, supervisorScore) {
         text: 'Poor Match',
         description: 'Significant chemistry mismatch. Alternative supervisor recommended.'
     };
+}
+
+/**
+ * Display "no assessment" state when supervisor hasn't completed their quiz
+ * @param {number} teamChemistry - Team chemistry score
+ * @param {string} supervisorId - Supervisor member ID
+ */
+function displayNoAssessmentState(teamChemistry, supervisorId) {
+    // Get supervisor name
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    const supervisorName = supervisorSelect.options[supervisorSelect.selectedIndex].text;
+    
+    // Update score displays
+    document.getElementById('teamChemistryScore').textContent = teamChemistry + '%';
+    document.getElementById('supervisorReadinessScore').textContent = '--';
+    document.getElementById('matchQualityScore').textContent = '--';
+    
+    // Update match indicator to show "assessment needed"
+    const indicator = document.getElementById('matchQualityIndicator');
+    indicator.className = 'match-indicator caution';
+    indicator.innerHTML = `
+        <span class="match-emoji">📋</span>
+        <span class="match-text">Assessment Needed</span>
+    `;
+    
+    // Update explanation
+    document.getElementById('matchExplanation').innerHTML = `
+        <strong>${supervisorName}</strong> has not completed their individual chemistry assessment yet. 
+        Send them the quiz to generate a match prediction.
+    `;
+    
+    // Show action needed in impact assessment
+    const container = document.getElementById('impactAssessment');
+    container.innerHTML = `
+        <h4 class="subsection-title" style="margin-bottom: 16px;">Next Steps</h4>
+        <div class="impact-item">
+            <div class="impact-icon">📋</div>
+            <div class="impact-content">
+                <div class="impact-title">Assessment Required</div>
+                <div class="impact-description">${supervisorName} needs to complete the individual chemistry assessment before a match can be calculated.</div>
+            </div>
+        </div>
+        <div class="impact-item">
+            <div class="impact-icon">⚡</div>
+            <div class="impact-content">
+                <div class="impact-title">Quick Process</div>
+                <div class="impact-description">The assessment takes 2 minutes to complete and provides an instant match prediction.</div>
+            </div>
+        </div>
+        <div class="impact-item">
+            <div class="impact-icon">🎯</div>
+            <div class="impact-content">
+                <div class="impact-title">Predictive Matching</div>
+                <div class="impact-description">Using individual chemistry profiles, we predict compatibility before making hiring decisions.</div>
+            </div>
+        </div>
+        <div style="margin-top: 20px; padding: 16px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px;">
+            <button class="btn-primary" onclick="sendSupervisorQuiz('${supervisorId}', '${supervisorName}')" style="width: 100%;">
+                <span class="btn-icon">📤</span>
+                Send Assessment to ${supervisorName}
+            </button>
+        </div>
+    `;
+    
+    // Hide subscale comparison (not applicable without data)
+    const subscaleContainer = document.getElementById('subscaleComparison');
+    subscaleContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Subscale comparison will be available after assessment is completed.</p>';
+    
+    // Disable assign button
+    const assignButton = document.getElementById('assignButton');
+    assignButton.disabled = true;
+    assignButton.style.opacity = '0.5';
+    
+    console.log('No assessment state displayed for:', supervisorName);
 }
 
 /**
@@ -2942,11 +3029,33 @@ function assignSupervisor() {
     });
 }
 
+/**
+ * Send assessment quiz to supervisor candidate
+ * @param {string} supervisorId - Supervisor member ID  
+ * @param {string} supervisorName - Supervisor name for display
+ */
+function sendSupervisorQuiz(supervisorId, supervisorName) {
+    // In real app, this would:
+    // 1. Generate unique quiz link for this supervisor
+    // 2. Send via Slack or email
+    // 3. Track completion status
+    // 4. Update supervisor's chemistry profile when completed
+    
+    alert(`📤 Assessment Invitation Sent!\n\n${supervisorName} will receive:\n\n• Slack DM with quiz link\n• Email notification (backup)\n• 2-minute individual assessment\n• Instant results upon completion\n\nYou'll be notified when ${supervisorName} completes the assessment, and the match prediction will be automatically generated.\n\nThis feature is coming soon in the full TeamSync platform.`);
+    
+    console.log('Quiz sent to supervisor:', {
+        supervisorId: supervisorId,
+        supervisorName: supervisorName,
+        timestamp: new Date().toISOString()
+    });
+}
+
 // Export supervisor functions for use in navigation
 window.populateSupervisorSelects = populateSupervisorSelects;
 window.updateSupervisorMatch = updateSupervisorMatch;
 window.tryAnotherSupervisor = tryAnotherSupervisor;
 window.assignSupervisor = assignSupervisor;
+window.sendSupervisorQuiz = sendSupervisorQuiz;
 
 console.log('Module 3: Match a Supervisor functions loaded');
 
