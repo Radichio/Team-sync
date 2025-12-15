@@ -2190,7 +2190,7 @@ function populateConflictSelects() {
     personBSelect.innerHTML = '<option value="">Select team member...</option>';
     
     // Use demo members with quiz data
-    demoMembers.forEach(member => {
+    memberPools.team.forEach(member => {
         const optionA = document.createElement('option');
         optionA.value = member.id;
         optionA.textContent = member.name;
@@ -2202,7 +2202,7 @@ function populateConflictSelects() {
         personBSelect.appendChild(optionB);
     });
     
-    console.log('Conflict selects populated with', demoMembers.length, 'members');
+    console.log('Conflict selects populated with', memberPools.team.length, 'members');
 }
 
 /**
@@ -2227,8 +2227,8 @@ function updateConflictAnalysis() {
     }
     
     // Get member data
-    const personA = demoMembers.find(m => m.id === personAId);
-    const personB = demoMembers.find(m => m.id === personBId);
+    const personA = memberPools.team.find(m => m.id === personAId);
+    const personB = memberPools.team.find(m => m.id === personBId);
     
     if (!personA || !personB) {
         console.error('Could not find member data');
