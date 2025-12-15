@@ -1994,12 +1994,6 @@ body.light-mode .ripple-effect {
     margin-bottom: 8px;
 }
 
-.hero-score::after {
-    content: '%';
-    font-size: 3rem;
-    margin-left: 4px;
-}
-
 .hero-label {
     font-size: 1rem;
     font-weight: 600;
@@ -2715,8 +2709,8 @@ body.light-mode .ripple-effect {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
     border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 32px;
+    padding: 20px;
+    margin-bottom: 24px;
 }
 
 .message-icon {
@@ -2736,20 +2730,20 @@ body.light-mode .ripple-effect {
     background: var(--surface-primary);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 32px;
+    padding: 20px;
+    margin-bottom: 24px;
 }
 
 .section-title {
-    margin: 0 0 16px 0;
+    margin: 0 0 12px 0;
     color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 700;
 }
 
 .subscale-item {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--border-primary);
 }
 
@@ -2763,7 +2757,7 @@ body.light-mode .ripple-effect {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .subscale-name {
