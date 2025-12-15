@@ -2654,6 +2654,17 @@ body.light-mode .ripple-effect {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.member-select option {
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 8px 12px;
+}
+
+.member-select option:hover {
+    background: var(--primary-blue);
+    color: #ffffff;
+}
+
 /* Results Container */
 .conflict-results {
     animation: fadeIn 0.3s ease-in;
