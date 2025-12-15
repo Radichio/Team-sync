@@ -2247,9 +2247,16 @@ function updateConflictAnalysis() {
     if (resultsContainer) {
         resultsContainer.style.display = 'block';
         
-        // Smooth scroll to results
+        // Smooth scroll to center results (shows hero score and analysis)
         setTimeout(() => {
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const heroScore = document.querySelector('.hero-score-container');
+            if (heroScore) {
+                heroScore.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Add small offset by scrolling up slightly
+                setTimeout(() => {
+                    window.scrollBy({ top: -80, behavior: 'smooth' });
+                }, 150);
+            }
         }, 100);
     }
 }
