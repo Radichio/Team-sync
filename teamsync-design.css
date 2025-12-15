@@ -2741,15 +2741,15 @@ body.light-mode .ripple-effect {
 }
 
 .section-title {
-    margin: 0 0 24px 0;
+    margin: 0 0 16px 0;
     color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 700;
 }
 
 .subscale-item {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--border-primary);
 }
 
@@ -2763,7 +2763,7 @@ body.light-mode .ripple-effect {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .subscale-name {
