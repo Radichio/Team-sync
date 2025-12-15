@@ -3052,12 +3052,34 @@ function sendSupervisorQuiz(supervisorId, supervisorName) {
     });
 }
 
+/**
+ * Reset supervisor view - clear selections and hide results
+ * Called when view loads to prevent showing stale data
+ */
+function resetSupervisorView() {
+    // Clear dropdown selections
+    const teamSelect = document.getElementById('supervisorTeam');
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    
+    if (teamSelect) teamSelect.value = '';
+    if (supervisorSelect) supervisorSelect.value = '';
+    
+    // Hide results container
+    const resultsContainer = document.getElementById('supervisorResults');
+    if (resultsContainer) {
+        resultsContainer.style.display = 'none';
+    }
+    
+    console.log('Supervisor view reset');
+}
+
 // Export supervisor functions for use in navigation
 window.populateSupervisorSelects = populateSupervisorSelects;
 window.updateSupervisorMatch = updateSupervisorMatch;
 window.tryAnotherSupervisor = tryAnotherSupervisor;
 window.assignSupervisor = assignSupervisor;
 window.sendSupervisorQuiz = sendSupervisorQuiz;
+window.resetSupervisorView = resetSupervisorView;
 
 console.log('Module 3: Match a Supervisor functions loaded');
 

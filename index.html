@@ -793,7 +793,7 @@
         <!-- Header -->
         <div class="view-header">
             <h2>Match a Supervisor</h2>
-            <button class="back-button" onclick="goToLanding()">← Back to Dashboard</button>
+            <button class="back-btn" onclick="goToLanding()">← Back to Dashboard</button>
         </div>
 
         <!-- Selection Interface -->
@@ -875,13 +875,11 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn-secondary" onclick="tryAnotherSupervisor()">
-                    <span class="btn-icon">🔄</span>
-                    Try Another Match
+                <button class="action-button secondary" onclick="tryAnotherSupervisor()">
+                    🔄 Try Another Match
                 </button>
-                <button class="btn-primary" onclick="assignSupervisor()" id="assignButton" disabled>
-                    <span class="btn-icon">✓</span>
-                    Assign Supervisor
+                <button class="action-button primary" onclick="assignSupervisor()" id="assignButton" disabled>
+                    ✓ Assign Supervisor
                 </button>
             </div>
 
@@ -954,76 +952,6 @@
                 <p class="module-description" style="margin-top: 24px;">
                     This team configuration shows strong collaborative potential. The core team has 
                     complementary work styles and communication preferences.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================ -->
-    <!-- SUPERVISOR MATCH MODULE VIEW -->
-    <!-- ============================================ -->
-    
-    <div class="app-container hidden" id="supervisorView">
-        <div class="app-header">
-            <div>
-                <h1 class="welcome-title">Match Supervisor</h1>
-                <p class="welcome-subtitle">Find the optimal leadership fit for your team</p>
-            </div>
-            <button class="demo-toggle" id="backFromSupervisor">
-                ← Back to Dashboard
-            </button>
-        </div>
-
-        <div class="modules-grid">
-            <!-- Supervisor 1 -->
-            <div class="module-card blue">
-                <h3 class="module-title">Dr. Maya Patel</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Engineering Director</p>
-                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">92%</div>
-                <p class="module-description" style="margin-top: 16px;">
-                    Strong technical mentorship style<br>
-                    Collaborative decision-making approach<br>
-                    High emotional intelligence scores<br>
-                    Matches team communication style
-                </p>
-            </div>
-
-            <!-- Supervisor 2 -->
-            <div class="module-card purple">
-                <h3 class="module-title">James Chen</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Product VP</p>
-                <div class="module-badge badge-purple" style="font-size: 1.5rem; padding: 12px 24px;">78%</div>
-                <p class="module-description" style="margin-top: 16px;">
-                    Results-oriented leadership<br>
-                    Strong strategic vision<br>
-                    Cross-functional experience<br>
-                    More directive style than team prefers
-                </p>
-            </div>
-
-            <!-- Supervisor 3 -->
-            <div class="module-card pink">
-                <h3 class="module-title">Sarah Kim</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Design Lead</p>
-                <div class="module-badge badge-green" style="font-size: 1.5rem; padding: 12px 24px;">88%</div>
-                <p class="module-description" style="margin-top: 16px;">
-                    Empathetic leadership approach<br>
-                    Creative problem-solving style<br>
-                    Excellent at conflict resolution<br>
-                    Promotes psychological safety
-                </p>
-            </div>
-
-            <!-- Supervisor 4 -->
-            <div class="module-card green">
-                <h3 class="module-title">Marcus Rodriguez</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">Operations Manager</p>
-                <div class="module-badge badge-pink" style="font-size: 1.5rem; padding: 12px 24px;">64%</div>
-                <p class="module-description" style="margin-top: 16px;">
-                    Strong process optimization skills<br>
-                    Clear communication style<br>
-                    Less flexible with autonomy<br>
-                    Prefers hierarchical structure
                 </p>
             </div>
         </div>

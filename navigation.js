@@ -122,6 +122,10 @@ function navigateToModule(moduleName) {
     if (viewName === 'supervisor' && typeof populateSupervisorSelects === 'function') {
         setTimeout(() => {
             populateSupervisorSelects();
+            // Reset the view - clear selections and hide results
+            if (typeof resetSupervisorView === 'function') {
+                resetSupervisorView();
+            }
         }, 10);
     }
 }
