@@ -110,6 +110,13 @@ function navigateToModule(moduleName) {
             initializeBuildTeamView();
         }, 10);
     }
+    
+    // Phase 4A - Initialize Conflict view when it loads
+    if (viewName === 'conflict' && typeof populateConflictSelects === 'function') {
+        setTimeout(() => {
+            populateConflictSelects();
+        }, 10);
+    }
 }
 
 /**
