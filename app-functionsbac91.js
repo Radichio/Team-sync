@@ -844,7 +844,7 @@ Team members: ${memberNames}
 
 Your responses will help us:
 ✓ Optimize team collaboration
-✓ Identify potential disconnect points early
+✓ Identify potential friction points early
 ✓ Build stronger working relationships
 
 Thanks! 🙏`;

@@ -271,29 +271,6 @@ function calculateSubscaleAlignment(members) {
 }
 
 /**
- * Calculate individual subscale scores for display
- * @param {Array} members - Team members
- * @returns {Object} Object with understanding, trust, ease, integration scores
- */
-function calculateIndividualSubscales(members) {
-  const dimensions = ['understanding', 'trust', 'ease', 'integration'];
-  const subscaleScores = {};
-  
-  dimensions.forEach(dim => {
-    const values = members.map(m => m.subscales[dim]);
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
-    
-    // Lower variance = better alignment
-    // Variance of 0-100 scaled to alignment score of 100-60
-    const alignmentForDim = Math.max(60, 100 - variance * 0.4);
-    subscaleScores[dim] = Math.round(alignmentForDim);
-  });
-  
-  return subscaleScores;
-}
-
-/**
  * Find optimal team configurations from available members
  * Tests all possible combinations within size constraints
  * @param {Array} availableMembers - Pool of members to choose from
@@ -844,7 +821,7 @@ Team members: ${memberNames}
 
 Your responses will help us:
 ✓ Optimize team collaboration
-✓ Identify potential disconnect points early
+✓ Identify potential friction points early
 ✓ Build stronger working relationships
 
 Thanks! 🙏`;
@@ -1370,12 +1347,7 @@ function addNewTeamToList(teamName, memberCount, chemistryScore, optimalMembers 
     name: teamName,
     chemistry: chemistryScore,
     memberCount: memberCount,
-    // Convert member objects to IDs if needed
-    optimalMembers: optimalMembers.length > 0 
-      ? optimalMembers.map(m => typeof m === 'string' ? m : m.id)
-      : (window.currentOptimalTeam || []),
-    // Store the full pool for optimizer view
-    teamPool: window.currentTeamPool || (AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad),
+    optimalMembers: optimalMembers.length > 0 ? optimalMembers : window.currentOptimalTeam || [],
     quizType: AppState.currentQuizType,
     createdAt: new Date().toISOString()
   };
@@ -1520,7 +1492,7 @@ function openOptimizerForTeam(teamName, chemistry) {
     teamName: teamName,
     originalChemistry: chemistry,
     currentOptimalTeam: teamData.optimalMembers || [],
-    currentTeamPool: teamData.teamPool || (teamData.quizType === 'team' ? memberPools.team : memberPools.dyad),
+    currentTeamPool: teamData.quizType === 'team' ? memberPools.team : memberPools.dyad,
     quizType: teamData.quizType,
     isOverridden: false
   };
@@ -1531,420 +1503,14 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('optimizerTeamName').textContent = teamName;
   document.getElementById('optimizerChemistry').textContent = chemistry;
   
-  // Update hero chemistry score
-  document.getElementById('heroChemistryScore').textContent = chemistry;
-  
-  // Update large chemistry score display
-  document.getElementById('liveChemistryScore').textContent = chemistry;
-  
-  // Populate member lists (Phase 3B)
-  populateOptimizerView();
+  // Phase 3B will populate the member lists here
+  // For now, just switch to the view
   
   // Hide Build Team view, show Optimizer view
-  document.getElementById('buildView').classList.add('hidden');
+  document.getElementById('buildTeamView').classList.add('hidden');
   document.getElementById('optimizerView').classList.remove('hidden');
   
-  // Scroll to top of page
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  
-  console.log('Optimizer View opened successfully');
-}
-
-/**
- * Populate Optimizer View with member cards (Phase 3B)
- */
-function populateOptimizerView() {
-  if (!window.optimizerState) {
-    console.error('No optimizer state found');
-    return;
-  }
-  
-  console.log('Populating Optimizer View...');
-  console.log('Optimizer state:', window.optimizerState);
-  
-  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
-  
-  console.log('Current optimal team IDs:', currentOptimalTeam);
-  console.log('Current team pool:', currentTeamPool);
-  
-  // Get containers
-  const optimalContainer = document.getElementById('optimalTeamContainer');
-  const remainingContainer = document.getElementById('remainingPoolContainer');
-  
-  // Clear containers
-  optimalContainer.innerHTML = '';
-  remainingContainer.innerHTML = '';
-  
-  // Filter pool to get remaining members (not in optimal team)
-  const remainingMembers = currentTeamPool.filter(member => 
-    !currentOptimalTeam.includes(member.id)
-  );
-  
-  console.log('Optimal team members:', currentOptimalTeam.length);
-  console.log('Remaining pool members:', remainingMembers.length);
-  
-  // Populate optimal team
-  currentOptimalTeam.forEach(memberId => {
-    const member = currentTeamPool.find(m => m.id === memberId);
-    if (member) {
-      optimalContainer.appendChild(createOptimizerMemberCard(member, true));
-    } else {
-      console.warn('Member not found in pool:', memberId);
-    }
-  });
-  
-  // Populate remaining pool
-  remainingMembers.forEach(member => {
-    remainingContainer.appendChild(createOptimizerMemberCard(member, false));
-  });
-  
-  // Update size badges
-  document.getElementById('optimalTeamSize').textContent = 
-    `${currentOptimalTeam.length} member${currentOptimalTeam.length !== 1 ? 's' : ''}`;
-  document.getElementById('remainingPoolSize').textContent = 
-    `${remainingMembers.length} member${remainingMembers.length !== 1 ? 's' : ''}`;
-  
-  console.log('Optimizer View populated successfully');
-  
-  // Initialize drag and drop
-  initializeOptimizerDragDrop();
-  
-  // Calculate and display chemistry
-  recalculateChemistry();
-}
-
-/**
- * Create an optimizer member card (Phase 3B)
- * @param {Object} member - Member data
- * @param {boolean} isOptimal - Whether this is in the optimal team
- */
-function createOptimizerMemberCard(member, isOptimal) {
-  const card = document.createElement('div');
-  card.className = `optimizer-member-card${isOptimal ? ' optimal' : ''}`;
-  card.setAttribute('draggable', 'true');
-  card.setAttribute('data-member-id', member.id);
-  
-  // Get initials for avatar
-  const nameParts = member.name.split(' ');
-  const initials = nameParts.length >= 2 
-    ? nameParts[0][0] + nameParts[1][0]
-    : nameParts[0][0] + (nameParts[0][1] || '');
-  
-  // Determine freshness class
-  const freshnessClass = formatQuizDate(member.lastQuiz);
-  
-  // Determine freshness label
-  let freshnessLabel = 'Fresh';
-  if (freshnessClass === 'recent') freshnessLabel = 'Recent';
-  else if (freshnessClass === 'stale') freshnessLabel = 'Stale';
-  else if (freshnessClass === 'old') freshnessLabel = 'Old';
-  
-  card.innerHTML = `
-    <div class="optimizer-member-avatar">${initials.toUpperCase()}</div>
-    <div class="optimizer-member-info">
-      <div class="optimizer-member-name">${member.name}</div>
-    </div>
-  `;
-  
-  return card;
-}
-
-/**
- * Toggle subscale components display (Phase 3C)
- */
-function toggleSubscales() {
-  const toggle = document.getElementById('subscaleToggle');
-  const content = document.getElementById('subscaleContent');
-  
-  const isExpanded = content.classList.contains('expanded');
-  
-  if (isExpanded) {
-    content.classList.remove('expanded');
-    toggle.classList.remove('expanded');
-    content.style.display = 'none';
-  } else {
-    content.classList.add('expanded');
-    toggle.classList.add('expanded');
-    content.style.display = 'block';
-  }
-}
-
-/**
- * Initialize drag and drop for optimizer view (Phase 3C)
- */
-function initializeOptimizerDragDrop() {
-  console.log('Initializing drag and drop...');
-  
-  const optimalContainer = document.getElementById('optimalTeamContainer');
-  const remainingContainer = document.getElementById('remainingPoolContainer');
-  const optimalDropZone = document.getElementById('optimalDropZone');
-  const poolDropZone = document.getElementById('poolDropZone');
-  
-  // Enable drag events on containers
-  [optimalContainer, remainingContainer].forEach(container => {
-    container.addEventListener('dragover', handleDragOver);
-    container.addEventListener('drop', handleDrop);
-    container.addEventListener('dragleave', handleDragLeave);
-  });
-  
-  // Initialize draggable cards
-  updateDraggableCards();
-  
-  console.log('Drag and drop initialized');
-}
-
-/**
- * Update draggable cards with event listeners
- */
-function updateDraggableCards() {
-  const cards = document.querySelectorAll('.optimizer-member-card');
-  
-  cards.forEach(card => {
-    card.addEventListener('dragstart', handleDragStart);
-    card.addEventListener('dragend', handleDragEnd);
-  });
-}
-
-/**
- * Handle drag start
- */
-function handleDragStart(e) {
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member-id'));
-  e.target.style.opacity = '0.5';
-  
-  // Show appropriate drop zone
-  const isOptimal = e.target.classList.contains('optimal');
-  if (isOptimal) {
-    document.getElementById('poolDropZone').style.display = 'flex';
-  } else {
-    document.getElementById('optimalDropZone').style.display = 'flex';
-  }
-}
-
-/**
- * Handle drag end
- */
-function handleDragEnd(e) {
-  e.target.style.opacity = '1';
-  
-  // Hide all drop zones
-  document.getElementById('optimalDropZone').style.display = 'none';
-  document.getElementById('poolDropZone').style.display = 'none';
-}
-
-/**
- * Handle drag over
- */
-function handleDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  
-  // Highlight drop zone
-  const container = e.currentTarget;
-  if (container.id === 'optimalTeamContainer') {
-    const dropZone = document.getElementById('optimalDropZone');
-    if (dropZone.style.display === 'flex') {
-      dropZone.classList.add('active');
-    }
-  } else if (container.id === 'remainingPoolContainer') {
-    const dropZone = document.getElementById('poolDropZone');
-    if (dropZone.style.display === 'flex') {
-      dropZone.classList.add('active');
-    }
-  }
-}
-
-/**
- * Handle drag leave
- */
-function handleDragLeave(e) {
-  // Remove highlight from drop zones
-  document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
-    zone.classList.remove('active');
-  });
-}
-
-/**
- * Handle drop
- */
-function handleDrop(e) {
-  e.preventDefault();
-  
-  const memberId = e.dataTransfer.getData('text/plain');
-  const targetContainer = e.currentTarget;
-  
-  console.log('Dropped member:', memberId, 'into:', targetContainer.id);
-  
-  // Move member between lists
-  if (targetContainer.id === 'optimalTeamContainer') {
-    moveToOptimalTeam(memberId);
-  } else if (targetContainer.id === 'remainingPoolContainer') {
-    moveToRemainingPool(memberId);
-  }
-  
-  // Remove drop zone highlights
-  document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
-    zone.classList.remove('active');
-  });
-}
-
-/**
- * Move member to optimal team
- */
-function moveToOptimalTeam(memberId) {
-  if (!window.optimizerState) return;
-  
-  // Add to optimal team if not already there
-  if (!window.optimizerState.currentOptimalTeam.includes(memberId)) {
-    window.optimizerState.currentOptimalTeam.push(memberId);
-    
-    // Mark as overridden
-    window.optimizerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
-    
-    // Repopulate view
-    populateOptimizerView();
-    
-    // Recalculate chemistry
-    recalculateChemistry();
-    
-    // Reinitialize drag and drop
-    updateDraggableCards();
-  }
-}
-
-/**
- * Move member to remaining pool
- */
-function moveToRemainingPool(memberId) {
-  if (!window.optimizerState) return;
-  
-  // Allow removal - we'll show N/A if team becomes too small
-  const index = window.optimizerState.currentOptimalTeam.indexOf(memberId);
-  if (index > -1) {
-    window.optimizerState.currentOptimalTeam.splice(index, 1);
-    
-    // Mark as overridden
-    window.optimizerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
-    
-    // Repopulate view
-    populateOptimizerView();
-    
-    // Recalculate chemistry (will show N/A if too small)
-    recalculateChemistry();
-    
-    // Reinitialize drag and drop
-    updateDraggableCards();
-  }
-}
-
-/**
- * Recalculate team chemistry based on current optimal team
- */
-function recalculateChemistry() {
-  if (!window.optimizerState) return;
-  
-  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
-  const minTeamSize = quizType === 'dyad' ? 2 : 3;
-  const maxTeamSize = quizType === 'dyad' ? 2 : 8;
-  
-  // Get member objects for current team
-  const teamMembers = currentOptimalTeam
-    .map(id => currentTeamPool.find(m => m.id === id))
-    .filter(m => m); // Remove any nulls
-  
-  // Check if team size is valid (must be within min and max range)
-  if (teamMembers.length < minTeamSize || teamMembers.length > maxTeamSize) {
-    // Invalid team size - show N/A
-    document.getElementById('heroChemistryScore').textContent = 'N/A';
-    document.getElementById('liveChemistryScore').textContent = '--';
-    document.getElementById('subscaleUnderstanding').textContent = 'N/A';
-    document.getElementById('subscaleTrust').textContent = 'N/A';
-    document.getElementById('subscaleEase').textContent = 'N/A';
-    document.getElementById('subscaleIntegration').textContent = 'N/A';
-    
-    if (teamMembers.length < minTeamSize) {
-      console.log(`Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
-    } else {
-      console.log(`Team too large (${teamMembers.length}), maximum is ${maxTeamSize} for ${quizType} mode`);
-    }
-    return;
-  }
-  
-  // Calculate chemistry using Mental Synchrony algorithm
-  const chemistry = calculateTeamChemistry(teamMembers);
-  
-  // Calculate individual subscale scores by averaging member subscales
-  console.log('Team members for subscale calc:', teamMembers.map(m => ({ id: m.id, subscales: m.subscales })));
-  
-  const subscales = {
-    understanding: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.understanding || 0), 0) / teamMembers.length),
-    trust: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.trust || 0), 0) / teamMembers.length),
-    ease: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.ease || 0), 0) / teamMembers.length),
-    integration: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.integration || 0), 0) / teamMembers.length)
-  };
-  
-  console.log('Calculated subscales:', subscales);
-  
-  // Update hero chemistry score
-  document.getElementById('heroChemistryScore').textContent = chemistry;
-  
-  // Update main chemistry score
-  document.getElementById('liveChemistryScore').textContent = chemistry;
-  
-  // Update subscale scores
-  const understandingEl = document.getElementById('subscaleUnderstanding');
-  const trustEl = document.getElementById('subscaleTrust');
-  const easeEl = document.getElementById('subscaleEase');
-  const integrationEl = document.getElementById('subscaleIntegration');
-  
-  console.log('Found elements:', {
-    understanding: understandingEl,
-    trust: trustEl,
-    ease: easeEl,
-    integration: integrationEl
-  });
-  
-  if (understandingEl) {
-    understandingEl.textContent = subscales.understanding + '%';
-    console.log('Set understanding to:', understandingEl.textContent);
-  } else {
-    console.error('subscaleUnderstanding element NOT FOUND');
-  }
-  
-  if (trustEl) {
-    trustEl.textContent = subscales.trust + '%';
-    console.log('Set trust to:', trustEl.textContent);
-  } else {
-    console.error('subscaleTrust element NOT FOUND');
-  }
-  
-  if (easeEl) {
-    easeEl.textContent = subscales.ease + '%';
-    console.log('Set ease to:', easeEl.textContent);
-  } else {
-    console.error('subscaleEase element NOT FOUND');
-  }
-  
-  if (integrationEl) {
-    integrationEl.textContent = subscales.integration + '%';
-    console.log('Set integration to:', integrationEl.textContent);
-  } else {
-    console.error('subscaleIntegration element NOT FOUND');
-  }
-  
-  console.log('Subscale elements updated:', {
-    understanding: understandingEl?.textContent,
-    trust: trustEl?.textContent,
-    ease: easeEl?.textContent,
-    integration: integrationEl?.textContent
-  });
-  
-  console.log('Chemistry recalculated:', chemistry, 'Subscales:', subscales);
+  console.log('Optimizer View opened - Phase 3B will populate members');
 }
 
 /**
@@ -1958,7 +1524,7 @@ function closeOptimizerView() {
   
   // Hide Optimizer view, show Build Team view
   document.getElementById('optimizerView').classList.add('hidden');
-  document.getElementById('buildView').classList.remove('hidden');
+  document.getElementById('buildTeamView').classList.remove('hidden');
 }
 
 /**
@@ -2025,42 +1591,20 @@ function deployTeamToSlack() {
 }
 
 /**
- * Reset to AI Recommendation (Phase 3C)
+ * Reset to AI Recommendation (Phase 3C placeholder)
  */
 function resetToAIRecommendation() {
   console.log('Resetting to AI recommendation');
   
-  if (!window.optimizerState) return;
+  // Uncheck override
+  const checkbox = document.getElementById('overrideCheckbox');
+  checkbox.checked = false;
   
-  // Find the original team data
-  const teamName = window.optimizerState.teamName;
-  const teamCards = document.querySelectorAll('.team-card');
-  let originalTeamData = null;
+  // Trigger UI update
+  handleOverrideToggle();
   
-  for (let card of teamCards) {
-    if (card.getAttribute('data-team-name') === teamName) {
-      originalTeamData = card.teamData;
-      break;
-    }
-  }
-  
-  if (originalTeamData) {
-    // Restore original optimal team
-    window.optimizerState.currentOptimalTeam = [...originalTeamData.optimalMembers];
-    window.optimizerState.isOverridden = false;
-    
-    // Uncheck override
-    const checkbox = document.getElementById('overrideCheckbox');
-    checkbox.checked = false;
-    
-    // Trigger UI update
-    handleOverrideToggle();
-    
-    // Repopulate view with original team
-    populateOptimizerView();
-    
-    console.log('Restored to AI recommendation:', originalTeamData.optimalMembers);
-  }
+  // Phase 3C will restore original optimal team members
+  console.log('Phase 3C will restore original optimal team configuration');
 }
 
 // ========================================
@@ -2099,7 +1643,6 @@ window.TeamSyncApp = {
   // V45 Functions - Mental Synchrony Algorithms
   calculateTeamChemistry,
   calculateSubscaleAlignment,
-  calculateIndividualSubscales,
   findOptimalTeam,
   getCombinations,
   
@@ -2129,23 +1672,6 @@ window.TeamSyncApp = {
   handleOverrideToggle,
   deployTeamToSlack,
   resetToAIRecommendation,
-  
-  // Phase 3B - Optimizer Member Population
-  populateOptimizerView,
-  createOptimizerMemberCard,
-  
-  // Phase 3C - Drag & Drop and Chemistry Recalculation
-  toggleSubscales,
-  initializeOptimizerDragDrop,
-  updateDraggableCards,
-  handleDragStart,
-  handleDragEnd,
-  handleDragOver,
-  handleDragLeave,
-  handleDrop,
-  moveToOptimalTeam,
-  moveToRemainingPool,
-  recalculateChemistry,
   
   // Legacy Functions
   calculateChemistryScore,
