@@ -2755,12 +2755,14 @@ function displayNoAssessmentState(teamChemistry, supervisorId) {
     document.getElementById('supervisorReadinessScore').textContent = '--';
     document.getElementById('matchQualityScore').textContent = '--';
     
-    // Update match indicator to show "assessment needed"
+    // Update match indicator to show "assessment needed" - make it clickable
     const indicator = document.getElementById('matchQualityIndicator');
-    indicator.className = 'match-indicator caution';
+    indicator.className = 'match-indicator caution clickable';
+    indicator.style.cursor = 'pointer';
+    indicator.onclick = () => sendSupervisorQuiz(supervisorId, supervisorName);
     indicator.innerHTML = `
         <span class="match-emoji">📋</span>
-        <span class="match-text">Assessment Needed</span>
+        <span class="match-text">Assessment Needed - Send</span>
     `;
     
     // Update explanation

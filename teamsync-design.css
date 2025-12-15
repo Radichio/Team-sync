@@ -3079,6 +3079,23 @@ body.light-mode .ripple-effect {
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
+/* Clickable indicator hover effect */
+.match-indicator.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.match-indicator.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+    background: rgba(251, 191, 36, 0.25);
+}
+
+.match-indicator.clickable:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
+}
+
 /* Match Analysis Container */
 .match-analysis-container {
     background: var(--surface-secondary);
