@@ -2168,3 +2168,361 @@ window.TeamSyncApp = {
   memberPoolsLegacy: MEMBER_POOLS,
   supervisors: SUPERVISORS
 };
+
+// ============================================
+// PHASE 4C: RESOLVE CONFLICT MODULE
+// ============================================
+
+/**
+ * Populate conflict resolution member dropdowns with demo data
+ */
+function populateConflictSelects() {
+    const personASelect = document.getElementById('conflictPersonA');
+    const personBSelect = document.getElementById('conflictPersonB');
+    
+    if (!personASelect || !personBSelect) {
+        console.log('Conflict select elements not found');
+        return;
+    }
+    
+    // Clear existing options (keep placeholder)
+    personASelect.innerHTML = '<option value="">Select team member...</option>';
+    personBSelect.innerHTML = '<option value="">Select team member...</option>';
+    
+    // Use demo members with quiz data
+    demoMembers.forEach(member => {
+        const optionA = document.createElement('option');
+        optionA.value = member.id;
+        optionA.textContent = member.name;
+        personASelect.appendChild(optionA);
+        
+        const optionB = document.createElement('option');
+        optionB.value = member.id;
+        optionB.textContent = member.name;
+        personBSelect.appendChild(optionB);
+    });
+    
+    console.log('Conflict selects populated with', demoMembers.length, 'members');
+}
+
+/**
+ * Update conflict analysis when members selected
+ */
+function updateConflictAnalysis() {
+    const personAId = document.getElementById('conflictPersonA').value;
+    const personBId = document.getElementById('conflictPersonB').value;
+    const resultsContainer = document.getElementById('conflictResults');
+    
+    // Hide results if incomplete selection
+    if (!personAId || !personBId || personAId === personBId) {
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+        
+        // Show message if same person selected
+        if (personAId && personBId && personAId === personBId) {
+            console.log('Cannot analyze same person against themselves');
+        }
+        return;
+    }
+    
+    // Get member data
+    const personA = demoMembers.find(m => m.id === personAId);
+    const personB = demoMembers.find(m => m.id === personBId);
+    
+    if (!personA || !personB) {
+        console.error('Could not find member data');
+        return;
+    }
+    
+    console.log('Analyzing conflict between:', personA.name, 'and', personB.name);
+    
+    // Calculate dyadic chemistry
+    const dyadicResults = calculateDyadicChemistry(personA, personB);
+    
+    // Display results
+    displayConflictResults(dyadicResults, personA, personB);
+    
+    // Show results container
+    if (resultsContainer) {
+        resultsContainer.style.display = 'block';
+        
+        // Smooth scroll to results
+        setTimeout(() => {
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+}
+
+/**
+ * Calculate dyadic chemistry between two members
+ * Uses average of subscale scores
+ */
+function calculateDyadicChemistry(personA, personB) {
+    // Get subscale scores for each person
+    const subscalesA = {
+        understanding: personA.subscales.understanding,
+        trust: personA.subscales.trust,
+        ease: personA.subscales.ease,
+        integration: personA.subscales.integration
+    };
+    
+    const subscalesB = {
+        understanding: personB.subscales.understanding,
+        trust: personB.subscales.trust,
+        ease: personB.subscales.ease,
+        integration: personB.subscales.integration
+    };
+    
+    // Calculate average for each subscale (dyadic chemistry)
+    const dyadicSubscales = {
+        understanding: Math.round((subscalesA.understanding + subscalesB.understanding) / 2),
+        trust: Math.round((subscalesA.trust + subscalesB.trust) / 2),
+        ease: Math.round((subscalesA.ease + subscalesB.ease) / 2),
+        integration: Math.round((subscalesA.integration + subscalesB.integration) / 2)
+    };
+    
+    // Calculate overall dyadic chemistry
+    const dyadicChemistry = Math.round(
+        (dyadicSubscales.understanding + 
+         dyadicSubscales.trust + 
+         dyadicSubscales.ease + 
+         dyadicSubscales.integration) / 4
+    );
+    
+    console.log('Dyadic chemistry calculated:', dyadicChemistry, '%', dyadicSubscales);
+    
+    return {
+        chemistry: dyadicChemistry,
+        subscales: dyadicSubscales
+    };
+}
+
+/**
+ * Display conflict resolution results
+ */
+function displayConflictResults(results, personA, personB) {
+    // Display hero score
+    const heroScore = document.getElementById('dyadicChemistryScore');
+    if (heroScore) {
+        heroScore.textContent = results.chemistry + '%';
+    }
+    
+    // Client's exact terminology for subscales
+    const subscaleKeys = ['understanding', 'trust', 'ease', 'integration'];
+    
+    // Display each subscale
+    subscaleKeys.forEach(key => {
+        const score = results.subscales[key];
+        
+        // Update value
+        const valueEl = document.getElementById(`conflict-${key}-value`);
+        if (valueEl) {
+            valueEl.textContent = score + '%';
+        }
+        
+        // Update progress bar
+        const barEl = document.getElementById(`conflict-${key}-bar`);
+        if (barEl) {
+            barEl.style.width = score + '%';
+        }
+        
+        // Update disconnect level with client's exact thresholds
+        const levelEl = document.getElementById(`conflict-${key}-level`);
+        if (levelEl) {
+            const level = getDisconnectLevel(score);
+            levelEl.textContent = level.text;
+            levelEl.className = 'disconnect-level ' + level.class;
+        }
+    });
+    
+    // Display primary disconnects
+    displayPrimaryDisconnects(results.subscales);
+    
+    // Display intervention recommendations
+    displayInterventionRecommendations(results.subscales);
+    
+    console.log('Conflict results displayed for', personA.name, 'and', personB.name);
+}
+
+/**
+ * Get disconnect level based on client's exact thresholds
+ * 70-100%: No significant disconnect
+ * 50-69%: Moderate disconnect
+ * Below 50%: Significant disconnect
+ */
+function getDisconnectLevel(score) {
+    if (score >= 70) {
+        return { 
+            text: 'No significant disconnect', 
+            class: 'no-disconnect' 
+        };
+    } else if (score >= 50) {
+        return { 
+            text: 'Moderate disconnect', 
+            class: 'moderate-disconnect' 
+        };
+    } else {
+        return { 
+            text: 'Significant disconnect', 
+            class: 'significant-disconnect' 
+        };
+    }
+}
+
+/**
+ * Display primary disconnects (areas scoring below 70%)
+ */
+function displayPrimaryDisconnects(subscales) {
+    const container = document.getElementById('disconnectSummary');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Client's exact terminology
+    const subscaleNames = {
+        understanding: 'Truly understanding each other',
+        trust: 'Totally respecting one another',
+        ease: 'Instantly feeling at ease together',
+        integration: 'Spontaneously thinking and acting alike'
+    };
+    
+    // Find subscales below 70% (moderate or significant disconnects)
+    const disconnects = Object.entries(subscales)
+        .filter(([key, score]) => score < 70)
+        .sort((a, b) => a[1] - b[1]); // Sort by score (lowest first)
+    
+    if (disconnects.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); line-height: 1.6;">No significant disconnects detected. Relationship functioning well across all dimensions.</p>';
+        return;
+    }
+    
+    // Display disconnect items
+    disconnects.forEach(([key, score]) => {
+        const item = document.createElement('div');
+        item.className = 'disconnect-item';
+        
+        const description = getDisconnectDescription(key, score);
+        
+        item.innerHTML = `
+            <div class="disconnect-item-title">${subscaleNames[key]} (${score}%)</div>
+            <div class="disconnect-item-description">${description}</div>
+        `;
+        
+        container.appendChild(item);
+    });
+    
+    console.log('Primary disconnects displayed:', disconnects.length, 'areas');
+}
+
+/**
+ * Get description for each type of disconnect
+ */
+function getDisconnectDescription(subscale, score) {
+    const descriptions = {
+        understanding: 'Communication clarity may require additional effort and structured protocols',
+        trust: 'Building mutual confidence and reliability needs focused attention',
+        ease: 'Interactions may feel somewhat uncomfortable or strained at times',
+        integration: 'Work styles and approaches show misalignment requiring coordination'
+    };
+    
+    return descriptions[subscale] || '';
+}
+
+/**
+ * Display intervention recommendations based on disconnect areas
+ */
+function displayInterventionRecommendations(subscales) {
+    const container = document.getElementById('interventionsList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Find areas needing intervention (below 75% for intervention threshold)
+    const needsIntervention = Object.entries(subscales)
+        .filter(([key, score]) => score < 75)
+        .sort((a, b) => a[1] - b[1]); // Prioritize lowest scores
+    
+    if (needsIntervention.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); line-height: 1.6;">No specific interventions needed - relationship functioning optimally across all dimensions.</p>';
+        return;
+    }
+    
+    // Intervention templates (evidence-based, no-fault language)
+    const interventions = {
+        understanding: {
+            title: '🎯 Structured Communication Protocol',
+            description: 'Implement the "Clarify-Confirm-Continue" framework. Each party explicitly states their understanding before proceeding with tasks or decisions. Schedule weekly 15-minute check-ins to ensure alignment and address misunderstandings proactively.'
+        },
+        trust: {
+            title: '🤝 Reliability Commitment Practice',
+            description: 'Establish small, achievable commitments and consistently follow through. Build trust incrementally through demonstrated reliability over time. Use a shared commitment tracker to maintain visibility and accountability.'
+        },
+        ease: {
+            title: '💬 Interaction Preference Mapping',
+            description: 'Collaboratively identify preferred communication channels, timing, and interaction styles. Create explicit norms that honor both parties\' comfort zones. Document these preferences in a shared working agreement.'
+        },
+        integration: {
+            title: '📋 Collaborative Working Agreement',
+            description: 'Co-create explicit documentation of work processes, decision-making approaches, and coordination mechanisms. Review and adjust regularly in monthly retrospectives to maintain alignment as needs evolve.'
+        }
+    };
+    
+    // Display up to 3 most critical interventions
+    const topInterventions = needsIntervention.slice(0, 3);
+    
+    topInterventions.forEach(([key, score], index) => {
+        const intervention = interventions[key];
+        
+        const card = document.createElement('div');
+        card.className = 'intervention-card';
+        card.innerHTML = `
+            <div style="display: flex; align-items: start;">
+                <span class="intervention-number">${index + 1}</span>
+                <div style="flex: 1;">
+                    <div class="intervention-title">${intervention.title}</div>
+                    <div class="intervention-description">${intervention.description}</div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+    
+    console.log('Interventions displayed:', topInterventions.length);
+}
+
+/**
+ * Export conflict report (placeholder for future functionality)
+ */
+function exportConflictReport() {
+    const personAName = document.getElementById('conflictPersonA').selectedOptions[0]?.text;
+    const personBName = document.getElementById('conflictPersonB').selectedOptions[0]?.text;
+    const chemistry = document.getElementById('dyadicChemistryScore').textContent;
+    
+    console.log('Export conflict report:', { personAName, personBName, chemistry });
+    
+    // TODO: Implement actual export functionality (PDF generation)
+    alert('Export functionality will generate a comprehensive PDF report with:\n\n• Dyadic chemistry analysis\n• Subscale breakdowns\n• Primary disconnect areas\n• Evidence-based intervention recommendations\n• Implementation timeline\n\nThis feature will be available in the production version.');
+}
+
+/**
+ * Deploy interventions (placeholder for future functionality)
+ */
+function deployInterventions() {
+    const personAName = document.getElementById('conflictPersonA').selectedOptions[0]?.text;
+    const personBName = document.getElementById('conflictPersonB').selectedOptions[0]?.text;
+    
+    console.log('Deploy interventions for:', personAName, 'and', personBName);
+    
+    // TODO: Implement actual deployment (Slack messages, calendar events, etc.)
+    alert('Interventions deployed!\n\nThe following has been initiated:\n\n✓ Slack messages sent to both parties\n✓ Calendar invites created for check-ins\n✓ Shared working agreement template generated\n✓ Progress tracking enabled\n\nBoth team members will receive next steps in their Slack DMs.');
+}
+
+// Export conflict functions for use in navigation
+window.populateConflictSelects = populateConflictSelects;
+window.updateConflictAnalysis = updateConflictAnalysis;
+window.exportConflictReport = exportConflictReport;
+window.deployInterventions = deployInterventions;
+
+console.log('Phase 4C: Conflict resolution functions loaded');
