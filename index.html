@@ -787,6 +787,108 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- MODULE 3: MATCH A SUPERVISOR VIEW -->
+    <!-- ============================================ -->
+    <div class="app-container hidden" id="supervisorView">
+        <!-- Header -->
+        <div class="view-header">
+            <h2>Match a Supervisor</h2>
+            <button class="back-button" onclick="goToLanding()">← Back to Dashboard</button>
+        </div>
+
+        <!-- Selection Interface -->
+        <div class="supervisor-selection-container">
+            <div class="selection-row">
+                <!-- Team Selection -->
+                <div class="selection-column">
+                    <label class="selection-label" for="supervisorTeam">Select Team</label>
+                    <select id="supervisorTeam" class="member-select" onchange="updateSupervisorMatch()">
+                        <option value="">Choose a team...</option>
+                    </select>
+                </div>
+
+                <!-- Supervisor Selection -->
+                <div class="selection-column">
+                    <label class="selection-label" for="supervisorCandidate">Select Supervisor</label>
+                    <select id="supervisorCandidate" class="member-select" onchange="updateSupervisorMatch()">
+                        <option value="">Choose a supervisor...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container (Hidden until both selections made) -->
+        <div id="supervisorResults" style="display: none;">
+            
+            <!-- Match Score Grid -->
+            <div class="match-score-grid">
+                <!-- Team Score -->
+                <div class="score-card">
+                    <div class="score-label">Team Chemistry</div>
+                    <div class="score-value" id="teamChemistryScore">--</div>
+                    <div class="score-detail">Average synchrony</div>
+                </div>
+
+                <!-- Supervisor Score -->
+                <div class="score-card">
+                    <div class="score-label">Supervisor Readiness</div>
+                    <div class="score-value" id="supervisorReadinessScore">--</div>
+                    <div class="score-detail">Individual assessment</div>
+                </div>
+
+                <!-- Match Score (Hero) -->
+                <div class="score-card match-card">
+                    <div class="score-label">Match Quality</div>
+                    <div class="match-score" id="matchQualityScore">--</div>
+                    <div class="match-indicator" id="matchQualityIndicator">
+                        <span class="match-emoji">⏳</span>
+                        <span class="match-text">Analyzing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Analysis -->
+            <div class="match-analysis-container">
+                <h3 class="section-title">Match Analysis</h3>
+                
+                <!-- Match Explanation -->
+                <div class="match-explanation">
+                    <div class="explanation-icon">💡</div>
+                    <div class="explanation-text" id="matchExplanation">
+                        Match quality is determined by the minimum score between team chemistry and supervisor readiness.
+                    </div>
+                </div>
+
+                <!-- Impact Assessment -->
+                <div class="impact-assessment" id="impactAssessment">
+                    <!-- Dynamic impact content will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Subscale Breakdown -->
+            <div class="subscale-breakdown-container">
+                <h3 class="section-title">Detailed Compatibility</h3>
+                <div class="subscale-comparison" id="subscaleComparison">
+                    <!-- Dynamic subscale comparison will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="tryAnotherSupervisor()">
+                    <span class="btn-icon">🔄</span>
+                    Try Another Match
+                </button>
+                <button class="btn-primary" onclick="assignSupervisor()" id="assignButton" disabled>
+                    <span class="btn-icon">✓</span>
+                    Assign Supervisor
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- OPTIMIZE TEAM MODULE VIEW (LEGACY) -->
     <!-- ============================================ -->
     

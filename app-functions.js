@@ -2522,3 +2522,431 @@ window.exportConflictReport = exportConflictReport;
 window.deployInterventions = deployInterventions;
 
 console.log('Phase 4C: Conflict resolution functions loaded');
+
+// ========================================
+// MODULE 3: MATCH A SUPERVISOR FUNCTIONS
+// ========================================
+
+/**
+ * Populate the supervisor and team selection dropdowns
+ * Called when supervisor view loads
+ */
+function populateSupervisorSelects() {
+    const teamSelect = document.getElementById('supervisorTeam');
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    
+    if (!teamSelect || !supervisorSelect) {
+        console.error('Supervisor select elements not found');
+        return;
+    }
+
+    // Clear existing options (except placeholder)
+    teamSelect.innerHTML = '<option value="">Choose a team...</option>';
+    supervisorSelect.innerHTML = '<option value="">Choose a supervisor...</option>';
+
+    // Populate teams from active assessments
+    // In real app, this would come from teams created in "Build a Team" module
+    // For demo, we'll create sample teams
+    const sampleTeams = [
+        { id: 'team-1', name: 'Engineering Team Alpha', chemistry: 82 },
+        { id: 'team-2', name: 'Marketing Core Team', chemistry: 76 },
+        { id: 'team-3', name: 'Sales Division Beta', chemistry: 71 },
+        { id: 'team-4', name: 'Product Design Squad', chemistry: 88 },
+        { id: 'team-5', name: 'Customer Success Team', chemistry: 79 }
+    ];
+
+    sampleTeams.forEach(team => {
+        const option = document.createElement('option');
+        option.value = team.id;
+        option.textContent = `${team.name} (${team.chemistry}%)`;
+        option.dataset.chemistry = team.chemistry;
+        teamSelect.appendChild(option);
+    });
+
+    // Populate supervisors from member pool
+    memberPools.team.forEach(member => {
+        const option = document.createElement('option');
+        option.value = member.id;
+        option.textContent = member.name;
+        option.dataset.chemistry = member.chemistry;
+        supervisorSelect.appendChild(option);
+    });
+
+    console.log('Supervisor selects populated:', {
+        teams: sampleTeams.length,
+        supervisors: memberPools.team.length
+    });
+}
+
+/**
+ * Update supervisor match analysis when selections change
+ */
+function updateSupervisorMatch() {
+    const teamSelect = document.getElementById('supervisorTeam');
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    const resultsContainer = document.getElementById('supervisorResults');
+    
+    const teamId = teamSelect.value;
+    const supervisorId = supervisorSelect.value;
+
+    // Hide results if either selection is empty
+    if (!teamId || !supervisorId) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    // Get chemistry scores
+    const teamChemistry = getTeamChemistry(teamId);
+    const supervisorChemistry = getSupervisorChemistry(supervisorId);
+
+    // Calculate match score and quality
+    const matchResult = calculateMatchScore(teamChemistry, supervisorChemistry);
+
+    // Display results
+    displaySupervisorMatch(matchResult, teamId, supervisorId);
+
+    // Show results container with smooth scroll
+    resultsContainer.style.display = 'block';
+    setTimeout(() => {
+        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+
+    console.log('Match updated:', matchResult);
+}
+
+/**
+ * Get team chemistry score from team ID
+ * @param {string} teamId - Team identifier
+ * @returns {number} Team chemistry percentage
+ */
+function getTeamChemistry(teamId) {
+    const teamSelect = document.getElementById('supervisorTeam');
+    const selectedOption = teamSelect.querySelector(`option[value="${teamId}"]`);
+    
+    if (selectedOption && selectedOption.dataset.chemistry) {
+        return parseInt(selectedOption.dataset.chemistry);
+    }
+    
+    console.warn('Team chemistry not found for:', teamId);
+    return 0;
+}
+
+/**
+ * Get supervisor chemistry score from member ID
+ * @param {string} supervisorId - Supervisor member ID
+ * @returns {number} Supervisor chemistry percentage
+ */
+function getSupervisorChemistry(supervisorId) {
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    const selectedOption = supervisorSelect.querySelector(`option[value="${supervisorId}"]`);
+    
+    if (selectedOption && selectedOption.dataset.chemistry) {
+        return parseInt(selectedOption.dataset.chemistry);
+    }
+    
+    console.warn('Supervisor chemistry not found for:', supervisorId);
+    return 0;
+}
+
+/**
+ * Calculate match score using min(team, supervisor) algorithm
+ * Client's requirement: "selecting the lower of the two as the match score"
+ * @param {number} teamScore - Team chemistry percentage
+ * @param {number} supervisorScore - Supervisor chemistry percentage
+ * @returns {object} Match result with score, quality, and analysis
+ */
+function calculateMatchScore(teamScore, supervisorScore) {
+    // Core algorithm: Match score is the MINIMUM of the two scores
+    const matchScore = Math.min(teamScore, supervisorScore);
+    
+    // Determine match quality based on relationship between scores
+    const matchQuality = getMatchQuality(matchScore, teamScore, supervisorScore);
+    
+    // Determine bottleneck (what's limiting the match)
+    const bottleneck = matchScore === teamScore ? 'team' : 'supervisor';
+    
+    return {
+        matchScore: matchScore,
+        teamScore: teamScore,
+        supervisorScore: supervisorScore,
+        quality: matchQuality,
+        bottleneck: bottleneck,
+        differential: Math.abs(teamScore - supervisorScore)
+    };
+}
+
+/**
+ * Determine match quality level
+ * Client specification: 
+ * - If match score drops below team score = poor match
+ * - If stays same = good match
+ * @param {number} matchScore - The minimum score
+ * @param {number} teamScore - Team chemistry score
+ * @param {number} supervisorScore - Supervisor chemistry score
+ * @returns {object} Quality level with emoji and description
+ */
+function getMatchQuality(matchScore, teamScore, supervisorScore) {
+    const scoreDrop = teamScore - matchScore;
+    
+    // Excellent: Supervisor meets or exceeds team (no drop) AND both are high
+    if (scoreDrop === 0 && matchScore >= 80) {
+        return {
+            level: 'excellent',
+            emoji: '🎯',
+            text: 'Excellent Match',
+            description: 'Supervisor fully aligns with team chemistry and both scores are strong.'
+        };
+    }
+    
+    // Good: Supervisor meets team (no drop) OR minimal drop (1-5 points)
+    if (scoreDrop <= 5) {
+        return {
+            level: 'good',
+            emoji: '✅',
+            text: 'Good Match',
+            description: 'Supervisor chemistry aligns well with team dynamics.'
+        };
+    }
+    
+    // Caution: Moderate drop (6-15 points)
+    if (scoreDrop <= 15) {
+        return {
+            level: 'caution',
+            emoji: '⚠️',
+            text: 'Needs Review',
+            description: 'Some compatibility concerns. Consider interventions or training.'
+        };
+    }
+    
+    // Poor: Significant drop (16+ points)
+    return {
+        level: 'poor',
+        emoji: '❌',
+        text: 'Poor Match',
+        description: 'Significant chemistry mismatch. Alternative supervisor recommended.'
+    };
+}
+
+/**
+ * Display supervisor match results in UI
+ * @param {object} matchResult - Match calculation results
+ * @param {string} teamId - Selected team ID
+ * @param {string} supervisorId - Selected supervisor ID
+ */
+function displaySupervisorMatch(matchResult, teamId, supervisorId) {
+    // Update score displays
+    document.getElementById('teamChemistryScore').textContent = matchResult.teamScore + '%';
+    document.getElementById('supervisorReadinessScore').textContent = matchResult.supervisorScore + '%';
+    document.getElementById('matchQualityScore').textContent = matchResult.matchScore + '%';
+    
+    // Update match indicator
+    const indicator = document.getElementById('matchQualityIndicator');
+    indicator.className = 'match-indicator ' + matchResult.quality.level;
+    indicator.innerHTML = `
+        <span class="match-emoji">${matchResult.quality.emoji}</span>
+        <span class="match-text">${matchResult.quality.text}</span>
+    `;
+    
+    // Update explanation
+    document.getElementById('matchExplanation').textContent = matchResult.quality.description;
+    
+    // Display impact assessment
+    displayImpactAssessment(matchResult);
+    
+    // Display subscale comparison
+    displaySubscaleComparison(supervisorId);
+    
+    // Enable/disable assign button based on quality
+    const assignButton = document.getElementById('assignButton');
+    if (matchResult.quality.level === 'poor') {
+        assignButton.disabled = true;
+        assignButton.style.opacity = '0.5';
+    } else {
+        assignButton.disabled = false;
+        assignButton.style.opacity = '1';
+    }
+}
+
+/**
+ * Display impact assessment based on match quality
+ * @param {object} matchResult - Match calculation results
+ */
+function displayImpactAssessment(matchResult) {
+    const container = document.getElementById('impactAssessment');
+    
+    let impactHTML = '<h4 class="subsection-title" style="margin-bottom: 16px;">Expected Impact</h4>';
+    
+    // Generate impact items based on quality level
+    if (matchResult.quality.level === 'excellent' || matchResult.quality.level === 'good') {
+        impactHTML += `
+            <div class="impact-item">
+                <div class="impact-icon">📈</div>
+                <div class="impact-content">
+                    <div class="impact-title">Team Performance</div>
+                    <div class="impact-description">Strong alignment expected to maintain or improve team chemistry and productivity.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">🤝</div>
+                <div class="impact-content">
+                    <div class="impact-title">Leadership Effectiveness</div>
+                    <div class="impact-description">Supervisor's natural chemistry supports team dynamics without disruption.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">⚡</div>
+                <div class="impact-content">
+                    <div class="impact-title">Onboarding</div>
+                    <div class="impact-description">Minimal adjustment period expected. Team integration should be smooth.</div>
+                </div>
+            </div>
+        `;
+    } else if (matchResult.quality.level === 'caution') {
+        impactHTML += `
+            <div class="impact-item">
+                <div class="impact-icon">⚠️</div>
+                <div class="impact-content">
+                    <div class="impact-title">Chemistry Mismatch</div>
+                    <div class="impact-description">${matchResult.differential} point gap between team and supervisor chemistry may affect dynamics.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">🎓</div>
+                <div class="impact-content">
+                    <div class="impact-title">Recommended Action</div>
+                    <div class="impact-description">Consider targeted training or team integration workshops before assignment.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">📊</div>
+                <div class="impact-content">
+                    <div class="impact-title">Monitor Closely</div>
+                    <div class="impact-description">Track team chemistry metrics weekly for first 90 days after assignment.</div>
+                </div>
+            </div>
+        `;
+    } else {
+        impactHTML += `
+            <div class="impact-item">
+                <div class="impact-icon">❌</div>
+                <div class="impact-content">
+                    <div class="impact-title">Significant Mismatch</div>
+                    <div class="impact-description">${matchResult.differential} point chemistry gap poses high risk to team performance.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">🔄</div>
+                <div class="impact-content">
+                    <div class="impact-title">Alternative Recommended</div>
+                    <div class="impact-description">Consider selecting a different supervisor with higher chemistry alignment.</div>
+                </div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-icon">🎯</div>
+                <div class="impact-content">
+                    <div class="impact-title">If Proceeding</div>
+                    <div class="impact-description">Requires comprehensive onboarding plan and intensive support for first 6 months.</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = impactHTML;
+}
+
+/**
+ * Display detailed subscale comparison
+ * @param {string} supervisorId - Supervisor member ID
+ */
+function displaySubscaleComparison(supervisorId) {
+    const container = document.getElementById('subscaleComparison');
+    
+    // Get supervisor's subscales
+    const supervisor = memberPools.team.find(m => m.id === supervisorId);
+    
+    if (!supervisor || !supervisor.subscales) {
+        container.innerHTML = '<p class="no-data-message">Subscale data not available for detailed comparison.</p>';
+        return;
+    }
+    
+    // For demo, we'll use average team subscales
+    // In real app, this would come from selected team's actual data
+    const teamSubscales = {
+        understanding: 75,
+        trust: 78,
+        ease: 73,
+        integration: 76
+    };
+    
+    const subscaleLabels = {
+        understanding: 'Truly understanding each other',
+        trust: 'Totally respecting one another',
+        ease: 'Instantly feeling at ease together',
+        integration: 'Spontaneously thinking and acting alike'
+    };
+    
+    let comparisonHTML = '';
+    
+    Object.keys(teamSubscales).forEach(key => {
+        const teamScore = teamSubscales[key];
+        const supervisorScore = supervisor.subscales[key];
+        const difference = supervisorScore - teamScore;
+        const differenceSign = difference >= 0 ? '+' : '';
+        
+        comparisonHTML += `
+            <div class="subscale-row">
+                <div class="subscale-label">${subscaleLabels[key]}</div>
+                <div class="subscale-score team">${teamScore}%</div>
+                <div class="subscale-score supervisor">${supervisorScore}% <span style="font-size: 0.75rem; color: var(--text-tertiary);">(${differenceSign}${difference})</span></div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = comparisonHTML;
+}
+
+/**
+ * Reset supervisor selections to try another match
+ */
+function tryAnotherSupervisor() {
+    document.getElementById('supervisorTeam').value = '';
+    document.getElementById('supervisorCandidate').value = '';
+    document.getElementById('supervisorResults').style.display = 'none';
+    
+    // Scroll back to selection area
+    document.querySelector('.supervisor-selection-container').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+    });
+    
+    console.log('Supervisor selection reset');
+}
+
+/**
+ * Assign supervisor to team (placeholder for deployment)
+ */
+function assignSupervisor() {
+    const teamSelect = document.getElementById('supervisorTeam');
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    
+    const teamName = teamSelect.options[teamSelect.selectedIndex].text;
+    const supervisorName = supervisorSelect.options[supervisorSelect.selectedIndex].text;
+    
+    // In real app, this would trigger Slack notification and database update
+    alert(`🎯 Assignment Confirmed\n\n${supervisorName} has been assigned to ${teamName}.\n\nNext steps:\n• Slack notification sent to both parties\n• Onboarding plan automatically generated\n• First check-in scheduled for 30 days\n\nThis feature is coming soon in the full TeamSync platform.`);
+    
+    console.log('Supervisor assigned:', {
+        team: teamName,
+        supervisor: supervisorName,
+        timestamp: new Date().toISOString()
+    });
+}
+
+// Export supervisor functions for use in navigation
+window.populateSupervisorSelects = populateSupervisorSelects;
+window.updateSupervisorMatch = updateSupervisorMatch;
+window.tryAnotherSupervisor = tryAnotherSupervisor;
+window.assignSupervisor = assignSupervisor;
+
+console.log('Module 3: Match a Supervisor functions loaded');
+

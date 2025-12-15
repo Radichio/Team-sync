@@ -117,6 +117,13 @@ function navigateToModule(moduleName) {
             populateConflictSelects();
         }, 10);
     }
+    
+    // Module 3 - Initialize Supervisor view when it loads
+    if (viewName === 'supervisor' && typeof populateSupervisorSelects === 'function') {
+        setTimeout(() => {
+            populateSupervisorSelects();
+        }, 10);
+    }
 }
 
 /**
