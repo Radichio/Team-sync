@@ -13,3 +13,9 @@ Thumbs.db
 *.swp
 *.swo
 .vscode/
+*bak*.js
+*bak*.html
+*bak*.css
+*bac*.js
+*bac*.html
+*bac*.css
