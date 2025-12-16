@@ -3276,3 +3276,190 @@ body.light-mode .match-explanation {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
 }
 
+/* ============================================ */
+/* SUPERVISOR MODULE - ADDITIONAL STYLES */
+/* ============================================ */
+
+/* Action Buttons Container (matching conflict-actions) */
+.supervisor-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-primary);
+}
+
+.supervisor-actions button {
+    flex: 1;
+}
+
+/* Review Guidance Expandable Section */
+.review-guidance-container {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 12px;
+    margin: 24px 0;
+    padding: 0;
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+}
+
+.review-guidance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(251, 191, 36, 0.1);
+    border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.review-guidance-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.review-guidance-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.review-guidance-close:hover {
+    background: rgba(251, 191, 36, 0.2);
+    color: var(--text-primary);
+}
+
+.review-guidance-content {
+    padding: 20px;
+}
+
+.review-guidance-summary {
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.review-guidance-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.review-guidance-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.review-guidance-item strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    min-width: 140px;
+}
+
+.review-guidance-item span {
+    flex: 1;
+}
+
+.review-guidance-question {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 20px 0 16px 0;
+}
+
+.review-guidance-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.review-guidance-actions button {
+    flex: 1;
+}
+
+/* Make "Needs Review" indicator clickable */
+.match-indicator.caution.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.match-indicator.caution.clickable:hover {
+    background: rgba(251, 191, 36, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.match-indicator.caution.clickable:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design for New Elements */
+@media (max-width: 768px) {
+    .supervisor-actions {
+        flex-direction: column;
+    }
+    
+    .supervisor-actions button {
+        width: 100%;
+    }
+    
+    .review-guidance-actions {
+        flex-direction: column;
+    }
+    
+    .review-guidance-actions button {
+        width: 100%;
+    }
+    
+    .review-guidance-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .review-guidance-item strong {
+        min-width: auto;
+    }
+}
+
+/* Light Mode Adjustments */
+body.light-mode .review-guidance-container {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border-color: rgba(251, 191, 36, 0.25);
+}
+
+body.light-mode .review-guidance-header {
+    background: rgba(251, 191, 36, 0.08);
+    border-bottom-color: rgba(251, 191, 36, 0.15);
+}
+
+body.light-mode .match-indicator.caution.clickable:hover {
+    background: rgba(251, 191, 36, 0.15);
+}

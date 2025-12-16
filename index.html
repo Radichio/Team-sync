@@ -278,7 +278,7 @@
                 </div>
                 <div class="module-header">
                     <div>
-                        <h3 class="module-title">Resolve Conflict</h3>
+                        <h3 class="module-title">Resolve a Disconnect</h3>
                         <span class="module-badge badge-green" id="badge-conflict">Diagnose</span>
                     </div>
                 </div>
@@ -847,11 +847,42 @@
                 </div>
             </div>
 
-            <!-- Try Another Match Button - Positioned High -->
-            <div style="margin: 24px 0;">
-                <button class="action-button secondary" onclick="tryAnotherSupervisor()" style="width: 100%;">
-                    🔄 Try Another Match - Reset
-                </button>
+            <!-- Expandable Review Guidance (for "Needs Review" state) -->
+            <div class="review-guidance-container" id="reviewGuidance" style="display: none;">
+                <div class="review-guidance-header">
+                    <span class="review-guidance-title">📋 Assignment Review</span>
+                    <button class="review-guidance-close" onclick="closeReviewGuidance()">✕</button>
+                </div>
+                <div class="review-guidance-content">
+                    <p class="review-guidance-summary" id="reviewSummary">
+                        <!-- Dynamic summary will be inserted -->
+                    </p>
+                    <div class="review-guidance-details">
+                        <div class="review-guidance-item">
+                            <strong>Largest gaps:</strong>
+                            <span id="reviewLargestGaps">--</span>
+                        </div>
+                        <div class="review-guidance-item">
+                            <strong>Recommendation:</strong>
+                            <span id="reviewRecommendation">Schedule enhanced onboarding</span>
+                        </div>
+                        <div class="review-guidance-item">
+                            <strong>Alternative:</strong>
+                            <span id="reviewAlternative">--</span>
+                        </div>
+                    </div>
+                    <div class="review-guidance-question">
+                        <strong>Still want to proceed?</strong>
+                    </div>
+                    <div class="review-guidance-actions">
+                        <button class="action-button secondary" onclick="tryAnotherSupervisor()">
+                            Try Different Supervisor
+                        </button>
+                        <button class="action-button primary" onclick="proceedWithEnhancedOnboarding()">
+                            Proceed with Enhanced Onboarding
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Match Analysis -->
@@ -878,6 +909,16 @@
                 <div class="subscale-comparison" id="subscaleComparison">
                     <!-- Dynamic subscale comparison will be inserted here -->
                 </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="supervisor-actions">
+                <button class="action-button secondary" onclick="tryAnotherSupervisor()">
+                    Try Another Match
+                </button>
+                <button class="action-button primary" id="assignSupervisorBtn" onclick="assignSupervisor()">
+                    Assign Supervisor
+                </button>
             </div>
 
         </div>

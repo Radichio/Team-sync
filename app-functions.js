@@ -2830,8 +2830,17 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
             <span class="match-emoji">${matchResult.quality.emoji}</span>
             <span class="match-text">${matchResult.quality.text} - Deploy</span>
         `;
+    } else if (matchResult.quality.level === 'caution') {
+        // Caution matches - clickable to show review guidance
+        indicator.classList.add('clickable');
+        indicator.style.cursor = 'pointer';
+        indicator.onclick = () => showReviewGuidance(matchResult);
+        indicator.innerHTML = `
+            <span class="match-emoji">${matchResult.quality.emoji}</span>
+            <span class="match-text">${matchResult.quality.text} - View Guidance</span>
+        `;
     } else {
-        // Poor/caution matches - not clickable
+        // Poor matches - not clickable
         indicator.style.cursor = 'default';
         indicator.onclick = null;
         indicator.innerHTML = `
@@ -2848,6 +2857,24 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
     
     // Display subscale comparison
     displaySubscaleComparison(supervisorId);
+    
+    // Update Assign Supervisor button state based on match quality
+    const assignBtn = document.getElementById('assignSupervisorBtn');
+    if (assignBtn) {
+        if (matchResult.quality.level === 'poor') {
+            // Disable button for poor matches
+            assignBtn.disabled = true;
+            assignBtn.style.opacity = '0.5';
+            assignBtn.style.cursor = 'not-allowed';
+            assignBtn.title = 'Assignment not recommended for poor matches';
+        } else {
+            // Enable button for all other matches
+            assignBtn.disabled = false;
+            assignBtn.style.opacity = '1';
+            assignBtn.style.cursor = 'pointer';
+            assignBtn.title = 'Assign this supervisor to the team';
+        }
+    }
 }
 
 /**
@@ -3067,6 +3094,120 @@ function resetSupervisorView() {
     console.log('Supervisor view reset');
 }
 
+/**
+ * Show review guidance for caution-level matches
+ * @param {object} matchResult - Match calculation results
+ */
+function showReviewGuidance(matchResult) {
+    const guidanceContainer = document.getElementById('reviewGuidance');
+    if (!guidanceContainer) return;
+    
+    // Get current supervisor selection to find alternatives
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    const currentSupervisorId = supervisorSelect.value;
+    const currentSupervisor = memberPools.team.find(m => m.id === currentSupervisorId);
+    
+    // Populate summary
+    const summary = `This match shows a ${matchResult.differential}-point chemistry gap. Consider the following before proceeding:`;
+    document.getElementById('reviewSummary').textContent = summary;
+    
+    // Find largest gaps in subscales
+    const teamSelect = document.getElementById('supervisorTeam');
+    const teamId = teamSelect.value;
+    const teamData = window.sampleTeams.find(t => t.id === teamId);
+    
+    let largestGaps = [];
+    if (teamData && currentSupervisor) {
+        const subscaleNames = {
+            understanding: 'Understanding',
+            trust: 'Respect',
+            ease: 'Feeling at Ease',
+            integration: 'Thinking Alike'
+        };
+        
+        Object.keys(subscaleNames).forEach(key => {
+            const teamScore = teamData.subscales[key];
+            const supervisorScore = currentSupervisor.subscales[key];
+            const gap = Math.abs(teamScore - supervisorScore);
+            largestGaps.push({ name: subscaleNames[key], gap: gap });
+        });
+        
+        largestGaps.sort((a, b) => b.gap - a.gap);
+        const topGaps = largestGaps.slice(0, 2).map(g => `${g.name} (-${g.gap})`).join(', ');
+        document.getElementById('reviewLargestGaps').textContent = topGaps;
+    }
+    
+    // Find alternative supervisor with better match
+    const teamChemistry = parseInt(document.getElementById('teamChemistryScore').textContent);
+    let bestAlternative = null;
+    let bestAlternativeMatch = 0;
+    
+    memberPools.team.forEach(member => {
+        if (member.id !== currentSupervisorId && member.msScore) {
+            const potentialMatch = Math.min(teamChemistry, member.msScore);
+            if (potentialMatch > matchResult.matchScore) {
+                if (!bestAlternative || potentialMatch > bestAlternativeMatch) {
+                    bestAlternative = member;
+                    bestAlternativeMatch = potentialMatch;
+                }
+            }
+        }
+    });
+    
+    if (bestAlternative) {
+        const improvement = bestAlternativeMatch - matchResult.matchScore;
+        document.getElementById('reviewAlternative').textContent = 
+            `${bestAlternative.name} shows ${bestAlternativeMatch}% match (+${improvement} points better)`;
+    } else {
+        document.getElementById('reviewAlternative').textContent = 
+            'No better alternatives available in current pool';
+    }
+    
+    // Show the guidance container with animation
+    guidanceContainer.style.display = 'block';
+    
+    console.log('Review guidance displayed');
+}
+
+/**
+ * Close review guidance section
+ */
+function closeReviewGuidance() {
+    const guidanceContainer = document.getElementById('reviewGuidance');
+    if (guidanceContainer) {
+        guidanceContainer.style.display = 'none';
+    }
+    console.log('Review guidance closed');
+}
+
+/**
+ * Proceed with supervisor assignment using enhanced onboarding
+ */
+function proceedWithEnhancedOnboarding() {
+    const supervisorSelect = document.getElementById('supervisorCandidate');
+    const supervisorName = supervisorSelect.options[supervisorSelect.selectedIndex].text;
+    
+    const teamSelect = document.getElementById('supervisorTeam');
+    const teamName = teamSelect.options[teamSelect.selectedIndex].text;
+    
+    alert(`✓ Assignment Confirmed
+
+${supervisorName} assigned to ${teamName} with Enhanced Onboarding Plan:
+
+✓ Monthly chemistry check-ins for first 90 days
+✓ Team working style brief provided to supervisor
+✓ Supervisor communication approach shared with team
+✓ Clear escalation path established
+✓ 90-day review checkpoint scheduled
+
+Integration support activated. Monitor progress in first quarter.`);
+    
+    // Close review guidance
+    closeReviewGuidance();
+    
+    console.log(`Supervisor ${supervisorName} assigned to ${teamName} with enhanced onboarding`);
+}
+
 // Export supervisor functions for use in navigation
 window.populateSupervisorSelects = populateSupervisorSelects;
 window.updateSupervisorMatch = updateSupervisorMatch;
@@ -3074,6 +3215,9 @@ window.tryAnotherSupervisor = tryAnotherSupervisor;
 window.assignSupervisor = assignSupervisor;
 window.sendSupervisorQuiz = sendSupervisorQuiz;
 window.resetSupervisorView = resetSupervisorView;
+window.showReviewGuidance = showReviewGuidance;
+window.closeReviewGuidance = closeReviewGuidance;
+window.proceedWithEnhancedOnboarding = proceedWithEnhancedOnboarding;
 
 console.log('Module 3: Match a Supervisor functions loaded');
 
