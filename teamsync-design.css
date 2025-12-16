@@ -3284,13 +3284,8 @@ body.light-mode .match-explanation {
 .supervisor-actions {
     display: flex;
     gap: 16px;
+    justify-content: flex-end;
     margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-primary);
-}
-
-.supervisor-actions button {
-    flex: 1;
 }
 
 /* Review Guidance Expandable Section */

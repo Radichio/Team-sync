@@ -2762,7 +2762,7 @@ function displayNoAssessmentState(teamChemistry, supervisorId) {
     indicator.onclick = () => sendSupervisorQuiz(supervisorId, supervisorName);
     indicator.innerHTML = `
         <span class="match-emoji">📋</span>
-        <span class="match-text">Assessment Needed - Send</span>
+        <span class="match-text">Assessment Quiz Needed - Send</span>
     `;
     
     // Update explanation
@@ -2834,11 +2834,15 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
         // Caution matches - clickable to show review guidance
         indicator.classList.add('clickable');
         indicator.style.cursor = 'pointer';
-        indicator.onclick = () => showReviewGuidance(matchResult);
         indicator.innerHTML = `
             <span class="match-emoji">${matchResult.quality.emoji}</span>
             <span class="match-text">${matchResult.quality.text} - View Guidance</span>
         `;
+        // Set onclick AFTER innerHTML to prevent it from being lost
+        indicator.onclick = () => {
+            console.log('Caution indicator clicked, showing review guidance');
+            showReviewGuidance(matchResult);
+        };
     } else {
         // Poor matches - not clickable
         indicator.style.cursor = 'default';
@@ -3099,8 +3103,13 @@ function resetSupervisorView() {
  * @param {object} matchResult - Match calculation results
  */
 function showReviewGuidance(matchResult) {
+    console.log('showReviewGuidance called with:', matchResult);
+    
     const guidanceContainer = document.getElementById('reviewGuidance');
-    if (!guidanceContainer) return;
+    if (!guidanceContainer) {
+        console.error('Review guidance container not found! Element #reviewGuidance does not exist.');
+        return;
+    }
     
     // Get current supervisor selection to find alternatives
     const supervisorSelect = document.getElementById('supervisorCandidate');
@@ -3109,7 +3118,12 @@ function showReviewGuidance(matchResult) {
     
     // Populate summary
     const summary = `This match shows a ${matchResult.differential}-point chemistry gap. Consider the following before proceeding:`;
-    document.getElementById('reviewSummary').textContent = summary;
+    const summaryElement = document.getElementById('reviewSummary');
+    if (summaryElement) {
+        summaryElement.textContent = summary;
+    } else {
+        console.error('Element #reviewSummary not found');
+    }
     
     // Find largest gaps in subscales
     const teamSelect = document.getElementById('supervisorTeam');
@@ -3134,7 +3148,12 @@ function showReviewGuidance(matchResult) {
         
         largestGaps.sort((a, b) => b.gap - a.gap);
         const topGaps = largestGaps.slice(0, 2).map(g => `${g.name} (-${g.gap})`).join(', ');
-        document.getElementById('reviewLargestGaps').textContent = topGaps;
+        const largestGapsElement = document.getElementById('reviewLargestGaps');
+        if (largestGapsElement) {
+            largestGapsElement.textContent = topGaps;
+        } else {
+            console.error('Element #reviewLargestGaps not found');
+        }
     }
     
     // Find alternative supervisor with better match
@@ -3154,13 +3173,18 @@ function showReviewGuidance(matchResult) {
         }
     });
     
-    if (bestAlternative) {
-        const improvement = bestAlternativeMatch - matchResult.matchScore;
-        document.getElementById('reviewAlternative').textContent = 
-            `${bestAlternative.name} shows ${bestAlternativeMatch}% match (+${improvement} points better)`;
+    const alternativeElement = document.getElementById('reviewAlternative');
+    if (alternativeElement) {
+        if (bestAlternative) {
+            const improvement = bestAlternativeMatch - matchResult.matchScore;
+            alternativeElement.textContent = 
+                `${bestAlternative.name} shows ${bestAlternativeMatch}% match (+${improvement} points better)`;
+        } else {
+            alternativeElement.textContent = 
+                'No better alternatives available in current pool';
+        }
     } else {
-        document.getElementById('reviewAlternative').textContent = 
-            'No better alternatives available in current pool';
+        console.error('Element #reviewAlternative not found');
     }
     
     // Show the guidance container with animation
