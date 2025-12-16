@@ -2548,14 +2548,42 @@ function populateSupervisorSelects() {
 
     // Populate teams from active assessments
     // In real app, this would come from teams created in "Build a Team" module
-    // For demo, we'll create sample teams
+    // For demo, we'll create sample teams with subscale data
     const sampleTeams = [
-        { id: 'team-1', name: 'Engineering Team Alpha', chemistry: 82 },
-        { id: 'team-2', name: 'Marketing Core Team', chemistry: 76 },
-        { id: 'team-3', name: 'Sales Division Beta', chemistry: 71 },
-        { id: 'team-4', name: 'Product Design Squad', chemistry: 88 },
-        { id: 'team-5', name: 'Customer Success Team', chemistry: 79 }
+        { 
+            id: 'team-1', 
+            name: 'Engineering Team Alpha', 
+            chemistry: 82,
+            subscales: { understanding: 80, trust: 85, ease: 82, integration: 81 }
+        },
+        { 
+            id: 'team-2', 
+            name: 'Marketing Core Team', 
+            chemistry: 76,
+            subscales: { understanding: 74, trust: 78, ease: 76, integration: 76 }
+        },
+        { 
+            id: 'team-3', 
+            name: 'Sales Division Beta', 
+            chemistry: 71,
+            subscales: { understanding: 68, trust: 74, ease: 72, integration: 70 }
+        },
+        { 
+            id: 'team-4', 
+            name: 'Product Design Squad', 
+            chemistry: 88,
+            subscales: { understanding: 86, trust: 90, ease: 88, integration: 88 }
+        },
+        { 
+            id: 'team-5', 
+            name: 'Customer Success Team', 
+            chemistry: 79,
+            subscales: { understanding: 77, trust: 81, ease: 79, integration: 79 }
+        }
     ];
+    
+    // Export to window for access by other functions
+    window.sampleTeams = sampleTeams;
 
     sampleTeams.forEach(team => {
         const option = document.createElement('option');
