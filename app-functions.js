@@ -2760,7 +2760,7 @@ function displayPath1Interventions(subscales, severity) {
  * @returns {object} Level details with text, class, icon, and description
  */
 function getDisconnectLevel(score) {
-    if (score >= 80) {
+    if (score >= 76) {
         return {
             severity: 'strong',
             text: 'Insignificant/No Disconnect',
