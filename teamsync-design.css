@@ -3034,6 +3034,30 @@ body.light-mode .ripple-effect {
     border-left-color: #ef4444;
 }
 
+.subscale-detail-guidance.observation {
+    background: rgba(59, 130, 246, 0.03);
+    border-left-color: rgba(59, 130, 246, 0.3);
+    color: var(--text-secondary);
+}
+
+/* Path 1: Highlight lowest scoring subscale */
+.subscale-detail-item.subscale-highlight {
+    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, var(--surface-secondary), rgba(251, 191, 36, 0.05));
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+}
+
+.subscale-detail-item.subscale-highlight:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.2), 0 0 0 4px rgba(251, 191, 36, 0.1);
+}
+
+/* Path 2: Soft observation highlight for below-median items */
+.subscale-detail-item.subscale-observation {
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    background: linear-gradient(135deg, var(--surface-secondary), rgba(59, 130, 246, 0.02));
+}
+
 /* Primary Disconnects */
 .primary-disconnects {
     background: var(--surface-primary);

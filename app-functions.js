@@ -2319,6 +2319,7 @@ function calculateDyadicChemistry(personA, personB) {
 
 /**
  * Display conflict resolution results with integrated analysis
+ * Branches to Path 1 (action) or Path 2 (observation) based on severity
  */
 function displayConflictResults(results, personA, personB) {
     // Display hero score
@@ -2330,7 +2331,24 @@ function displayConflictResults(results, personA, personB) {
     // Get overall assessment
     const overallLevel = getDisconnectLevel(results.chemistry);
     
-    // Populate overall assessment card
+    // Branch to appropriate path based on severity
+    if (overallLevel.severity === 'strong') {
+        // PATH 2: Observation-only (Insignificant/No Disconnect)
+        renderPath2Analysis(results, personA, personB, overallLevel);
+    } else {
+        // PATH 1: Action-oriented (Mild, Moderate, Significant)
+        renderPath1Analysis(results, personA, personB, overallLevel);
+    }
+    
+    console.log('Conflict results displayed for', personA.name, 'and', personB.name, '- Path:', overallLevel.severity === 'strong' ? 2 : 1);
+}
+
+/**
+ * PATH 1: Action-Oriented Analysis (Mild, Moderate, Significant)
+ * Shows constructive strategies with no-blame language
+ */
+function renderPath1Analysis(results, personA, personB, overallLevel) {
+    // Populate overall assessment card with no-blame language
     const overallIcon = document.getElementById('overallSeverityIcon');
     const overallText = document.getElementById('overallSeverityText');
     const overallDesc = document.getElementById('overallDescription');
@@ -2345,15 +2363,36 @@ function displayConflictResults(results, personA, personB) {
         badge.className = 'assessment-badge disconnect-level ' + overallLevel.class;
     }
     
+    // No-blame description based on severity
+    let noBlameLangauge = '';
+    if (overallLevel.severity === 'functional') {
+        // Mild (66-75%) - ultra soft language
+        noBlameLangauge = 'This analysis identifies slightly different communication patterns. Everyone\'s chemistry is naturally different - not better or worse, just unique. A few small adjustments in how you interact can easily strengthen this already-functional relationship. This is a very minor variance and will be extremely easy to address.';
+    } else if (overallLevel.severity === 'minor') {
+        // Moderate (56-65%)
+        noBlameLangauge = 'This analysis identifies relationship dynamics without assigning blame to either party. Everyone\'s chemistry is different - not better or worse. Some differences in communication styles have been noticed. The focus is on constructive interventions that both team members can work on together to strengthen their working relationship through collaborative solutions.';
+    } else {
+        // Significant (45-55%) or Critical
+        noBlameLangauge = 'This analysis identifies relationship dynamics without assigning blame to either party. Everyone\'s chemistry is naturally different - not better or worse, just unique. Notable chemistry differences have been observed. The focus is on constructive interventions that both team members can work on together to strengthen their working relationship through collaborative, structured communication strategies.';
+    }
+    
     if (overallDesc) {
-        overallDesc.textContent = overallLevel.description;
+        overallDesc.textContent = noBlameLangauge;
+    }
+    
+    // Special messaging for Mild (functional) severity
+    let recommendationText = '';
+    if (overallLevel.severity === 'functional') {
+        recommendationText = '<strong>Note:</strong> While a slight variance was noticed, this will be very easy to overcome with minimal adjustment.';
+    } else {
+        recommendationText = `<strong>Recommendation:</strong> ${overallLevel.recommendation}`;
     }
     
     if (overallRec) {
-        overallRec.innerHTML = `<strong>Recommendation:</strong> ${overallLevel.recommendation}`;
+        overallRec.innerHTML = recommendationText;
     }
     
-    // Prepare subscale data with names and descriptions
+    // Prepare subscale data
     const subscaleData = [
         {
             key: 'understanding',
@@ -2381,44 +2420,150 @@ function displayConflictResults(results, personA, personB) {
         }
     ];
     
-    // Sort by severity (problems first, then strengths)
-    // Order: critical, moderate, minor, functional, strong
-    const severityOrder = { critical: 0, moderate: 1, minor: 2, functional: 3, strong: 4 };
-    subscaleData.sort((a, b) => {
-        return severityOrder[a.level.severity] - severityOrder[b.level.severity];
-    });
+    // Sort by score (lowest first - highlight worst performers)
+    subscaleData.sort((a, b) => a.score - b.score);
     
-    // Populate subscales container
+    // Find lowest score for highlighting
+    const lowestScore = subscaleData[0].score;
+    
+    // Populate subscales container with highlighting
     const container = document.getElementById('subscalesContainer');
     if (container) {
         container.innerHTML = '';
         
         subscaleData.forEach(subscale => {
-            const item = createSubscaleDetailItem(subscale);
+            const item = createSubscaleDetailItem(subscale, subscale.score === lowestScore, 'path1');
             container.appendChild(item);
         });
     }
     
-    // Update old intervention section (keep for now, can remove later)
-    displayInterventionRecommendations(results.subscales);
+    // Show interventions based on severity
+    displayPath1Interventions(results.subscales, overallLevel.severity);
+}
+
+/**
+ * PATH 2: Observation-Only Analysis (Insignificant/No Disconnect 76%+)
+ * Celebrates strengths, notes observations without alarm
+ */
+function renderPath2Analysis(results, personA, personB, overallLevel) {
+    // Populate overall assessment card with celebratory language
+    const overallIcon = document.getElementById('overallSeverityIcon');
+    const overallText = document.getElementById('overallSeverityText');
+    const overallDesc = document.getElementById('overallDescription');
+    const overallRec = document.getElementById('overallRecommendation');
     
-    console.log('Conflict results displayed for', personA.name, 'and', personB.name);
+    if (overallIcon) overallIcon.textContent = overallLevel.icon;
+    if (overallText) overallText.textContent = overallLevel.hrText;
+    
+    // Apply badge styling
+    const badge = document.querySelector('.assessment-badge');
+    if (badge) {
+        badge.className = 'assessment-badge disconnect-level ' + overallLevel.class;
+    }
+    
+    // Celebratory description
+    const celebratoryLanguage = 'This relationship demonstrates excellent synchrony across all areas. The dyad exhibits optimal mental synchrony with exceptional alignment. This is a model partnership that demonstrates natural rapport and effective collaboration.';
+    
+    if (overallDesc) {
+        overallDesc.textContent = celebratoryLanguage;
+    }
+    
+    // Strong "no action needed" message
+    if (overallRec) {
+        overallRec.innerHTML = '<strong style="color: var(--success-primary);">No action needed - this relationship is functioning optimally.</strong> All is well.';
+    }
+    
+    // Calculate median of subscales for comparison
+    const subscaleScores = [
+        results.subscales.understanding,
+        results.subscales.trust,
+        results.subscales.ease,
+        results.subscales.integration
+    ];
+    const sortedScores = [...subscaleScores].sort((a, b) => a - b);
+    const median = (sortedScores[1] + sortedScores[2]) / 2;
+    
+    // Prepare subscale data
+    const subscaleData = [
+        {
+            key: 'understanding',
+            name: 'Truly understanding each other',
+            score: results.subscales.understanding,
+            level: getDisconnectLevel(results.subscales.understanding),
+            belowMedian: results.subscales.understanding < median
+        },
+        {
+            key: 'trust',
+            name: 'Totally respecting one another',
+            score: results.subscales.trust,
+            level: getDisconnectLevel(results.subscales.trust),
+            belowMedian: results.subscales.trust < median
+        },
+        {
+            key: 'ease',
+            name: 'Instantly feeling at ease together',
+            score: results.subscales.ease,
+            level: getDisconnectLevel(results.subscales.ease),
+            belowMedian: results.subscales.ease < median
+        },
+        {
+            key: 'integration',
+            name: 'Spontaneously thinking and acting alike',
+            score: results.subscales.integration,
+            level: getDisconnectLevel(results.subscales.integration),
+            belowMedian: results.subscales.integration < median
+        }
+    ];
+    
+    // Sort by score (just for display consistency)
+    subscaleData.sort((a, b) => a.score - b.score);
+    
+    // Populate subscales container with observation notes
+    const container = document.getElementById('subscalesContainer');
+    if (container) {
+        container.innerHTML = '';
+        
+        subscaleData.forEach(subscale => {
+            const item = createSubscaleDetailItem(subscale, subscale.belowMedian, 'path2');
+            container.appendChild(item);
+        });
+    }
+    
+    // Hide interventions section for Path 2
+    const interventionsContainer = document.getElementById('interventionsList');
+    if (interventionsContainer) {
+        interventionsContainer.innerHTML = '<p style="color: var(--success-primary); font-weight: 500; padding: 16px; background: var(--success-bg); border-radius: 8px;">✨ No interventions needed - continue current collaboration practices.</p>';
+    }
 }
 
 /**
  * Create detailed subscale item with description and guidance
+ * @param {object} subscale - Subscale data
+ * @param {boolean} highlight - Whether to highlight this item (lowest score for Path 1, below median for Path 2)
+ * @param {string} path - 'path1' or 'path2' to determine display style
  */
-function createSubscaleDetailItem(subscale) {
+function createSubscaleDetailItem(subscale, highlight = false, path = 'path1') {
     const div = document.createElement('div');
     div.className = 'subscale-detail-item';
     
-    // Get specific guidance based on score and severity
-    const guidance = getSubscaleGuidance(subscale.key, subscale.score, subscale.level.severity);
-    const guidanceClass = subscale.level.severity === 'strong' || subscale.level.severity === 'functional' 
-        ? 'strength' 
-        : subscale.level.severity === 'critical' 
-        ? 'critical' 
-        : 'concern';
+    // Add highlight class if this is the area of focus
+    if (highlight && path === 'path1') {
+        div.classList.add('subscale-highlight');
+    } else if (highlight && path === 'path2') {
+        div.classList.add('subscale-observation');
+    }
+    
+    // Get specific guidance based on path
+    let guidance = '';
+    if (path === 'path1') {
+        guidance = getPath1Guidance(subscale.key, subscale.score, subscale.level.severity);
+    } else {
+        guidance = getPath2Observation(subscale.key, highlight);
+    }
+    
+    const guidanceClass = path === 'path1' 
+        ? (subscale.level.severity === 'strong' || subscale.level.severity === 'functional' ? 'strength' : 'concern')
+        : 'observation';
     
     div.innerHTML = `
         <div class="subscale-detail-header">
@@ -2475,6 +2620,137 @@ function getSubscaleGuidance(key, score, severity) {
     };
     
     return guidanceMap[key]?.[severity] || 'No specific guidance available.';
+}
+
+/**
+ * PATH 1: Get constructive guidance with no-blame language
+ * Emphasizes chemistry differences, not deficits
+ */
+function getPath1Guidance(key, score, severity) {
+    const guidanceMap = {
+        understanding: {
+            critical: '💬 <strong>Different communication patterns noticed.</strong> You and your colleague process information differently. Try explicit check-ins: "Let me repeat what I heard to make sure we\'re aligned." This respects both communication styles.',
+            moderate: '💬 <strong>Some communication style differences.</strong> Messages may land differently than intended. Consider asking "How does this sound to you?" to bridge the gap. Both styles are valid.',
+            minor: '💬 <strong>Slight communication variance noticed.</strong> Generally aligned, with occasional clarity needs. A simple "Can you confirm you got that?" can help. Very minor adjustment needed.',
+            functional: '✅ <strong>Compatible communication styles.</strong> You understand each other well. Continue your current approach - it\'s working.',
+            strong: '🌟 <strong>Naturally aligned communication.</strong> You read each other effortlessly. This is a strength to leverage in your collaboration.'
+        },
+        trust: {
+            critical: '🤝 <strong>Different reliability expectations.</strong> You may have different definitions of "follow-through." Try making commitments very explicit and visible. No one is wrong - just different.',
+            moderate: '🤝 <strong>Some expectation differences.</strong> What feels reliable to one might feel uncertain to another. Clarify expectations upfront. Both approaches have merit.',
+            minor: '🤝 <strong>Slight expectation variance.</strong> Generally reliable, with occasional misalignment. A quick "I\'ll do X by Y" can bridge any gaps. Easily addressed.',
+            functional: '✅ <strong>Aligned reliability expectations.</strong> You respect each other\'s follow-through. Keep doing what you\'re doing.',
+            strong: '🌟 <strong>Deep mutual confidence.</strong> You trust each other implicitly. This foundation supports complex collaboration.'
+        },
+        ease: {
+            critical: '😊 <strong>Different comfort zones noticed.</strong> Interactions may feel natural to one but strained to another. Try adapting to each other\'s preferred style: some prefer direct, others prefer gradual. Neither is wrong.',
+            moderate: '😊 <strong>Some comfort style differences.</strong> What feels easy to one might feel awkward to another. Check in: "How would you prefer to handle this?" Mutual adaptation helps.',
+            minor: '😊 <strong>Slight comfort variance.</strong> Generally at ease, with occasional awkwardness. A simple awareness of each other\'s style smooths things out. Very minor.',
+            functional: '✅ <strong>Naturally comfortable together.</strong> Interactions flow well. Your styles complement each other.',
+            strong: '🌟 <strong>Effortless rapport.</strong> You\'re naturally at ease together. This comfort is an asset.'
+        },
+        integration: {
+            critical: '⚙️ <strong>Different working styles observed.</strong> You approach tasks differently - one might plan, the other might improvise. Both are valid. Try co-creating a process that honors both styles.',
+            moderate: '⚙️ <strong>Some approach differences.</strong> Work styles don\'t naturally align. Discuss "How do you like to work?" and find middle ground. Both ways work.',
+            minor: '⚙️ <strong>Slight style variance.</strong> Generally aligned, with occasional process mismatches. Quick process check-ins help. Easy to navigate.',
+            functional: '✅ <strong>Compatible work styles.</strong> Your approaches complement each other. Continue current coordination.',
+            strong: '🌟 <strong>Seamlessly synchronized.</strong> You think and act alike naturally. Perfect for complex teamwork.'
+        }
+    };
+    
+    return guidanceMap[key]?.[severity] || 'Different approaches noticed. Both are valid - find ways to work together.';
+}
+
+/**
+ * PATH 2: Get observation text for high-performing subscales
+ * Notes below-median items without alarm
+ */
+function getPath2Observation(key, belowMedian) {
+    const observations = {
+        understanding: belowMedian 
+            ? '📊 <strong>Interesting observation:</strong> This component scores slightly lower than others. This is perfectly normal variation - communication is still excellent. No cause for concern.'
+            : '✨ This component shows strong alignment with your overall excellent synchrony.',
+        trust: belowMedian
+            ? '📊 <strong>Interesting observation:</strong> This component scores slightly lower than others. This is perfectly normal variation - mutual respect is still strong. No cause for concern.'
+            : '✨ This component shows strong alignment with your overall excellent synchrony.',
+        ease: belowMedian
+            ? '📊 <strong>Interesting observation:</strong> This component scores slightly lower than others. This is perfectly normal variation - comfort levels are still high. No cause for concern.'
+            : '✨ This component shows strong alignment with your overall excellent synchrony.',
+        integration: belowMedian
+            ? '📊 <strong>Interesting observation:</strong> This component scores slightly lower than others. This is perfectly normal variation - coordination is still effective. No cause for concern.'
+            : '✨ This component shows strong alignment with your overall excellent synchrony.'
+    };
+    
+    return observations[key] || '✨ Strong performance in this area.';
+}
+
+/**
+ * PATH 1: Display interventions based on severity level
+ * Shows 1-2 for Mild, 2-3 for Moderate, 3-4 for Significant
+ */
+function displayPath1Interventions(subscales, severity) {
+    const container = document.getElementById('interventionsList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // Find areas needing intervention (sorted by score)
+    const needsIntervention = Object.entries(subscales)
+        .filter(([key, score]) => score < 76) // Below "insignificant" threshold
+        .sort((a, b) => a[1] - b[1]); // Lowest scores first
+    
+    if (needsIntervention.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); line-height: 1.6;">No specific interventions needed.</p>';
+        return;
+    }
+    
+    // Intervention templates with no-blame language
+    const interventions = {
+        understanding: {
+            title: '💬 Structured Communication Protocol',
+            description: 'Implement the "Clarify-Confirm-Continue" framework. Each person explicitly states their understanding before proceeding. This respects different communication styles and ensures alignment.'
+        },
+        trust: {
+            title: '🤝 Explicit Commitment Practice',
+            description: 'Make all commitments visible and specific. Use phrases like "I\'ll complete X by Y time." This bridges different reliability expectations without judging either approach.'
+        },
+        ease: {
+            title: '😊 Interaction Style Mapping',
+            description: 'Discuss preferred communication styles openly. Some prefer direct feedback, others prefer gradual. Create norms that honor both comfort zones. Neither style is wrong - just different.'
+        },
+        integration: {
+            title: '⚙️ Collaborative Working Agreement',
+            description: 'Co-create a shared process that incorporates both work styles. One might prefer planning, the other flexibility. Document how you\'ll coordinate to respect both approaches.'
+        }
+    };
+    
+    // Determine number of interventions based on severity
+    let maxInterventions = 2; // Default for Mild
+    if (severity === 'minor') maxInterventions = 3; // Moderate
+    if (severity === 'moderate' || severity === 'critical') maxInterventions = 4; // Significant/Critical
+    
+    // Display interventions
+    const topInterventions = needsIntervention.slice(0, maxInterventions);
+    
+    topInterventions.forEach(([key, score], index) => {
+        const intervention = interventions[key];
+        
+        const card = document.createElement('div');
+        card.className = 'intervention-card';
+        card.innerHTML = `
+            <div style="display: flex; align-items: start;">
+                <span class="intervention-number">${index + 1}</span>
+                <div style="flex: 1;">
+                    <div class="intervention-title">${intervention.title}</div>
+                    <div class="intervention-description">${intervention.description}</div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+    
+    console.log('Path 1 interventions displayed:', topInterventions.length);
 }
 
 /**
