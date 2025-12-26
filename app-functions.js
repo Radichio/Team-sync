@@ -3791,3 +3791,178 @@ function discardChanges() {
     }
 }
 
+// ========================================
+// OPTIMIZE MODULE: DRAG-AND-DROP & CHEMISTRY
+// ========================================
+
+/**
+ * Initialize drag-and-drop for Optimize Existing Team module
+ */
+function initializeOptimizeDragDrop() {
+    const zones = ['optimizeCoreMembers', 'optimizeExtendedMembers', 'optimizeBenchMembers', 'optimizeAvailableMembers'];
+    
+    zones.forEach(zoneId => {
+        const zone = document.getElementById(zoneId);
+        if (zone) {
+            zone.addEventListener('dragover', handleOptimizeDragOver);
+            zone.addEventListener('drop', handleOptimizeDrop);
+            zone.addEventListener('dragleave', handleOptimizeDragLeave);
+        }
+    });
+    
+    // Initialize all member items as draggable
+    updateOptimizeDraggables();
+    
+    // Calculate initial chemistry
+    updateOptimizeChemistry();
+    
+    console.log('Optimize drag-and-drop initialized');
+}
+
+/**
+ * Update all draggable member items
+ */
+function updateOptimizeDraggables() {
+    document.querySelectorAll('.zone-members .member-item').forEach(item => {
+        item.addEventListener('dragstart', handleOptimizeDragStart);
+        item.addEventListener('dragend', handleOptimizeDragEnd);
+    });
+}
+
+/**
+ * Handle drag start
+ */
+function handleOptimizeDragStart(e) {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member'));
+    e.target.style.opacity = '0.4';
+    
+    // Add dragging class to all zones for visual feedback
+    document.querySelectorAll('.zone-members').forEach(zone => {
+        zone.classList.add('drag-active');
+    });
+}
+
+/**
+ * Handle drag end
+ */
+function handleOptimizeDragEnd(e) {
+    e.target.style.opacity = '1';
+    
+    // Remove dragging class from all zones
+    document.querySelectorAll('.zone-members').forEach(zone => {
+        zone.classList.remove('drag-active');
+        zone.classList.remove('drag-over');
+    });
+}
+
+/**
+ * Handle drag over
+ */
+function handleOptimizeDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+}
+
+/**
+ * Handle drag leave
+ */
+function handleOptimizeDragLeave(e) {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    e.currentTarget.classList.remove('drag-over');
+}
+
+/**
+ * Handle drop
+ */
+function handleOptimizeDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    
+    const memberId = e.dataTransfer.getData('text/plain');
+    const memberElement = document.querySelector(`.member-item[data-member="${memberId}"]`);
+    
+    if (memberElement && e.currentTarget !== memberElement.parentElement) {
+        // Move to new zone
+        e.currentTarget.appendChild(memberElement);
+        
+        // Update chemistry after move
+        updateOptimizeChemistry();
+    }
+}
+
+/**
+ * Calculate and update team chemistry based on current composition
+ */
+function updateOptimizeChemistry() {
+    // Get members in Core and Extended zones
+    const coreMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
+    const extendedMembers = Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item'));
+    
+    // Combine for total team
+    const allTeamMembers = [...coreMembers, ...extendedMembers];
+    
+    if (allTeamMembers.length === 0) {
+        // No team members - show placeholder
+        document.getElementById('optimizeChemistryScore').textContent = '--';
+        document.getElementById('optimizeChemistryStatus').textContent = 'No Team Members';
+        document.getElementById('optimizeChemistryDesc').textContent = 'Add members to Core or Extend Team to see chemistry score.';
+        return;
+    }
+    
+    // Mock chemistry calculation based on team size
+    // In production, this would call actual Mental Synchrony algorithm
+    const teamSize = allTeamMembers.length;
+    let chemistryScore;
+    
+    if (teamSize >= 3 && teamSize <= 5) {
+        chemistryScore = 85; // Optimal size
+    } else if (teamSize === 2 || teamSize === 6) {
+        chemistryScore = 78; // Good size
+    } else if (teamSize === 1 || teamSize === 7) {
+        chemistryScore = 72; // Acceptable
+    } else {
+        chemistryScore = 65; // Too large
+    }
+    
+    // Add some variance based on specific members (mock)
+    const memberIds = allTeamMembers.map(m => m.getAttribute('data-member'));
+    const variance = (memberIds.length * 3) % 7 - 3;
+    chemistryScore += variance;
+    
+    // Update display
+    document.getElementById('optimizeChemistryScore').textContent = chemistryScore;
+    
+    // Update status badge based on score
+    let status, description;
+    if (chemistryScore >= 85) {
+        status = 'Excellent Chemistry';
+        description = `This team configuration shows exceptional collaborative potential. The ${teamSize}-person team has complementary work styles and strong synchrony.`;
+    } else if (chemistryScore >= 75) {
+        status = 'Good Chemistry';
+        description = `This ${teamSize}-person team shows strong collaborative potential with good alignment across most dimensions.`;
+    } else if (chemistryScore >= 65) {
+        status = 'Moderate Chemistry';
+        description = `This ${teamSize}-person team has workable chemistry but may benefit from adjustments to improve collaboration.`;
+    } else {
+        status = 'Needs Improvement';
+        description = `This configuration may face collaboration challenges. Consider adjusting team composition.`;
+    }
+    
+    document.getElementById('optimizeChemistryStatus').textContent = status;
+    document.getElementById('optimizeChemistryDesc').textContent = description;
+    
+    console.log('Chemistry updated:', chemistryScore, '% for', teamSize, 'members');
+}
+
+// Initialize on optimize view load
+if (document.getElementById('optimizeView')) {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeOptimizeDragDrop);
+    } else {
+        initializeOptimizeDragDrop();
+    }
+}
+

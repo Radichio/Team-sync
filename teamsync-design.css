@@ -3976,3 +3976,26 @@ body.light-mode .match-indicator.caution.clickable:hover {
     color: var(--text-secondary);
     margin-left: 6px;
 }
+
+/* Drag-and-Drop States for Optimize Module */
+.zone-members.drag-active {
+    background: rgba(59, 130, 246, 0.05);
+    border: 2px dashed rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    min-height: 60px;
+}
+
+.zone-members.drag-over {
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid var(--primary-blue);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+.member-item {
+    cursor: move;
+}
+
+.member-item:active {
+    cursor: grabbing;
+}
