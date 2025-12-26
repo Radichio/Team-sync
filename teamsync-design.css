@@ -3944,22 +3944,3 @@ body.light-mode .match-indicator.caution.clickable:hover {
         width: 100%;
     }
 }
-
-/* Chemistry Status Badge Variations */
-.chemistry-status-badge.excellent {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: #22c55e;
-    color: #22c55e;
-}
-
-.chemistry-status-badge.good {
-    background: rgba(132, 204, 22, 0.1);
-    border-color: #84cc16;
-    color: #84cc16;
-}
-
-.chemistry-status-badge.caution {
-    background: rgba(234, 179, 8, 0.1);
-    border-color: #eab308;
-    color: #eab308;
-}
