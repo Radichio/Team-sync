@@ -3218,8 +3218,7 @@ function displaySubscaleComparison(supervisorId) {
         comparisonHTML += `
             <div class="subscale-row">
                 <div class="subscale-label">${subscaleLabels[key]}</div>
-                <div class="subscale-score team">${teamScore}%</div>
-                <div class="subscale-score supervisor">${supervisorScore}% <span style="font-size: 0.75rem; color: var(--text-tertiary);">(${differenceSign}${difference})</span></div>
+                <div class="subscale-score supervisor">${supervisorScore}% <span class="score-delta">(${differenceSign}${difference})</span></div>
             </div>
         `;
     });

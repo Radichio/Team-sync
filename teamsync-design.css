@@ -3429,7 +3429,7 @@ body.light-mode .ripple-effect {
 
 .subscale-row {
     display: grid;
-    grid-template-columns: 1fr 80px 80px;
+    grid-template-columns: 1fr 140px;
     gap: 16px;
     align-items: center;
     padding: 16px;
@@ -3943,4 +3943,12 @@ body.light-mode .match-indicator.caution.clickable:hover {
     .workspace-actions button {
         width: 100%;
     }
+}
+
+/* Score delta styling for supervisor match subscales */
+.score-delta {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 6px;
 }
