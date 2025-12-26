@@ -910,388 +910,190 @@
     <div class="app-container hidden" id="optimizeView">
         <div class="app-header">
             <div>
-                <h1 class="welcome-title">Team Lifecycle Manager</h1>
-                <p class="welcome-subtitle">Monitor, optimize, and archive team configurations</p>
+                <h1 class="welcome-title">Optimize Existing Team</h1>
+                <p class="welcome-subtitle">Modify team composition and test chemistry changes</p>
             </div>
             <button class="demo-toggle" id="backFromOptimize">
                 ← Back to Dashboard
             </button>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="optimize-tabs">
-            <button class="optimize-tab active" data-tab="activeTeams" onclick="switchOptimizeTab('activeTeams')">
-                <span class="tab-icon">📊</span>
-                Active Teams
-                <span class="tab-badge">3</span>
-            </button>
-            <button class="optimize-tab" data-tab="scenarioBuilder" onclick="switchOptimizeTab('scenarioBuilder')">
-                <span class="tab-icon">🔧</span>
-                Scenario Builder
-            </button>
-            <button class="optimize-tab" data-tab="savedConfigs" onclick="switchOptimizeTab('savedConfigs')">
-                <span class="tab-icon">💾</span>
-                Saved Configs
-                <span class="tab-badge">5</span>
-            </button>
-        </div>
+        <div class="optimize-layout">
+            <!-- Left Sidebar: Saved Teams List -->
+            <div class="teams-sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">Saved Teams</h3>
+                </div>
+                
+                <div class="teams-list">
+                    <!-- Team 1: Engineering Alpha -->
+                    <div class="team-list-item active" data-team-id="alpha" onclick="loadTeamConfig('alpha')">
+                        <div class="team-item-header">
+                            <span class="team-check">✓</span>
+                            <span class="team-item-name">Engineering Alpha</span>
+                        </div>
+                        <div class="team-item-stats">
+                            <span class="team-item-chemistry">85%</span>
+                            <span class="team-item-members">3 members</span>
+                        </div>
+                    </div>
 
-        <!-- TAB 1: ACTIVE TEAMS -->
-        <div id="activeTeamsTab" class="optimize-tab-content active">
-            <div class="active-teams-header">
-                <h2 class="section-title">Currently Deployed Teams</h2>
-                <button class="action-button primary" onclick="createNewTeam()">
+                    <!-- Team 2: Sales Beta -->
+                    <div class="team-list-item" data-team-id="beta" onclick="loadTeamConfig('beta')">
+                        <div class="team-item-header">
+                            <span class="team-check hidden">✓</span>
+                            <span class="team-item-name">Sales Division Beta</span>
+                        </div>
+                        <div class="team-item-stats">
+                            <span class="team-item-chemistry">71%</span>
+                            <span class="team-item-members">5 members</span>
+                        </div>
+                    </div>
+
+                    <!-- Team 3: Product Innovation -->
+                    <div class="team-list-item" data-team-id="innovation" onclick="loadTeamConfig('innovation')">
+                        <div class="team-item-header">
+                            <span class="team-check hidden">✓</span>
+                            <span class="team-item-name">Product Innovation</span>
+                        </div>
+                        <div class="team-item-stats">
+                            <span class="team-item-chemistry">88%</span>
+                            <span class="team-item-members">4 members</span>
+                        </div>
+                    </div>
+
+                    <!-- Team 4: Q4 Sprint (Archived) -->
+                    <div class="team-list-item archived" data-team-id="q4-sprint" onclick="loadTeamConfig('q4-sprint')">
+                        <div class="team-item-header">
+                            <span class="team-check hidden">✓</span>
+                            <span class="team-item-name">Q4 Innovation Sprint</span>
+                            <span class="archived-badge">📁</span>
+                        </div>
+                        <div class="team-item-stats">
+                            <span class="team-item-chemistry">91%</span>
+                            <span class="team-item-members">4 members</span>
+                        </div>
+                    </div>
+
+                    <!-- Team 5: Customer Success (Archived) -->
+                    <div class="team-list-item archived" data-team-id="cs-rapid" onclick="loadTeamConfig('cs-rapid')">
+                        <div class="team-item-header">
+                            <span class="team-check hidden">✓</span>
+                            <span class="team-item-name">Customer Success</span>
+                            <span class="archived-badge">📁</span>
+                        </div>
+                        <div class="team-item-stats">
+                            <span class="team-item-chemistry">76%</span>
+                            <span class="team-item-members">3 members</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Team Button -->
+                <button class="new-team-btn" onclick="createNewTeamConfig()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
-                    Create New Team
+                    New Team
                 </button>
             </div>
 
-            <!-- Active Team Cards -->
-            <div class="active-teams-grid">
-                <!-- Team 1: Engineering Alpha -->
-                <div class="active-team-card status-healthy">
-                    <div class="team-card-header">
-                        <div>
-                            <h3 class="team-card-title">Engineering Team Alpha</h3>
-                            <p class="team-card-meta">Deployed: Dec 1, 2024 • 3 members</p>
-                        </div>
-                        <div class="team-chemistry-badge excellent">
-                            <span class="chemistry-number">85%</span>
-                        </div>
+            <!-- Right Area: Drag-and-Drop Zones (Same as Module 1) -->
+            <div class="optimize-workspace">
+                <div class="workspace-header">
+                    <div class="current-team-info">
+                        <h2 id="currentTeamName">Engineering Alpha</h2>
+                        <p id="currentTeamInfo">Drag members between zones to modify composition</p>
                     </div>
-                    
-                    <div class="team-status-indicator">
-                        <span class="status-dot green"></span>
-                        <span class="status-text">Healthy • Last checked 2 days ago</span>
-                    </div>
-                    
-                    <div class="team-members-preview">
-                        <div class="member-avatar">AS</div>
-                        <div class="member-avatar">JD</div>
-                        <div class="member-avatar">SJ</div>
-                    </div>
-                    
-                    <div class="team-quick-actions">
-                        <button class="quick-action-btn" onclick="viewTeamDetails('alpha')">View Details</button>
-                        <button class="quick-action-btn" onclick="optimizeTeam('alpha')">Optimize</button>
-                        <button class="quick-action-btn secondary" onclick="archiveTeam('alpha')">Archive</button>
+                    <div class="workspace-actions">
+                        <button class="action-button secondary" onclick="discardChanges()">
+                            Discard Changes
+                        </button>
+                        <button class="action-button primary" onclick="saveTeamChanges()" id="saveChangesBtn">
+                            Save Changes
+                        </button>
                     </div>
                 </div>
 
-                <!-- Team 2: Sales Division Beta (WARNING) -->
-                <div class="active-team-card status-warning">
-                    <div class="team-card-header">
-                        <div>
-                            <h3 class="team-card-title">Sales Division Beta</h3>
-                            <p class="team-card-meta">Deployed: Nov 15, 2024 • 5 members</p>
-                        </div>
-                        <div class="team-chemistry-badge good">
-                            <span class="chemistry-number">71%</span>
-                            <span class="chemistry-delta negative">↓3</span>
-                        </div>
-                    </div>
-                    
-                    <div class="team-status-indicator">
-                        <span class="status-dot yellow"></span>
-                        <span class="status-text">Chemistry Declining • Last checked 1 week ago</span>
-                    </div>
-                    
-                    <div class="team-alert-banner">
-                        <span class="alert-icon">⚠️</span>
-                        <span>Chemistry dropped 3 points this month</span>
-                    </div>
-                    
-                    <div class="team-members-preview">
-                        <div class="member-avatar">SJ</div>
-                        <div class="member-avatar">MC</div>
-                        <div class="member-avatar">EP</div>
-                        <div class="member-avatar">+2</div>
-                    </div>
-                    
-                    <div class="team-quick-actions">
-                        <button class="quick-action-btn" onclick="viewTeamDetails('beta')">View Details</button>
-                        <button class="quick-action-btn warning" onclick="interveneTeam('beta')">Intervene</button>
-                        <button class="quick-action-btn" onclick="rebalanceTeam('beta')">Rebalance</button>
-                    </div>
-                </div>
-
-                <!-- Team 3: Product Innovation -->
-                <div class="active-team-card status-healthy">
-                    <div class="team-card-header">
-                        <div>
-                            <h3 class="team-card-title">Product Innovation Squad</h3>
-                            <p class="team-card-meta">Deployed: Oct 20, 2024 • 4 members</p>
-                        </div>
-                        <div class="team-chemistry-badge strong">
-                            <span class="chemistry-number">88%</span>
-                            <span class="chemistry-delta positive">↑2</span>
-                        </div>
-                    </div>
-                    
-                    <div class="team-status-indicator">
-                        <span class="status-dot green"></span>
-                        <span class="status-text">Improving • Last checked 3 days ago</span>
-                    </div>
-                    
-                    <div class="team-success-banner">
-                        <span class="success-icon">🎉</span>
-                        <span>Chemistry improved 2 points this month!</span>
-                    </div>
-                    
-                    <div class="team-members-preview">
-                        <div class="member-avatar">AT</div>
-                        <div class="member-avatar">RL</div>
-                        <div class="member-avatar">MC</div>
-                        <div class="member-avatar">AF</div>
-                    </div>
-                    
-                    <div class="team-quick-actions">
-                        <button class="quick-action-btn" onclick="viewTeamDetails('innovation')">View Details</button>
-                        <button class="quick-action-btn" onclick="optimizeTeam('innovation')">Optimize</button>
-                        <button class="quick-action-btn secondary" onclick="exportTeamTemplate('innovation')">Save as Template</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: SCENARIO BUILDER -->
-        <div id="scenarioBuilderTab" class="optimize-tab-content">
-            <div class="scenario-builder-header">
-                <h2 class="section-title">Test Team Configurations</h2>
-                <div class="scenario-controls">
-                    <select id="baseTeamSelect" class="base-team-select" onchange="loadBaseTeam()">
-                        <option value="">Select base team...</option>
-                        <option value="alpha">Engineering Team Alpha (85%)</option>
-                        <option value="beta">Sales Division Beta (71%)</option>
-                        <option value="innovation">Product Innovation Squad (88%)</option>
-                        <option value="new">🆕 Build from scratch</option>
-                    </select>
-                    <button class="action-button secondary" onclick="resetScenario()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
-                            <polyline points="1 4 1 10 7 10"></polyline>
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                        </svg>
-                        Reset
-                    </button>
-                </div>
-            </div>
-
-            <!-- Before/After Comparison -->
-            <div class="before-after-container">
-                <div class="before-column">
-                    <div class="column-header">
-                        <h3>Current Configuration</h3>
-                        <div class="chemistry-display">
-                            <span class="chemistry-label">Chemistry:</span>
-                            <span class="chemistry-value current" id="currentChemistry">85%</span>
-                        </div>
-                    </div>
-                    <div class="team-composition" id="currentComposition">
-                        <div class="composition-member">
-                            <div class="member-avatar">AS</div>
-                            <div class="member-info">
-                                <div class="member-name">Alex Smith</div>
-                                <div class="member-role">Senior Engineer</div>
-                                <div class="member-score">MS: 82%</div>
+                <!-- Drag-and-Drop Zones Grid -->
+                <div class="modules-grid">
+                    <!-- Core Team Zone -->
+                    <div class="module-card blue" id="optimizeCoreZone">
+                        <h3 class="module-title">Core Team</h3>
+                        <p class="module-description">Primary contributors with high interaction</p>
+                        <div id="optimizeCoreMembers" class="zone-members">
+                            <div class="member-item" draggable="true" data-member="alex-smith">
+                                <span class="member-initials">AS</span>
+                                Alex Smith - Senior Engineer
+                            </div>
+                            <div class="member-item" draggable="true" data-member="jordan-davis">
+                                <span class="member-initials">JD</span>
+                                Jordan Davis - Full Stack Developer
+                            </div>
+                            <div class="member-item" draggable="true" data-member="sam-johnson">
+                                <span class="member-initials">SJ</span>
+                                Sam Johnson - Product Manager
                             </div>
                         </div>
-                        <div class="composition-member">
-                            <div class="member-avatar">JD</div>
-                            <div class="member-info">
-                                <div class="member-name">Jordan Davis</div>
-                                <div class="member-role">Full Stack Developer</div>
-                                <div class="member-score">MS: 88%</div>
+                    </div>
+
+                    <!-- Extended Team Zone -->
+                    <div class="module-card purple" id="optimizeExtendedZone">
+                        <h3 class="module-title">Extended Team</h3>
+                        <p class="module-description">Part-time contributors and collaborators</p>
+                        <div id="optimizeExtendedMembers" class="zone-members">
+                            <div class="member-item" draggable="true" data-member="morgan-chen">
+                                <span class="member-initials">MC</span>
+                                Morgan Chen - Backend Engineer
+                            </div>
+                            <div class="member-item" draggable="true" data-member="riley-lee">
+                                <span class="member-initials">RL</span>
+                                Riley Lee - UX Designer
                             </div>
                         </div>
-                        <div class="composition-member">
-                            <div class="member-avatar">SJ</div>
-                            <div class="member-info">
-                                <div class="member-name">Sam Johnson</div>
-                                <div class="member-role">Product Manager</div>
-                                <div class="member-score">MS: 85%</div>
+                    </div>
+
+                    <!-- Bench Zone -->
+                    <div class="module-card pink" id="optimizeBenchZone">
+                        <h3 class="module-title">Bench</h3>
+                        <p class="module-description">Available members for rotation</p>
+                        <div id="optimizeBenchMembers" class="zone-members">
+                            <div class="member-item" draggable="true" data-member="taylor-park">
+                                <span class="member-initials">TP</span>
+                                Taylor Park - DevOps Engineer
+                            </div>
+                            <div class="member-item" draggable="true" data-member="casey-brown">
+                                <span class="member-initials">CB</span>
+                                Casey Brown - UI Designer
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Members Zone -->
+                    <div class="module-card green" id="optimizeAvailableZone">
+                        <h3 class="module-title">Available Members</h3>
+                        <p class="module-description">Drag members to add to team</p>
+                        <div id="optimizeAvailableMembers" class="zone-members">
+                            <div class="member-item" draggable="true" data-member="avery-white">
+                                <span class="member-initials">AW</span>
+                                Avery White - Product Designer
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="comparison-arrow">
-                    <div class="arrow-icon">→</div>
-                    <div class="delta-badge hidden" id="chemistryDelta">+0</div>
-                </div>
-
-                <div class="after-column">
-                    <div class="column-header">
-                        <h3>Proposed Configuration</h3>
-                        <div class="chemistry-display">
-                            <span class="chemistry-label">Projected:</span>
-                            <span class="chemistry-value proposed" id="proposedChemistry">--</span>
-                        </div>
+                <!-- Chemistry Display -->
+                <div class="chemistry-card">
+                    <h3 class="chemistry-title">Team Chemistry</h3>
+                    <div class="chemistry-display-large">
+                        <div class="chemistry-score-large" id="optimizeChemistryScore">85</div>
+                        <div class="chemistry-status-badge" id="optimizeChemistryStatus">Excellent Chemistry</div>
                     </div>
-                    <div class="team-composition-builder" id="proposedComposition">
-                        <div class="empty-state">
-                            <div class="empty-icon">👥</div>
-                            <p>Drag members here to test configuration</p>
-                            <p class="empty-hint">Or click "AI Suggest Optimal" below</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Available Members Pool -->
-            <div class="members-pool-section">
-                <h3 class="section-title">Available Members</h3>
-                <div class="members-pool-grid" id="availableMembersPool">
-                    <div class="pool-member" draggable="true" data-member-id="morgan-chen">
-                        <div class="pool-member-avatar">MC</div>
-                        <div class="pool-member-info">
-                            <div class="pool-member-name">Morgan Chen</div>
-                            <div class="pool-member-role">Backend Engineer</div>
-                            <div class="pool-member-score">MS: 76%</div>
-                        </div>
-                        <button class="add-member-btn" onclick="addMemberToProposed('morgan-chen')">+</button>
-                    </div>
-                    <div class="pool-member" draggable="true" data-member-id="riley-lee">
-                        <div class="pool-member-avatar">RL</div>
-                        <div class="pool-member-info">
-                            <div class="pool-member-name">Riley Lee</div>
-                            <div class="pool-member-role">UX Designer</div>
-                            <div class="pool-member-score">MS: 79%</div>
-                        </div>
-                        <button class="add-member-btn" onclick="addMemberToProposed('riley-lee')">+</button>
-                    </div>
-                    <div class="pool-member" draggable="true" data-member-id="taylor-park">
-                        <div class="pool-member-avatar">TP</div>
-                        <div class="pool-member-info">
-                            <div class="pool-member-name">Taylor Park</div>
-                            <div class="pool-member-role">DevOps Engineer</div>
-                            <div class="pool-member-score">MS: 72%</div>
-                        </div>
-                        <button class="add-member-btn" onclick="addMemberToProposed('taylor-park')">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Smart Recommendations -->
-            <div class="smart-recommendations">
-                <button class="action-button primary" onclick="generateOptimalConfig()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m-5.7 5.7l-4.2 4.2m15.6 0l-4.2-4.2m-5.7-5.7l-4.2-4.2"></path>
-                    </svg>
-                    AI Suggest Optimal Configuration
-                </button>
-                <button class="action-button secondary" onclick="saveScenario()">
-                    Save This Scenario
-                </button>
-                <button class="action-button" onclick="deployConfiguration()" id="deployBtn" disabled>
-                    Deploy Configuration
-                </button>
-            </div>
-        </div>
-
-        <!-- TAB 3: SAVED CONFIGS -->
-        <div id="savedConfigsTab" class="optimize-tab-content">
-            <div class="saved-configs-header">
-                <h2 class="section-title">Team Archive & Templates</h2>
-                <div class="archive-filters">
-                    <button class="filter-btn active" onclick="filterArchive('all')">All (5)</button>
-                    <button class="filter-btn" onclick="filterArchive('active')">Active (3)</button>
-                    <button class="filter-btn" onclick="filterArchive('archived')">Archived (2)</button>
-                    <button class="filter-btn" onclick="filterArchive('templates')">Templates (0)</button>
-                </div>
-            </div>
-
-            <!-- Saved Configurations List -->
-            <div class="saved-configs-list">
-                <!-- Archived Team 1 -->
-                <div class="saved-config-card">
-                    <div class="config-card-header">
-                        <div>
-                            <h3 class="config-title">Q4 2024 Innovation Sprint</h3>
-                            <p class="config-meta">Created: Oct 1, 2024 • Archived: Dec 15, 2024</p>
-                        </div>
-                        <div class="config-badge archived">
-                            <span class="badge-icon">📁</span>
-                            Archived
-                        </div>
-                    </div>
-                    
-                    <div class="config-stats">
-                        <div class="config-stat">
-                            <div class="stat-label">Final Chemistry</div>
-                            <div class="stat-value">91%</div>
-                        </div>
-                        <div class="config-stat">
-                            <div class="stat-label">Duration</div>
-                            <div class="stat-value">75 days</div>
-                        </div>
-                        <div class="config-stat">
-                            <div class="stat-label">Members</div>
-                            <div class="stat-value">4</div>
-                        </div>
-                    </div>
-                    
-                    <div class="config-notes">
-                        <strong>Notes:</strong> Exceptional team chemistry. Project completed ahead of schedule. Consider this configuration for future innovation projects.
-                    </div>
-                    
-                    <div class="config-actions">
-                        <button class="config-action-btn" onclick="viewConfig('q4-sprint')">View Details</button>
-                        <button class="config-action-btn" onclick="restoreConfig('q4-sprint')">Restore to Active</button>
-                        <button class="config-action-btn primary" onclick="useAsTemplate('q4-sprint')">Use as Template</button>
-                    </div>
-                </div>
-
-                <!-- Archived Team 2 -->
-                <div class="saved-config-card">
-                    <div class="config-card-header">
-                        <div>
-                            <h3 class="config-title">Customer Success Rapid Response</h3>
-                            <p class="config-meta">Created: Sep 10, 2024 • Archived: Nov 30, 2024</p>
-                        </div>
-                        <div class="config-badge archived">
-                            <span class="badge-icon">📁</span>
-                            Archived
-                        </div>
-                    </div>
-                    
-                    <div class="config-stats">
-                        <div class="config-stat">
-                            <div class="stat-label">Final Chemistry</div>
-                            <div class="stat-value">76%</div>
-                        </div>
-                        <div class="config-stat">
-                            <div class="stat-label">Duration</div>
-                            <div class="stat-value">82 days</div>
-                        </div>
-                        <div class="config-stat">
-                            <div class="stat-label">Members</div>
-                            <div class="stat-value">3</div>
-                        </div>
-                    </div>
-                    
-                    <div class="config-notes">
-                        <strong>Notes:</strong> Team merged with Customer Success Division. Functional chemistry but could be improved with different member mix.
-                    </div>
-                    
-                    <div class="config-actions">
-                        <button class="config-action-btn" onclick="viewConfig('cs-rapid')">View Details</button>
-                        <button class="config-action-btn" onclick="restoreConfig('cs-rapid')">Restore to Active</button>
-                        <button class="config-action-btn" onclick="deleteConfig('cs-rapid')">Delete</button>
-                    </div>
-                </div>
-
-                <!-- Empty Template State -->
-                <div class="empty-templates-state">
-                    <div class="empty-icon">💾</div>
-                    <h3>No Custom Templates Yet</h3>
-                    <p>Save successful team configurations as templates for quick reuse.</p>
-                    <button class="action-button primary" onclick="switchOptimizeTab('activeTeams')">
-                        View Active Teams
-                    </button>
+                    <p class="chemistry-description" id="optimizeChemistryDesc">
+                        This team configuration shows strong collaborative potential. The core team has 
+                        complementary work styles and communication preferences.
+                    </p>
                 </div>
             </div>
         </div>

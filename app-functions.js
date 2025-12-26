@@ -3460,144 +3460,61 @@ console.log('Module 3: Match a Supervisor functions loaded');
 
 
 // ========================================
-// OPTIMIZE TEAM - LIFECYCLE MANAGER
+
+// ========================================
+// OPTIMIZE EXISTING TEAM
 // ========================================
 
 /**
- * Switch between optimize tabs
+ * Load a team configuration into the optimize workspace
  */
-function switchOptimizeTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.optimize-tab-content').forEach(content => {
-        content.classList.remove('active');
+function loadTeamConfig(teamId) {
+    // Update active state in sidebar
+    document.querySelectorAll('.team-list-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.team-check').classList.add('hidden');
     });
     
-    // Remove active class from all tabs
-    document.querySelectorAll('.optimize-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Show selected tab content
-    const tabContent = document.getElementById(tabName + 'Tab');
-    if (tabContent) {
-        tabContent.classList.add('active');
+    const selectedItem = document.querySelector(`.team-list-item[data-team-id="${teamId}"]`);
+    if (selectedItem) {
+        selectedItem.classList.add('active');
+        selectedItem.querySelector('.team-check').classList.remove('hidden');
     }
     
-    // Add active class to selected tab
-    const tab = document.querySelector(`.optimize-tab[data-tab="${tabName}"]`);
-    if (tab) {
-        tab.classList.add('active');
+    // Update team name in header
+    const teamName = selectedItem ? selectedItem.querySelector('.team-item-name').textContent : 'Team';
+    document.getElementById('currentTeamName').textContent = teamName;
+    
+    // Demo alert showing what would load
+    alert(`Feature Demo: Load Team Configuration\n\nLoading: ${teamName}\n\nWould:\n• Populate drag-and-drop zones with team members\n• Show current chemistry score\n• Enable drag-and-drop editing\n• Track changes for Save/Discard`);
+    
+    console.log('Loaded team config:', teamId);
+}
+
+/**
+ * Create a new team configuration
+ */
+function createNewTeamConfig() {
+    if (confirm('Create new team?\n\nThis will clear the current workspace.')) {
+        alert('Feature Demo: Create New Team\n\nWould:\n• Clear all zones\n• Start with empty configuration\n• Allow building team from scratch');
     }
 }
 
 /**
- * Placeholder functions for Active Teams actions
+ * Save changes to current team
  */
-function createNewTeam() {
-    alert('Feature Demo: Create New Team\n\nThis would open a wizard to:\n1. Select team members\n2. Calculate chemistry\n3. Deploy team configuration');
-}
-
-function viewTeamDetails(teamId) {
-    alert(`Feature Demo: View Team Details\n\nTeam: ${teamId}\n\nWould show:\n• Full member list\n• Chemistry breakdown by subscale\n• Historical performance\n• Recent alerts`);
-}
-
-function optimizeTeam(teamId) {
-    alert(`Feature Demo: Optimize Team\n\nTeam: ${teamId}\n\nWould:\n• Load team into Scenario Builder\n• Suggest improvements\n• Allow testing different configurations`);
-    switchOptimizeTab('scenarioBuilder');
-}
-
-function archiveTeam(teamId) {
-    if (confirm(`Archive ${teamId} team?\n\nThis will move the team to Saved Configs.`)) {
-        alert('Team archived successfully!');
-    }
-}
-
-function interveneTeam(teamId) {
-    alert(`Feature Demo: Intervene\n\nTeam: ${teamId}\n\nWould provide:\n• Suggested interventions\n• Team building activities\n• Communication protocols\n• Schedule conflict resolution session`);
-}
-
-function rebalanceTeam(teamId) {
-    alert(`Feature Demo: Rebalance Team\n\nTeam: ${teamId}\n\nWould:\n• Analyze current chemistry issues\n• Suggest member additions/removals\n• Show chemistry impact of changes`);
-    switchOptimizeTab('scenarioBuilder');
-}
-
-function exportTeamTemplate(teamId) {
-    alert(`Feature Demo: Save as Template\n\nTeam: ${teamId}\n\nWould:\n• Save team configuration\n• Create reusable template\n• Allow quick team creation with similar chemistry`);
-}
-
-/**
- * Placeholder functions for Scenario Builder
- */
-function loadBaseTeam() {
-    const select = document.getElementById('baseTeamSelect');
-    const teamId = select.value;
-    
-    if (!teamId) return;
-    
-    if (teamId === 'new') {
-        alert('Feature Demo: Build from Scratch\n\nWould clear all configurations and start fresh.');
-    } else {
-        alert(`Feature Demo: Load Base Team\n\nLoading: ${select.options[select.selectedIndex].text}\n\nWould:\n• Load team members into current config\n• Show current chemistry\n• Enable modification`);
-    }
-}
-
-function resetScenario() {
-    if (confirm('Reset scenario? This will clear your proposed configuration.')) {
-        alert('Scenario reset!');
-    }
-}
-
-function addMemberToProposed(memberId) {
-    alert(`Feature Demo: Add Member\n\nAdding: ${memberId}\n\nWould:\n• Add to proposed configuration\n• Recalculate chemistry\n• Show delta vs current`);
-}
-
-function generateOptimalConfig() {
-    alert('Feature Demo: AI Suggest Optimal\n\nWould:\n• Analyze all available members\n• Calculate best chemistry combinations\n• Suggest 3 optimal configurations\n• Explain reasoning for each');
-}
-
-function saveScenario() {
-    alert('Feature Demo: Save Scenario\n\nWould save this configuration for later comparison or deployment.');
-}
-
-function deployConfiguration() {
-    if (confirm('Deploy this configuration?\n\nThis will make it an Active Team.')) {
-        alert('Configuration deployed successfully!');
-        switchOptimizeTab('activeTeams');
+function saveTeamChanges() {
+    if (confirm('Save changes to this team configuration?')) {
+        alert('Team configuration saved successfully!\n\nChanges have been applied.');
     }
 }
 
 /**
- * Placeholder functions for Saved Configs
+ * Discard changes and reload original configuration
  */
-function filterArchive(filterType) {
-    alert(`Feature Demo: Filter Archive\n\nFilter: ${filterType}\n\nWould show only ${filterType} configurations.`);
-    
-    // Update active filter button (visual feedback)
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
-}
-
-function viewConfig(configId) {
-    alert(`Feature Demo: View Configuration\n\nConfig: ${configId}\n\nWould show:\n• Full team details\n• Chemistry history\n• Performance metrics\n• Notes and lessons learned`);
-}
-
-function restoreConfig(configId) {
-    if (confirm(`Restore ${configId} to Active Teams?`)) {
-        alert('Configuration restored!');
-        switchOptimizeTab('activeTeams');
-    }
-}
-
-function useAsTemplate(configId) {
-    alert(`Feature Demo: Use as Template\n\nConfig: ${configId}\n\nWould:\n• Load configuration into Scenario Builder\n• Allow modifications\n• Create new team based on this template`);
-    switchOptimizeTab('scenarioBuilder');
-}
-
-function deleteConfig(configId) {
-    if (confirm(`Permanently delete ${configId}?\n\nThis cannot be undone.`)) {
-        alert('Configuration deleted.');
+function discardChanges() {
+    if (confirm('Discard all changes?\n\nThis will reload the original team configuration.')) {
+        alert('Changes discarded. Original configuration restored.');
     }
 }
 
