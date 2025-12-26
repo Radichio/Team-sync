@@ -393,12 +393,12 @@ function calculateChemistryScore(coreTeam = [], extendedTeam = [], bench = []) {
 function getChemistryFactors(score) {
   const factors = [];
   
-  if (score >= 85) {
+  if (score >= 76) {
     factors.push({ text: 'High Trust Environment', icon: '✓' });
     factors.push({ text: 'Balanced Role Distribution', icon: '✓' });
     factors.push({ text: 'Aligned Goals', icon: '✓' });
     factors.push({ text: 'Strong Communication', icon: '✓' });
-  } else if (score >= 75) {
+  } else if (score >= 66) {
     factors.push({ text: 'Good Team Balance', icon: '✓' });
     factors.push({ text: 'Clear Roles', icon: '✓' });
     factors.push({ text: 'Developing Trust', icon: '◐' });
@@ -588,8 +588,8 @@ function updateChemistryDisplay(score, factors) {
 }
 
 function getScoreClass(score) {
-  if (score >= 85) return 'excellent';
-  if (score >= 75) return 'good';
+  if (score >= 76) return 'excellent';
+  if (score >= 66) return 'good';
   return 'needs-improvement';
 }
 
@@ -2487,38 +2487,38 @@ function getDisconnectLevel(score) {
     if (score >= 80) {
         return {
             severity: 'strong',
-            text: 'Strong Synchrony',
-            hrText: 'Exemplary Partnership',
+            text: 'Insignificant/No Disconnect',
+            hrText: 'Insignificant/No Disconnect',
             class: 'disconnect-strong',
             icon: '🌟',
             description: 'This dyad exhibits optimal mental synchrony with exceptional alignment across all dimensions. This is a model partnership that demonstrates natural rapport, mutual trust, and effortless collaboration.',
             recommendation: 'No intervention needed. Consider leveraging for high-stakes projects or peer mentoring.'
         };
-    } else if (score >= 70) {
+    } else if (score >= 66) {
         return {
             severity: 'functional',
-            text: 'Functional Relationship',
-            hrText: 'Functional Partnership',
+            text: 'Mild Disconnect',
+            hrText: 'Mild Disconnect',
             class: 'disconnect-functional',
             icon: '✅',
             description: 'This dyad demonstrates a healthy working relationship with strong synchrony across most dimensions. The partnership is functional and productive.',
             recommendation: 'Minimal intervention needed. Focus on maintaining current dynamics and recognizing effective collaboration.'
         };
-    } else if (score >= 60) {
+    } else if (score >= 56) {
         return {
             severity: 'minor',
-            text: 'Minor Disconnect',
-            hrText: 'Room for Improvement',
+            text: 'Moderate',
+            hrText: 'Moderate',
             class: 'disconnect-minor',
             icon: 'ℹ️',
             description: 'This dyad shows minor disconnects in specific areas but maintains overall functional collaboration.',
             recommendation: 'Brief coaching sessions and communication style awareness training recommended.'
         };
-    } else if (score >= 50) {
+    } else if (score >= 45) {
         return {
             severity: 'moderate',
-            text: 'Moderate Disconnect',
-            hrText: 'Needs Support',
+            text: 'Significant Disconnect',
+            hrText: 'Significant Disconnect',
             class: 'disconnect-moderate',
             icon: '⚠️',
             description: 'This dyad experiences moderate disconnects that would benefit from targeted support. While functional, the relationship shows friction in specific areas.',
@@ -2528,7 +2528,7 @@ function getDisconnectLevel(score) {
         return {
             severity: 'critical',
             text: 'Critical Disconnect',
-            hrText: 'Requires Immediate Intervention',
+            hrText: 'Critical Disconnect',
             class: 'disconnect-critical',
             icon: '🔴',
             description: 'This dyad shows a critical disconnect requiring immediate structured intervention. The relationship pattern indicates significant communication barriers affecting workplace performance.',
