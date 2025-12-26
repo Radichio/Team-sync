@@ -2963,7 +2963,6 @@ function displayNoAssessmentState(teamChemistry, supervisorId) {
     // Update score displays
     document.getElementById('teamChemistryScore').textContent = teamChemistry + '%';
     document.getElementById('supervisorReadinessScore').textContent = '--';
-    document.getElementById('matchQualityScore').textContent = '--';
     
     // Update match indicator to show "assessment needed" - make it clickable
     const indicator = document.getElementById('matchQualityIndicator');
@@ -3025,7 +3024,6 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
     // Update score displays
     document.getElementById('teamChemistryScore').textContent = matchResult.teamScore + '%';
     document.getElementById('supervisorReadinessScore').textContent = matchResult.supervisorScore + '%';
-    document.getElementById('matchQualityScore').textContent = matchResult.matchScore + '%';
     
     // Update match indicator
     const indicator = document.getElementById('matchQualityIndicator');
