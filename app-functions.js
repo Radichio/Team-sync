@@ -2727,44 +2727,57 @@ function calculateMatchScore(teamScore, supervisorScore) {
  * @returns {object} Quality level with emoji and description
  */
 function getMatchQuality(matchScore, teamScore, supervisorScore) {
-    const scoreDrop = teamScore - matchScore;
+    // Mental Synchrony Principle: Smaller gaps = better synchrony
+    // Calculate gap (positive = supervisor above team, negative = supervisor below team)
+    const gap = supervisorScore - teamScore;
+    const absoluteGap = Math.abs(gap);
     
-    // Excellent: Supervisor meets or exceeds team (no drop) AND both are high
-    if (scoreDrop === 0 && matchScore >= 80) {
+    // CRITICAL: Never allow supervisor below team (would lower team chemistry)
+    if (gap < 0) {
         return {
-            level: 'excellent',
-            emoji: '🎯',
-            text: 'Excellent Match',
-            description: 'Supervisor fully aligns with team chemistry and both scores are strong.'
+            level: 'poor',
+            emoji: '🔴',
+            text: 'Poor Match - Would Lower Team Chemistry',
+            description: `This supervisor scores ${Math.abs(gap)} points below the team, which would reduce overall team chemistry. Not recommended.`
         };
     }
     
-    // Good: Supervisor meets team (no drop) OR minimal drop (1-5 points)
-    if (scoreDrop <= 5) {
+    // EXCELLENT: 0-3 point gap = optimal synchrony (perfect alignment)
+    if (absoluteGap <= 3) {
+        return {
+            level: 'excellent',
+            emoji: '🌟',
+            text: 'Excellent Match - Optimal Synchrony',
+            description: 'Supervisor chemistry perfectly aligns with team. This is the ideal match for natural connection and effective leadership.'
+        };
+    }
+    
+    // GOOD: 4-8 point gap = strong connection (still well-aligned)
+    if (absoluteGap <= 8) {
         return {
             level: 'good',
             emoji: '✅',
-            text: 'Good Match',
-            description: 'Supervisor chemistry aligns well with team dynamics.'
+            text: 'Good Match - Strong Connection',
+            description: 'Supervisor chemistry aligns well with team dynamics. Expected to lead effectively with natural rapport.'
         };
     }
     
-    // Caution: Moderate drop (6-15 points)
-    if (scoreDrop <= 15) {
+    // CAUTION: 9-15 point gap = getting disconnected (needs mitigation)
+    if (absoluteGap <= 15) {
         return {
             level: 'caution',
             emoji: '⚠️',
-            text: 'Needs Review',
-            description: 'Some compatibility concerns. Consider interventions or training.'
+            text: 'Needs Review - Large Disparity',
+            description: `${absoluteGap}-point chemistry gap may affect natural connection. Enhanced onboarding and communication strategies recommended.`
         };
     }
     
-    // Poor: Significant drop (16+ points)
+    // POOR: 16+ point gap = too far apart (can't connect effectively)
     return {
         level: 'poor',
-        emoji: '❌',
-        text: 'Poor Match',
-        description: 'Significant chemistry mismatch. Alternative supervisor recommended.'
+        emoji: '🔴',
+        text: 'Poor Match - Chemistry Gap Too Large',
+        description: `${absoluteGap}-point gap is too large for effective synchrony. Supervisor may struggle to connect naturally with team members.`
     };
 }
 
@@ -3184,19 +3197,21 @@ function showReviewGuidance(matchResult) {
         }
     }
     
-    // Find alternative supervisor with better match
+    // Find alternative supervisor with better match (smaller gap = better synchrony)
     const teamChemistry = parseInt(document.getElementById('teamChemistryScore').textContent);
     let bestAlternative = null;
-    let bestAlternativeMatch = 0;
+    let bestAlternativeGap = 999; // Start with very large gap
     
     memberPools.team.forEach(member => {
         if (member.id !== currentSupervisorId && member.msScore) {
-            const potentialMatch = Math.min(teamChemistry, member.msScore);
-            if (potentialMatch > matchResult.matchScore) {
-                if (!bestAlternative || potentialMatch > bestAlternativeMatch) {
-                    bestAlternative = member;
-                    bestAlternativeMatch = potentialMatch;
-                }
+            const gap = member.msScore - teamChemistry;
+            const absoluteGap = Math.abs(gap);
+            
+            // Only consider supervisors at or above team score (gap >= 0)
+            // AND look for smallest gap (best synchrony)
+            if (gap >= 0 && absoluteGap < bestAlternativeGap) {
+                bestAlternative = member;
+                bestAlternativeGap = absoluteGap;
             }
         }
     });
@@ -3204,9 +3219,10 @@ function showReviewGuidance(matchResult) {
     const alternativeElement = document.getElementById('reviewAlternative');
     if (alternativeElement) {
         if (bestAlternative) {
-            const improvement = bestAlternativeMatch - matchResult.matchScore;
+            const currentGap = matchResult.differential;
+            const gapImprovement = currentGap - bestAlternativeGap;
             alternativeElement.textContent = 
-                `${bestAlternative.name} shows ${bestAlternativeMatch}% match (+${improvement} points better)`;
+                `${bestAlternative.name} shows ${bestAlternative.msScore}% match (${bestAlternativeGap}-point gap, ${gapImprovement} points better alignment)`;
         } else {
             alternativeElement.textContent = 
                 'No better alternatives available in current pool';
