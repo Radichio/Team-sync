@@ -132,6 +132,14 @@ function navigateToModule(moduleName) {
             }
         }, 10);
     }
+    
+    // Module 2 - Initialize Optimize view drag-and-drop
+    if (viewName === 'optimize' && typeof initializeOptimizeDragDrop === 'function') {
+        setTimeout(() => {
+            initializeOptimizeDragDrop();
+            updateOptimizeChemistry();
+        }, 10);
+    }
 }
 
 /**
