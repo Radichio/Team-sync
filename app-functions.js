@@ -2344,26 +2344,61 @@ function displayConflictResults(results, personA, personB) {
 }
 
 /**
- * Get disconnect level based on client's exact thresholds
- * 70-100%: No significant disconnect
- * 50-69%: Moderate disconnect
- * Below 50%: Significant disconnect
+ * Get disconnect severity level based on dyadic chemistry score
+ * 5-level system based on Mental Synchrony research and organizational psychology
+ * @param {number} score - Dyadic chemistry percentage (0-100)
+ * @returns {object} Level details with text, class, icon, and description
  */
 function getDisconnectLevel(score) {
-    if (score >= 70) {
-        return { 
-            text: 'No significant disconnect', 
-            class: 'no-disconnect' 
+    if (score >= 80) {
+        return {
+            severity: 'strong',
+            text: 'Strong Synchrony',
+            hrText: 'Exemplary Partnership',
+            class: 'disconnect-strong',
+            icon: '🌟',
+            description: 'This dyad exhibits optimal mental synchrony with exceptional alignment across all dimensions. This is a model partnership that demonstrates natural rapport, mutual trust, and effortless collaboration.',
+            recommendation: 'No intervention needed. Consider leveraging for high-stakes projects or peer mentoring.'
+        };
+    } else if (score >= 70) {
+        return {
+            severity: 'functional',
+            text: 'Functional Relationship',
+            hrText: 'Functional Partnership',
+            class: 'disconnect-functional',
+            icon: '✅',
+            description: 'This dyad demonstrates a healthy working relationship with strong synchrony across most dimensions. The partnership is functional and productive.',
+            recommendation: 'Minimal intervention needed. Focus on maintaining current dynamics and recognizing effective collaboration.'
+        };
+    } else if (score >= 60) {
+        return {
+            severity: 'minor',
+            text: 'Minor Disconnect',
+            hrText: 'Room for Improvement',
+            class: 'disconnect-minor',
+            icon: 'ℹ️',
+            description: 'This dyad shows minor disconnects in specific areas but maintains overall functional collaboration.',
+            recommendation: 'Brief coaching sessions and communication style awareness training recommended.'
         };
     } else if (score >= 50) {
-        return { 
-            text: 'Moderate disconnect', 
-            class: 'moderate-disconnect' 
+        return {
+            severity: 'moderate',
+            text: 'Moderate Disconnect',
+            hrText: 'Needs Support',
+            class: 'disconnect-moderate',
+            icon: '⚠️',
+            description: 'This dyad experiences moderate disconnects that would benefit from targeted support. While functional, the relationship shows friction in specific areas.',
+            recommendation: 'Facilitated dialogue sessions and subscale-specific training strongly recommended.'
         };
     } else {
-        return { 
-            text: 'Significant disconnect', 
-            class: 'significant-disconnect' 
+        return {
+            severity: 'critical',
+            text: 'Critical Disconnect',
+            hrText: 'Requires Immediate Intervention',
+            class: 'disconnect-critical',
+            icon: '🔴',
+            description: 'This dyad shows a critical disconnect requiring immediate structured intervention. The relationship pattern indicates significant communication barriers affecting workplace performance.',
+            recommendation: 'Professional mediation and targeted skill-building strongly recommended. Consider team restructuring if patterns persist.'
         };
     }
 }
@@ -2727,57 +2762,44 @@ function calculateMatchScore(teamScore, supervisorScore) {
  * @returns {object} Quality level with emoji and description
  */
 function getMatchQuality(matchScore, teamScore, supervisorScore) {
-    // Mental Synchrony Principle: Smaller gaps = better synchrony
-    // Calculate gap (positive = supervisor above team, negative = supervisor below team)
-    const gap = supervisorScore - teamScore;
-    const absoluteGap = Math.abs(gap);
+    const scoreDrop = teamScore - matchScore;
     
-    // CRITICAL: Never allow supervisor below team (would lower team chemistry)
-    if (gap < 0) {
-        return {
-            level: 'poor',
-            emoji: '🔴',
-            text: 'Poor Match - Would Lower Team Chemistry',
-            description: `This supervisor scores ${Math.abs(gap)} points below the team, which would reduce overall team chemistry. Not recommended.`
-        };
-    }
-    
-    // EXCELLENT: 0-3 point gap = optimal synchrony (perfect alignment)
-    if (absoluteGap <= 3) {
+    // Excellent: Supervisor meets or exceeds team (no drop) AND both are high
+    if (scoreDrop === 0 && matchScore >= 80) {
         return {
             level: 'excellent',
-            emoji: '🌟',
-            text: 'Excellent Match - Optimal Synchrony',
-            description: 'Supervisor chemistry perfectly aligns with team. This is the ideal match for natural connection and effective leadership.'
+            emoji: '🎯',
+            text: 'Excellent Match',
+            description: 'Supervisor fully aligns with team chemistry and both scores are strong.'
         };
     }
     
-    // GOOD: 4-8 point gap = strong connection (still well-aligned)
-    if (absoluteGap <= 8) {
+    // Good: Supervisor meets team (no drop) OR minimal drop (1-5 points)
+    if (scoreDrop <= 5) {
         return {
             level: 'good',
             emoji: '✅',
-            text: 'Good Match - Strong Connection',
-            description: 'Supervisor chemistry aligns well with team dynamics. Expected to lead effectively with natural rapport.'
+            text: 'Good Match',
+            description: 'Supervisor chemistry aligns well with team dynamics.'
         };
     }
     
-    // CAUTION: 9-15 point gap = getting disconnected (needs mitigation)
-    if (absoluteGap <= 15) {
+    // Caution: Moderate drop (6-15 points)
+    if (scoreDrop <= 15) {
         return {
             level: 'caution',
             emoji: '⚠️',
-            text: 'Needs Review - Large Disparity',
-            description: `${absoluteGap}-point chemistry gap may affect natural connection. Enhanced onboarding and communication strategies recommended.`
+            text: 'Needs Review',
+            description: 'Some compatibility concerns. Consider interventions or training.'
         };
     }
     
-    // POOR: 16+ point gap = too far apart (can't connect effectively)
+    // Poor: Significant drop (16+ points)
     return {
         level: 'poor',
-        emoji: '🔴',
-        text: 'Poor Match - Chemistry Gap Too Large',
-        description: `${absoluteGap}-point gap is too large for effective synchrony. Supervisor may struggle to connect naturally with team members.`
+        emoji: '❌',
+        text: 'Poor Match',
+        description: 'Significant chemistry mismatch. Alternative supervisor recommended.'
     };
 }
 
@@ -3197,21 +3219,19 @@ function showReviewGuidance(matchResult) {
         }
     }
     
-    // Find alternative supervisor with better match (smaller gap = better synchrony)
+    // Find alternative supervisor with better match
     const teamChemistry = parseInt(document.getElementById('teamChemistryScore').textContent);
     let bestAlternative = null;
-    let bestAlternativeGap = 999; // Start with very large gap
+    let bestAlternativeMatch = 0;
     
     memberPools.team.forEach(member => {
         if (member.id !== currentSupervisorId && member.msScore) {
-            const gap = member.msScore - teamChemistry;
-            const absoluteGap = Math.abs(gap);
-            
-            // Only consider supervisors at or above team score (gap >= 0)
-            // AND look for smallest gap (best synchrony)
-            if (gap >= 0 && absoluteGap < bestAlternativeGap) {
-                bestAlternative = member;
-                bestAlternativeGap = absoluteGap;
+            const potentialMatch = Math.min(teamChemistry, member.msScore);
+            if (potentialMatch > matchResult.matchScore) {
+                if (!bestAlternative || potentialMatch > bestAlternativeMatch) {
+                    bestAlternative = member;
+                    bestAlternativeMatch = potentialMatch;
+                }
             }
         }
     });
@@ -3219,10 +3239,9 @@ function showReviewGuidance(matchResult) {
     const alternativeElement = document.getElementById('reviewAlternative');
     if (alternativeElement) {
         if (bestAlternative) {
-            const currentGap = matchResult.differential;
-            const gapImprovement = currentGap - bestAlternativeGap;
+            const improvement = bestAlternativeMatch - matchResult.matchScore;
             alternativeElement.textContent = 
-                `${bestAlternative.name} shows ${bestAlternative.msScore}% match (${bestAlternativeGap}-point gap, ${gapImprovement} points better alignment)`;
+                `${bestAlternative.name} shows ${bestAlternativeMatch}% match (+${improvement} points better)`;
         } else {
             alternativeElement.textContent = 
                 'No better alternatives available in current pool';
