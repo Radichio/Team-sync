@@ -808,17 +808,11 @@
                     <div class="score-detail">Average synchrony</div>
                 </div>
 
-                <!-- Supervisor Score -->
-                <div class="score-card">
+                <!-- Supervisor Score with Match Quality Indicator -->
+                <div class="score-card match-card">
                     <div class="score-label">Supervisor-Team Chemistry</div>
                     <div class="score-value" id="supervisorReadinessScore">--</div>
                     <div class="score-detail">Individual assessment</div>
-                </div>
-
-                <!-- Match Score (Hero) -->
-                <div class="score-card match-card">
-                    <div class="score-label">Match Quality</div>
-                    <div class="match-score" id="matchQualityScore">--</div>
                     <div class="match-indicator" id="matchQualityIndicator">
                         <span class="match-emoji">⏳</span>
                         <span class="match-text">Analyzing...</span>
@@ -884,7 +878,7 @@
 
             <!-- Subscale Breakdown -->
             <div class="subscale-breakdown-container">
-                <h3 class="section-title">Detailed Components</h3>
+                <h3 class="section-title">Detailed Compatibility</h3>
                 <div class="subscale-comparison" id="subscaleComparison">
                     <!-- Dynamic subscale comparison will be inserted here -->
                 </div>
@@ -988,15 +982,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- New Team Button -->
-                <button class="new-team-btn" onclick="createNewTeamConfig()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 6px;">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    New Team
-                </button>
             </div>
 
             <!-- Right Area: Drag-and-Drop Zones (Same as Module 1) -->
@@ -1025,15 +1010,15 @@
                         <div id="optimizeCoreMembers" class="zone-members">
                             <div class="member-item" draggable="true" data-member="alex-smith">
                                 <span class="member-initials">AS</span>
-                                Alex Smith - Senior Engineer
+                                Alex Smith
                             </div>
                             <div class="member-item" draggable="true" data-member="jordan-davis">
                                 <span class="member-initials">JD</span>
-                                Jordan Davis - Full Stack Developer
+                                Jordan Davis
                             </div>
                             <div class="member-item" draggable="true" data-member="sam-johnson">
                                 <span class="member-initials">SJ</span>
-                                Sam Johnson - Product Manager
+                                Sam Johnson
                             </div>
                         </div>
                     </div>
@@ -1045,11 +1030,11 @@
                         <div id="optimizeExtendedMembers" class="zone-members">
                             <div class="member-item" draggable="true" data-member="morgan-chen">
                                 <span class="member-initials">MC</span>
-                                Morgan Chen - Backend Engineer
+                                Morgan Chen
                             </div>
                             <div class="member-item" draggable="true" data-member="riley-lee">
                                 <span class="member-initials">RL</span>
-                                Riley Lee - UX Designer
+                                Riley Lee
                             </div>
                         </div>
                     </div>
@@ -1061,11 +1046,11 @@
                         <div id="optimizeBenchMembers" class="zone-members">
                             <div class="member-item" draggable="true" data-member="taylor-park">
                                 <span class="member-initials">TP</span>
-                                Taylor Park - DevOps Engineer
+                                Taylor Park
                             </div>
                             <div class="member-item" draggable="true" data-member="casey-brown">
                                 <span class="member-initials">CB</span>
-                                Casey Brown - UI Designer
+                                Casey Brown
                             </div>
                         </div>
                     </div>
@@ -1077,7 +1062,7 @@
                         <div id="optimizeAvailableMembers" class="zone-members">
                             <div class="member-item" draggable="true" data-member="avery-white">
                                 <span class="member-initials">AW</span>
-                                Avery White - Product Designer
+                                Avery White
                             </div>
                         </div>
                     </div>

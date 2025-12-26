@@ -2963,7 +2963,6 @@ function displayNoAssessmentState(teamChemistry, supervisorId) {
     // Update score displays
     document.getElementById('teamChemistryScore').textContent = teamChemistry + '%';
     document.getElementById('supervisorReadinessScore').textContent = '--';
-    document.getElementById('matchQualityScore').textContent = '--';
     
     // Update match indicator to show "assessment needed" - make it clickable
     const indicator = document.getElementById('matchQualityIndicator');
@@ -3025,7 +3024,6 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
     // Update score displays
     document.getElementById('teamChemistryScore').textContent = matchResult.teamScore + '%';
     document.getElementById('supervisorReadinessScore').textContent = matchResult.supervisorScore + '%';
-    document.getElementById('matchQualityScore').textContent = matchResult.matchScore + '%';
     
     // Update match indicator
     const indicator = document.getElementById('matchQualityIndicator');
@@ -3220,7 +3218,8 @@ function displaySubscaleComparison(supervisorId) {
         comparisonHTML += `
             <div class="subscale-row">
                 <div class="subscale-label">${subscaleLabels[key]}</div>
-                <div class="subscale-score supervisor">${supervisorScore}% <span class="score-delta">(${differenceSign}${difference})</span></div>
+                <div class="subscale-score team">${teamScore}%</div>
+                <div class="subscale-score supervisor">${supervisorScore}% <span style="font-size: 0.75rem; color: var(--text-tertiary);">(${differenceSign}${difference})</span></div>
             </div>
         `;
     });
