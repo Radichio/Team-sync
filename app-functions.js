@@ -2208,6 +2208,27 @@ function populateConflictSelects() {
 }
 
 /**
+ * Reset conflict view - clear selections and hide results
+ * Called when view loads to prevent showing stale data
+ */
+function resetConflictView() {
+    // Clear dropdown selections
+    const personASelect = document.getElementById('conflictPersonA');
+    const personBSelect = document.getElementById('conflictPersonB');
+    
+    if (personASelect) personASelect.value = '';
+    if (personBSelect) personBSelect.value = '';
+    
+    // Hide results container
+    const resultsContainer = document.getElementById('conflictResults');
+    if (resultsContainer) {
+        resultsContainer.style.display = 'none';
+    }
+    
+    console.log('Conflict view reset');
+}
+
+/**
  * Update conflict analysis when members selected
  */
 function updateConflictAnalysis() {
@@ -2297,7 +2318,7 @@ function calculateDyadicChemistry(personA, personB) {
 }
 
 /**
- * Display conflict resolution results
+ * Display conflict resolution results with integrated analysis
  */
 function displayConflictResults(results, personA, personB) {
     // Display hero score
@@ -2306,41 +2327,154 @@ function displayConflictResults(results, personA, personB) {
         heroScore.textContent = results.chemistry + '%';
     }
     
-    // Client's exact terminology for subscales
-    const subscaleKeys = ['understanding', 'trust', 'ease', 'integration'];
+    // Get overall assessment
+    const overallLevel = getDisconnectLevel(results.chemistry);
     
-    // Display each subscale
-    subscaleKeys.forEach(key => {
-        const score = results.subscales[key];
-        
-        // Update value
-        const valueEl = document.getElementById(`conflict-${key}-value`);
-        if (valueEl) {
-            valueEl.textContent = score + '%';
+    // Populate overall assessment card
+    const overallIcon = document.getElementById('overallSeverityIcon');
+    const overallText = document.getElementById('overallSeverityText');
+    const overallDesc = document.getElementById('overallDescription');
+    const overallRec = document.getElementById('overallRecommendation');
+    
+    if (overallIcon) overallIcon.textContent = overallLevel.icon;
+    if (overallText) overallText.textContent = overallLevel.hrText;
+    
+    // Apply badge styling
+    const badge = document.querySelector('.assessment-badge');
+    if (badge) {
+        badge.className = 'assessment-badge disconnect-level ' + overallLevel.class;
+    }
+    
+    if (overallDesc) {
+        overallDesc.textContent = overallLevel.description;
+    }
+    
+    if (overallRec) {
+        overallRec.innerHTML = `<strong>Recommendation:</strong> ${overallLevel.recommendation}`;
+    }
+    
+    // Prepare subscale data with names and descriptions
+    const subscaleData = [
+        {
+            key: 'understanding',
+            name: 'Truly understanding each other',
+            score: results.subscales.understanding,
+            level: getDisconnectLevel(results.subscales.understanding)
+        },
+        {
+            key: 'trust',
+            name: 'Totally respecting one another',
+            score: results.subscales.trust,
+            level: getDisconnectLevel(results.subscales.trust)
+        },
+        {
+            key: 'ease',
+            name: 'Instantly feeling at ease together',
+            score: results.subscales.ease,
+            level: getDisconnectLevel(results.subscales.ease)
+        },
+        {
+            key: 'integration',
+            name: 'Spontaneously thinking and acting alike',
+            score: results.subscales.integration,
+            level: getDisconnectLevel(results.subscales.integration)
         }
-        
-        // Update progress bar
-        const barEl = document.getElementById(`conflict-${key}-bar`);
-        if (barEl) {
-            barEl.style.width = score + '%';
-        }
-        
-        // Update disconnect level with client's exact thresholds
-        const levelEl = document.getElementById(`conflict-${key}-level`);
-        if (levelEl) {
-            const level = getDisconnectLevel(score);
-            levelEl.textContent = level.text;
-            levelEl.className = 'disconnect-level ' + level.class;
-        }
+    ];
+    
+    // Sort by severity (problems first, then strengths)
+    // Order: critical, moderate, minor, functional, strong
+    const severityOrder = { critical: 0, moderate: 1, minor: 2, functional: 3, strong: 4 };
+    subscaleData.sort((a, b) => {
+        return severityOrder[a.level.severity] - severityOrder[b.level.severity];
     });
     
-    // Display primary disconnects
-    displayPrimaryDisconnects(results.subscales);
+    // Populate subscales container
+    const container = document.getElementById('subscalesContainer');
+    if (container) {
+        container.innerHTML = '';
+        
+        subscaleData.forEach(subscale => {
+            const item = createSubscaleDetailItem(subscale);
+            container.appendChild(item);
+        });
+    }
     
-    // Display intervention recommendations
+    // Update old intervention section (keep for now, can remove later)
     displayInterventionRecommendations(results.subscales);
     
     console.log('Conflict results displayed for', personA.name, 'and', personB.name);
+}
+
+/**
+ * Create detailed subscale item with description and guidance
+ */
+function createSubscaleDetailItem(subscale) {
+    const div = document.createElement('div');
+    div.className = 'subscale-detail-item';
+    
+    // Get specific guidance based on score and severity
+    const guidance = getSubscaleGuidance(subscale.key, subscale.score, subscale.level.severity);
+    const guidanceClass = subscale.level.severity === 'strong' || subscale.level.severity === 'functional' 
+        ? 'strength' 
+        : subscale.level.severity === 'critical' 
+        ? 'critical' 
+        : 'concern';
+    
+    div.innerHTML = `
+        <div class="subscale-detail-header">
+            <span class="subscale-detail-name">${subscale.name}</span>
+            <span class="subscale-detail-score">${subscale.score}%</span>
+            <span class="subscale-detail-badge disconnect-level ${subscale.level.class}">
+                ${subscale.level.icon} ${subscale.level.text}
+            </span>
+        </div>
+        <div class="subscale-detail-description">
+            ${subscale.level.description}
+        </div>
+        <div class="subscale-detail-guidance ${guidanceClass}">
+            ${guidance}
+        </div>
+    `;
+    
+    return div;
+}
+
+/**
+ * Get specific guidance text for each subscale based on severity
+ */
+function getSubscaleGuidance(key, score, severity) {
+    const guidanceMap = {
+        understanding: {
+            critical: '⚠️ <strong>Critical gap in mutual comprehension.</strong> Communication patterns show significant misalignment. Implement structured communication protocols with specific check-ins for understanding.',
+            moderate: '⚠️ <strong>Moderate comprehension gap.</strong> Messages may be unclear or misinterpreted. Consider communication skills training or facilitated dialogue sessions.',
+            minor: 'ℹ️ <strong>Some communication friction.</strong> Occasional misunderstandings occur but relationship remains functional. Brief coaching on active listening may help.',
+            functional: '✅ <strong>Good mutual understanding.</strong> Communication is clear and effective most of the time. Continue current practices and address minor issues as they arise.',
+            strong: '🌟 <strong>Exceptional comprehension.</strong> Natural ability to understand each other\'s perspectives and intentions. This is a relationship strength to leverage.'
+        },
+        trust: {
+            critical: '⚠️ <strong>Critical trust deficit.</strong> Confidence and reliability concerns affecting collaboration. Professional mediation and trust-building exercises strongly recommended.',
+            moderate: '⚠️ <strong>Moderate trust concerns.</strong> Some reliability or confidence issues present. Facilitated trust-building activities and clear expectation setting recommended.',
+            minor: 'ℹ️ <strong>Minor trust friction.</strong> Generally reliable but occasional doubts surface. Regular check-ins and transparent communication can strengthen confidence.',
+            functional: '✅ <strong>Solid mutual respect.</strong> Strong foundation of trust and reliability. Maintain through consistent follow-through and open communication.',
+            strong: '🌟 <strong>Exceptional mutual confidence.</strong> Deep trust and respect form the bedrock of this relationship. Consider this dyad for high-stakes collaborative work.'
+        },
+        ease: {
+            critical: '⚠️ <strong>Significant discomfort.</strong> Interactions feel strained or uncomfortable. Structured protocols and possible workspace adjustments may be needed.',
+            moderate: '⚠️ <strong>Some tension present.</strong> Interactions occasionally feel uncomfortable or awkward. Communication style awareness training may improve ease.',
+            minor: 'ℹ️ <strong>Occasional unease.</strong> Generally comfortable but some situations feel strained. Brief coaching on interpersonal dynamics could help.',
+            functional: '✅ <strong>Natural comfort.</strong> Interactions flow smoothly with minimal awkwardness. Continue fostering this positive dynamic.',
+            strong: '🌟 <strong>Effortless rapport.</strong> Exceptional ease and comfort in all interactions. This natural chemistry is a significant asset.'
+        },
+        integration: {
+            critical: '⚠️ <strong>Significant coordination challenges.</strong> Work styles and approaches frequently clash. Clear role delineation and coordination protocols essential.',
+            moderate: '⚠️ <strong>Moderate alignment issues.</strong> Work styles show some mismatch requiring conscious coordination. Process alignment meetings recommended.',
+            minor: 'ℹ️ <strong>Minor coordination friction.</strong> Generally aligned but occasional mismatches in approach. Brief process clarification sessions may help.',
+            functional: '✅ <strong>Well-coordinated teamwork.</strong> Work styles complement each other effectively. Maintain current coordination practices.',
+            strong: '🌟 <strong>Seamless synchronization.</strong> Exceptional natural alignment in thinking and action. Ideal pairing for complex collaborative projects.'
+        }
+    };
+    
+    return guidanceMap[key]?.[severity] || 'No specific guidance available.';
 }
 
 /**

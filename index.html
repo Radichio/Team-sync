@@ -698,60 +698,29 @@
                 </div>
             </div>
 
-            <!-- Disconnect Analysis (4 Subscales) -->
-            <div class="disconnect-analysis">
-                <h3 class="section-title">Disconnect Analysis</h3>
-                
-                <div class="subscale-item">
-                    <div class="subscale-header">
-                        <span class="subscale-name">Truly understanding each other</span>
-                        <span class="subscale-value" id="conflict-understanding-value">--</span>
+            <!-- Overall Assessment Card -->
+            <div class="overall-assessment-card">
+                <div class="assessment-header">
+                    <div class="assessment-title">Overall Relationship Assessment</div>
+                    <div class="assessment-badge">
+                        <span id="overallSeverityIcon">--</span>
+                        <span id="overallSeverityText">--</span>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="conflict-understanding-bar"></div>
-                    </div>
-                    <div class="disconnect-level" id="conflict-understanding-level">--</div>
                 </div>
-
-                <div class="subscale-item">
-                    <div class="subscale-header">
-                        <span class="subscale-name">Totally respecting one another</span>
-                        <span class="subscale-value" id="conflict-trust-value">--</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="conflict-trust-bar"></div>
-                    </div>
-                    <div class="disconnect-level" id="conflict-trust-level">--</div>
+                <div class="assessment-description" id="overallDescription">
+                    <!-- Populated by JavaScript -->
                 </div>
-
-                <div class="subscale-item">
-                    <div class="subscale-header">
-                        <span class="subscale-name">Instantly feeling at ease together</span>
-                        <span class="subscale-value" id="conflict-ease-value">--</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="conflict-ease-bar"></div>
-                    </div>
-                    <div class="disconnect-level" id="conflict-ease-level">--</div>
-                </div>
-
-                <div class="subscale-item">
-                    <div class="subscale-header">
-                        <span class="subscale-name">Spontaneously thinking and acting alike</span>
-                        <span class="subscale-value" id="conflict-integration-value">--</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="conflict-integration-bar"></div>
-                    </div>
-                    <div class="disconnect-level" id="conflict-integration-level">--</div>
+                <div class="assessment-recommendation" id="overallRecommendation">
+                    <!-- Populated by JavaScript -->
                 </div>
             </div>
 
-            <!-- Primary Disconnects Summary -->
-            <div class="primary-disconnects">
-                <h3 class="section-title">Primary Disconnects</h3>
-                <div id="disconnectSummary" class="disconnect-summary">
-                    <!-- Populated dynamically by JavaScript -->
+            <!-- Detailed Components Analysis -->
+            <div class="relationship-analysis">
+                <h3 class="section-title">Detailed Components</h3>
+                
+                <div id="subscalesContainer" class="subscales-container">
+                    <!-- Populated dynamically by JavaScript - ALL 4 subscales sorted by severity -->
                 </div>
             </div>
 
@@ -905,7 +874,7 @@
 
             <!-- Subscale Breakdown -->
             <div class="subscale-breakdown-container">
-                <h3 class="section-title">Detailed Components</h3>
+                <h3 class="section-title">Detailed Compatibility</h3>
                 <div class="subscale-comparison" id="subscaleComparison">
                     <!-- Dynamic subscale comparison will be inserted here -->
                 </div>

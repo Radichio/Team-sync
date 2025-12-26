@@ -115,6 +115,10 @@ function navigateToModule(moduleName) {
     if (viewName === 'conflict' && typeof populateConflictSelects === 'function') {
         setTimeout(() => {
             populateConflictSelects();
+            // Reset the view - clear selections and hide results
+            if (typeof resetConflictView === 'function') {
+                resetConflictView();
+            }
         }, 10);
     }
     
