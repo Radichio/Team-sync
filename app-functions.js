@@ -3794,7 +3794,10 @@ function loadTeamConfig(teamId) {
         div.className = 'member-item';
         div.setAttribute('draggable', 'true');
         div.setAttribute('data-member', memberId);
-        div.innerHTML = `${data.name}`;
+        div.innerHTML = `
+            <span class="member-initials">${data.initials}</span>
+            ${data.name}
+        `;
         return div;
     };
     
