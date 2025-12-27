@@ -1678,6 +1678,24 @@ function toggleSubscales() {
 }
 
 /**
+ * Toggle alternate configurations display
+ */
+function toggleAlternates() {
+  const toggle = document.getElementById('alternateToggle');
+  const content = document.getElementById('alternateConfigsContent');
+  
+  const isExpanded = content.style.display === 'block';
+  
+  if (isExpanded) {
+    toggle.classList.remove('expanded');
+    content.style.display = 'none';
+  } else {
+    toggle.classList.add('expanded');
+    content.style.display = 'block';
+  }
+}
+
+/**
  * Initialize drag and drop for optimizer view (Phase 3C)
  */
 function initializeOptimizerDragDrop() {
@@ -4144,21 +4162,21 @@ if (document.getElementById('optimizeView')) {
  */
 function populateAlternateConfigurations() {
   const alternateGrid = document.getElementById('alternateGrid');
-  if (!alternateGrid) return;
+  const alternateSection = document.getElementById('alternateConfigsSection');
+  
+  if (!alternateGrid || !alternateSection) return;
   
   alternateGrid.innerHTML = '';
   
   // Check if we have alternates stored
   if (!window.topAlternateConfigurations || window.topAlternateConfigurations.length === 0) {
-    // Hide the alternates section if no alternates
-    const alternateConfigs = document.getElementById('alternateConfigs');
-    if (alternateConfigs) alternateConfigs.style.display = 'none';
+    // Hide the entire section if no alternates
+    alternateSection.style.display = 'none';
     return;
   }
   
-  // Show the alternates section
-  const alternateConfigs = document.getElementById('alternateConfigs');
-  if (alternateConfigs) alternateConfigs.style.display = 'block';
+  // Show the section
+  alternateSection.style.display = 'block';
   
   // Create cards for 2nd, 3rd, 4th place
   const ranks = ['2nd Place', '3rd Place', '4th Place'];
