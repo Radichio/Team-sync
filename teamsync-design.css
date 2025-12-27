@@ -1983,35 +1983,71 @@ body.light-mode .ripple-effect {
    ============================================ */
 
 /* Optimizer Hero Section - Large Chemistry Display */
-/* Inline Chemistry Score Box in Header */
-.inline-chemistry-box {
-    text-align: center;
-    padding: 12px 20px;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+.optimizer-hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 40px;
+    align-items: center;
+    padding: 32px 40px;
+    background: var(--bg-card);
     border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    margin-bottom: 32px;
 }
 
-.inline-chemistry-score {
-    font-size: 2.5rem;
+.hero-chemistry {
+    text-align: center;
+    padding-right: 40px;
+    border-right: 1px solid var(--border-primary);
+}
+
+.hero-score {
+    font-size: 5rem;
     font-weight: 800;
     line-height: 1;
-    color: var(--primary-blue);
-    margin-bottom: 4px;
+    background: linear-gradient(135deg, #8b5cf6, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
 }
 
-.inline-chemistry-score::after {
-    content: '%';
-    font-size: 1.75rem;
-}
-
-.inline-chemistry-label {
-    font-size: 0.6875rem;
+.hero-label {
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
+
+.hero-explanation {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.explanation-icon-inline {
+    color: var(--info);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.hero-explanation-text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 1024px) {
+    .optimizer-hero {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .hero-chemistry {
+        border-right: none;
         border-bottom: 1px solid var(--border-primary);
         padding-right: 0;
         padding-bottom: 24px;
@@ -2021,7 +2057,7 @@ body.light-mode .ripple-effect {
 /* Main Optimizer Layout */
 .optimizer-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 320px;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     margin-bottom: 32px;
 }
@@ -2033,26 +2069,6 @@ body.light-mode .ripple-effect {
     border-radius: 12px;
     padding: 24px;
     min-height: 400px;
-}
-
-/* Deploy Section (right column) */
-.deploy-section {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: auto;
-}
-
-.override-box {
-    padding: 20px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: 8px;
-}
-
-.full-width {
-    width: 100%;
-}
     position: relative;
 }
 
@@ -2241,13 +2257,13 @@ body.light-mode .ripple-effect {
     transition: all 0.2s ease;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-muted);
     text-align: left;
 }
 
 .alternate-toggle:hover {
     background: rgba(148, 163, 184, 0.12);
-    border-color: rgba(148, 163, 184, 0.35);
+    border-color: rgba(148, 163, 184, 0.3);
 }
 
 .alternate-toggle.expanded {
@@ -2259,7 +2275,7 @@ body.light-mode .ripple-effect {
     width: 20px;
     height: 20px;
     transition: transform 0.3s ease;
-    color: var(--text-secondary);
+    color: var(--text-muted);
 }
 
 .alternate-toggle.expanded .toggle-icon {
@@ -2819,7 +2835,7 @@ body.dark-mode .alternate-card {
 /* Collapsible Subscale Section */
 .subscale-section {
     background: var(--bg-card);
-    border: none;
+    border: 1px solid var(--border-primary);
     border-radius: 12px;
     margin-bottom: 24px;
     overflow: hidden;
