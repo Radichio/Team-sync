@@ -1985,31 +1985,11 @@ body.light-mode .ripple-effect {
 /* Optimizer Hero Section - Large Chemistry Display */
 /* Inline Chemistry Score Box in Header */
 .inline-chemistry-box {
-    text-align: left;
+    text-align: center;
     padding: 12px 20px;
     background: var(--bg-secondary);
     border-radius: 8px;
     border: 1px solid var(--border-primary);
-}
-
-/* New compressed header layout */
-.optimizer-title-row {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.chemistry-inline {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-
-.chemistry-score-inline {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary-blue);
 }
 
 .inline-chemistry-score {
@@ -2051,8 +2031,8 @@ body.light-mode .ripple-effect {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 20px;
-    min-height: 300px;
+    padding: 24px;
+    min-height: 400px;
 }
 
 /* Deploy Section (right column) */
@@ -2061,32 +2041,6 @@ body.light-mode .ripple-effect {
     flex-direction: column;
     gap: 16px;
     min-height: auto;
-    align-items: flex-end;
-}
-
-/* Horizontal layout for Override and Deploy button */
-.deploy-controls-row {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    justify-content: flex-end;
-}
-
-/* Compact override checkbox */
-.override-checkbox-compact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-
-.checkbox-text-compact {
-    user-select: none;
 }
 
 .override-box {
@@ -2094,17 +2048,10 @@ body.light-mode .ripple-effect {
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: 8px;
-    width: auto;
-    max-width: 100%;
 }
 
 .full-width {
     width: 100%;
-}
-
-/* Override full-width for deploy section buttons */
-.deploy-section .full-width {
-    width: auto;
 }
     position: relative;
 }
@@ -2114,8 +2061,8 @@ body.light-mode .ripple-effect {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--border-primary);
 }
 
