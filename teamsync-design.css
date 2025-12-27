@@ -2021,7 +2021,7 @@ body.light-mode .ripple-effect {
 /* Main Optimizer Layout */
 .optimizer-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 320px;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     margin-bottom: 32px;
 }
