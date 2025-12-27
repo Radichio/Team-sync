@@ -2316,10 +2316,11 @@ body.light-mode .ripple-effect {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 8px;
+    padding: 8px 10px;
     background: var(--bg-secondary);
     border-radius: 6px;
     transition: background 0.15s ease;
+    min-height: 48px;
 }
 
 .alternate-member-item:hover {
@@ -2341,9 +2342,13 @@ body.light-mode .ripple-effect {
 }
 
 .alternate-member-name {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 /* ============================================
