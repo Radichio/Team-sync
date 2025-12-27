@@ -2240,31 +2240,30 @@ body.light-mode .ripple-effect {
    ============================================ */
 
 .alternate-configs {
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-primary);
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 2px solid var(--border-primary);
 }
 
 .alternate-title {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 16px;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
 }
 
 .alternate-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 20px;
 }
 
 .alternate-card {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
