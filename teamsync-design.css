@@ -2024,6 +2024,10 @@ body.light-mode .ripple-effect {
     display: flex;
     gap: 16px;
     align-items: flex-start;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 20px;
 }
 
 .explanation-icon-inline {
@@ -2057,9 +2061,16 @@ body.light-mode .ripple-effect {
 /* Main Optimizer Layout */
 .optimizer-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 350px;
     gap: 24px;
     margin-bottom: 32px;
+}
+
+/* Optimizer Right Controls Column */
+.optimizer-right-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 /* Optimizer Sections */
@@ -2564,21 +2575,15 @@ body.dark-mode .alternate-card {
     }
 }
 
-/* Chemistry Score & Controls Section */
-.optimizer-controls {
+/* Chemistry Display Card */
+.chemistry-display-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-}
-
-/* Chemistry Display Card */
-.chemistry-display-card {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 24px;
-    align-items: center;
+    padding: 20px;
 }
 
 .chemistry-score-section {
@@ -2611,7 +2616,6 @@ body.dark-mode .alternate-card {
 .chemistry-comparison {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
     font-size: 0.8125rem;
     color: var(--success);
@@ -2786,11 +2790,6 @@ body.dark-mode .alternate-card {
 @media (max-width: 1024px) {
     .optimizer-content {
         grid-template-columns: 1fr;
-    }
-    
-    .chemistry-display-card {
-        grid-template-columns: 1fr;
-        gap: 24px;
     }
     
     .optimizer-actions {
