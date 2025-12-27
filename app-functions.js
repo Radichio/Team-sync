@@ -1540,7 +1540,7 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update large chemistry score display
-  document.getElementById('liveChemistryScore').textContent = chemistry;
+  document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Populate member lists (Phase 3B)
   populateOptimizerView();
@@ -1672,6 +1672,24 @@ function toggleSubscales() {
     content.style.display = 'none';
   } else {
     content.classList.add('expanded');
+    toggle.classList.add('expanded');
+    content.style.display = 'block';
+  }
+}
+
+/**
+ * Toggle alternate configurations display
+ */
+function toggleAlternates() {
+  const toggle = document.getElementById('alternateToggle');
+  const content = document.getElementById('alternateConfigsContent');
+  
+  const isExpanded = content.style.display === 'block';
+  
+  if (isExpanded) {
+    toggle.classList.remove('expanded');
+    content.style.display = 'none';
+  } else {
     toggle.classList.add('expanded');
     content.style.display = 'block';
   }
@@ -1869,7 +1887,7 @@ function recalculateChemistry() {
   if (teamMembers.length < minTeamSize || teamMembers.length > maxTeamSize) {
     // Invalid team size - show N/A
     document.getElementById('heroChemistryScore').textContent = 'N/A';
-    document.getElementById('liveChemistryScore').textContent = '--';
+    document.getElementById('heroChemistryScore').textContent = '--';
     document.getElementById('subscaleUnderstanding').textContent = 'N/A';
     document.getElementById('subscaleTrust').textContent = 'N/A';
     document.getElementById('subscaleEase').textContent = 'N/A';
@@ -1902,7 +1920,7 @@ function recalculateChemistry() {
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update main chemistry score
-  document.getElementById('liveChemistryScore').textContent = chemistry;
+  document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update subscale scores
   const understandingEl = document.getElementById('subscaleUnderstanding');
@@ -4144,21 +4162,21 @@ if (document.getElementById('optimizeView')) {
  */
 function populateAlternateConfigurations() {
   const alternateGrid = document.getElementById('alternateGrid');
-  if (!alternateGrid) return;
+  const alternateSection = document.getElementById('alternateConfigsSection');
+  
+  if (!alternateGrid || !alternateSection) return;
   
   alternateGrid.innerHTML = '';
   
   // Check if we have alternates stored
   if (!window.topAlternateConfigurations || window.topAlternateConfigurations.length === 0) {
-    // Hide the alternates section if no alternates
-    const alternateConfigs = document.getElementById('alternateConfigs');
-    if (alternateConfigs) alternateConfigs.style.display = 'none';
+    // Hide the entire section if no alternates
+    alternateSection.style.display = 'none';
     return;
   }
   
-  // Show the alternates section
-  const alternateConfigs = document.getElementById('alternateConfigs');
-  if (alternateConfigs) alternateConfigs.style.display = 'block';
+  // Show the section
+  alternateSection.style.display = 'block';
   
   // Create cards for 2nd, 3rd, 4th place
   const ranks = ['2nd Place', '3rd Place', '4th Place'];
@@ -4171,29 +4189,45 @@ function populateAlternateConfigurations() {
     card.setAttribute('data-rank', index + 2); // 2nd, 3rd, 4th
     card.onclick = () => openAlternateModal(config, ranks[index], index + 2);
     
-    // Get member initials for display
-    const memberAvatars = config.members.slice(0, 5).map(member => {
+    // Header section
+    const headerHTML = `
+      <div class="alternate-card-header">
+        <div class="alternate-rank">${ranks[index]}</div>
+        <div class="alternate-chemistry">${config.chemistry}%</div>
+      </div>
+      <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
+    `;
+    
+    // Member list section
+    const membersHTML = config.members.map(member => {
       const nameParts = member.name.split(' ');
       const initials = nameParts.length >= 2 
         ? nameParts[0][0] + nameParts[1][0]
         : nameParts[0][0] + (nameParts[0][1] || '');
-      return `<div class="alternate-member-avatar">${initials.toUpperCase()}</div>`;
+      
+      console.log('Creating alternate member item:', member.name, initials);
+      
+      return `
+        <div class="alternate-member-item">
+          <div class="alternate-member-avatar">${initials.toUpperCase()}</div>
+          <div class="alternate-member-name">${member.name}</div>
+        </div>
+      `;
     }).join('');
     
-    const moreCount = config.members.length > 5 ? `+${config.members.length - 5}` : '';
+    console.log('Members HTML:', membersHTML);
     
     card.innerHTML = `
-      <div class="alternate-rank">${ranks[index]}</div>
-      <div class="alternate-chemistry">${config.chemistry}%</div>
-      <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
-      <div class="alternate-members">
-        ${memberAvatars}
-        ${moreCount ? `<div class="alternate-more">${moreCount}</div>` : ''}
+      ${headerHTML}
+      <div class="alternate-members-list">
+        ${membersHTML}
       </div>
     `;
     
     alternateGrid.appendChild(card);
   });
+  
+  console.log('Alternates populated, total cards:', window.topAlternateConfigurations.length);
 }
 
 /**
