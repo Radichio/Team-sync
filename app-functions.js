@@ -3741,6 +3741,9 @@ console.log('Module 3: Match a Supervisor functions loaded');
 /**
  * Load a team configuration into the optimize workspace
  */
+/**
+ * Load team configuration - ACTUAL IMPLEMENTATION
+ */
 function loadTeamConfig(teamId) {
     // Update active state in sidebar
     document.querySelectorAll('.team-list-item').forEach(item => {
@@ -3754,14 +3757,90 @@ function loadTeamConfig(teamId) {
         selectedItem.querySelector('.team-check').classList.remove('hidden');
     }
     
+    // Get team configuration
+    const config = teamConfigurations[teamId];
+    if (!config) {
+        console.error('Team configuration not found:', teamId);
+        return;
+    }
+    
     // Update team name in header
-    const teamName = selectedItem ? selectedItem.querySelector('.team-item-name').textContent : 'Team';
-    document.getElementById('currentTeamName').textContent = teamName;
+    document.getElementById('currentTeamName').textContent = config.name;
+    currentTeamId = teamId;
     
-    // Demo alert showing what would load
-    alert(`Feature Demo: Load Team Configuration\n\nLoading: ${teamName}\n\nWould:\n• Populate drag-and-drop zones with team members\n• Show current chemistry score\n• Enable drag-and-drop editing\n• Track changes for Save/Discard`);
+    // Clear all zones
+    document.getElementById('optimizeCoreMembers').innerHTML = '';
+    document.getElementById('optimizeExtendedMembers').innerHTML = '';
+    document.getElementById('optimizeBenchMembers').innerHTML = '';
+    document.getElementById('optimizeAvailableMembers').innerHTML = '';
     
-    console.log('Loaded team config:', teamId);
+    // Member database with names and initials
+    const memberData = {
+        'alex-smith': { name: 'Alex Smith', initials: 'AS' },
+        'jordan-davis': { name: 'Jordan Davis', initials: 'JD' },
+        'sam-johnson': { name: 'Sam Johnson', initials: 'SJ' },
+        'morgan-chen': { name: 'Morgan Chen', initials: 'MC' },
+        'riley-lee': { name: 'Riley Lee', initials: 'RL' },
+        'taylor-park': { name: 'Taylor Park', initials: 'TP' },
+        'casey-brown': { name: 'Casey Brown', initials: 'CB' },
+        'avery-white': { name: 'Avery White', initials: 'AW' }
+    };
+    
+    // Helper to create member element
+    const createMemberElement = (memberId) => {
+        const data = memberData[memberId];
+        const div = document.createElement('div');
+        div.className = 'member-item';
+        div.setAttribute('draggable', 'true');
+        div.setAttribute('data-member', memberId);
+        div.innerHTML = `
+            <span class="member-initials">${data.initials}</span>
+            ${data.name}
+        `;
+        return div;
+    };
+    
+    // Populate zones
+    config.core.forEach(memberId => {
+        document.getElementById('optimizeCoreMembers').appendChild(createMemberElement(memberId));
+    });
+    
+    config.extended.forEach(memberId => {
+        document.getElementById('optimizeExtendedMembers').appendChild(createMemberElement(memberId));
+    });
+    
+    config.bench.forEach(memberId => {
+        document.getElementById('optimizeBenchMembers').appendChild(createMemberElement(memberId));
+    });
+    
+    config.available.forEach(memberId => {
+        document.getElementById('optimizeAvailableMembers').appendChild(createMemberElement(memberId));
+    });
+    
+    // Re-initialize draggables
+    updateOptimizeDraggables();
+    
+    // Save as new original config
+    saveOriginalConfig();
+    
+    // Update chemistry
+    updateOptimizeChemistry();
+    
+    console.log('Loaded team config:', teamId, '-', config.name);
+}
+
+/**
+ * Save current configuration as original (for discard functionality)
+ */
+function saveOriginalConfig() {
+    originalTeamConfig = {
+        teamId: currentTeamId,
+        core: Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item')).map(m => m.cloneNode(true)),
+        extended: Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item')).map(m => m.cloneNode(true)),
+        bench: Array.from(document.querySelectorAll('#optimizeBenchMembers .member-item')).map(m => m.cloneNode(true)),
+        available: Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item')).map(m => m.cloneNode(true))
+    };
+    console.log('Original config saved');
 }
 
 /**
@@ -3783,17 +3862,94 @@ function saveTeamChanges() {
 }
 
 /**
- * Discard changes and reload original configuration
+ * Discard changes and reload original configuration - ACTUAL IMPLEMENTATION
  */
 function discardChanges() {
-    if (confirm('Discard all changes?\n\nThis will reload the original team configuration.')) {
-        alert('Changes discarded. Original configuration restored.');
+    if (!originalTeamConfig) {
+        console.warn('No original config to restore');
+        return;
     }
+    
+    // Clear all zones
+    document.getElementById('optimizeCoreMembers').innerHTML = '';
+    document.getElementById('optimizeExtendedMembers').innerHTML = '';
+    document.getElementById('optimizeBenchMembers').innerHTML = '';
+    document.getElementById('optimizeAvailableMembers').innerHTML = '';
+    
+    // Restore original members
+    originalTeamConfig.core.forEach(member => {
+        document.getElementById('optimizeCoreMembers').appendChild(member.cloneNode(true));
+    });
+    
+    originalTeamConfig.extended.forEach(member => {
+        document.getElementById('optimizeExtendedMembers').appendChild(member.cloneNode(true));
+    });
+    
+    originalTeamConfig.bench.forEach(member => {
+        document.getElementById('optimizeBenchMembers').appendChild(member.cloneNode(true));
+    });
+    
+    originalTeamConfig.available.forEach(member => {
+        document.getElementById('optimizeAvailableMembers').appendChild(member.cloneNode(true));
+    });
+    
+    // Re-initialize draggables
+    updateOptimizeDraggables();
+    
+    // Update chemistry to original state
+    updateOptimizeChemistry();
+    
+    console.log('Changes discarded - original configuration restored');
 }
 
 // ========================================
 // OPTIMIZE MODULE: DRAG-AND-DROP & CHEMISTRY
 // ========================================
+
+/**
+ * Team configurations database
+ */
+const teamConfigurations = {
+    'alpha': {
+        name: 'Engineering Alpha',
+        core: ['alex-smith', 'jordan-davis', 'sam-johnson'],
+        extended: ['morgan-chen', 'riley-lee'],
+        bench: ['taylor-park', 'casey-brown'],
+        available: ['avery-white']
+    },
+    'beta': {
+        name: 'Sales Division Beta',
+        core: ['morgan-chen', 'riley-lee', 'taylor-park'],
+        extended: ['casey-brown', 'avery-white'],
+        bench: ['alex-smith'],
+        available: ['jordan-davis', 'sam-johnson']
+    },
+    'innovation': {
+        name: 'Product Innovation',
+        core: ['jordan-davis', 'sam-johnson', 'casey-brown'],
+        extended: ['alex-smith'],
+        bench: ['morgan-chen'],
+        available: ['riley-lee', 'taylor-park', 'avery-white']
+    },
+    'q4-sprint': {
+        name: 'Q4 Innovation Sprint',
+        core: ['alex-smith', 'morgan-chen', 'taylor-park'],
+        extended: ['jordan-davis'],
+        bench: ['riley-lee', 'casey-brown'],
+        available: ['sam-johnson', 'avery-white']
+    },
+    'cs-rapid': {
+        name: 'Customer Success',
+        core: ['riley-lee', 'casey-brown', 'avery-white'],
+        extended: [],
+        bench: ['sam-johnson', 'jordan-davis'],
+        available: ['alex-smith', 'morgan-chen', 'taylor-park']
+    }
+};
+
+// Store original configuration for discard functionality
+let originalTeamConfig = null;
+let currentTeamId = 'alpha';
 
 /**
  * Initialize drag-and-drop for Optimize Existing Team module
@@ -3812,6 +3968,9 @@ function initializeOptimizeDragDrop() {
     
     // Initialize all member items as draggable
     updateOptimizeDraggables();
+    
+    // Store original configuration
+    saveOriginalConfig();
     
     // Calculate initial chemistry
     updateOptimizeChemistry();
@@ -3900,51 +4059,84 @@ function updateOptimizeChemistry() {
     const coreMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
     const extendedMembers = Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item'));
     
-    // Combine for total team
-    const allTeamMembers = [...coreMembers, ...extendedMembers];
+    // Calculate Core Team score
+    const coreCount = coreMembers.length;
+    let coreScore = 0;
     
-    if (allTeamMembers.length === 0) {
-        // No team members - show placeholder
+    if (coreCount === 0) {
+        coreScore = 0;
+    } else if (coreCount >= 3 && coreCount <= 5) {
+        coreScore = 88; // Optimal core size
+    } else if (coreCount === 2 || coreCount === 6) {
+        coreScore = 82;
+    } else if (coreCount === 1) {
+        coreScore = 70;
+    } else {
+        coreScore = 68; // Too large
+    }
+    
+    // Calculate Full Team score (Core + Extended)
+    const fullTeamCount = coreCount + extendedMembers.length;
+    let fullScore = 0;
+    
+    if (fullTeamCount === 0) {
+        fullScore = 0;
+    } else if (fullTeamCount >= 3 && fullTeamCount <= 5) {
+        fullScore = 85; // Optimal size
+    } else if (fullTeamCount === 2 || fullTeamCount === 6) {
+        fullScore = 78;
+    } else if (fullTeamCount === 1 || fullTeamCount === 7) {
+        fullScore = 72;
+    } else {
+        fullScore = 65; // Too large
+    }
+    
+    // Add variance based on specific members (mock)
+    const allMemberIds = [...coreMembers, ...extendedMembers].map(m => m.getAttribute('data-member'));
+    const variance = (allMemberIds.length * 3) % 7 - 3;
+    if (coreScore > 0) coreScore += variance;
+    if (fullScore > 0) fullScore += variance;
+    
+    // Update Core Team Score box
+    if (coreCount === 0) {
+        document.getElementById('coreTeamScore').textContent = '--';
+        document.getElementById('coreTeamMembers').textContent = 'No members';
+    } else {
+        document.getElementById('coreTeamScore').textContent = coreScore + '%';
+        document.getElementById('coreTeamMembers').textContent = coreCount + (coreCount === 1 ? ' member' : ' members');
+    }
+    
+    // Update Full Team Score box
+    if (fullTeamCount === 0) {
+        document.getElementById('fullTeamScore').textContent = '--';
+        document.getElementById('fullTeamMembers').textContent = 'No members';
+    } else {
+        document.getElementById('fullTeamScore').textContent = fullScore + '%';
+        document.getElementById('fullTeamMembers').textContent = fullTeamCount + (fullTeamCount === 1 ? ' member' : ' members');
+    }
+    
+    // Main chemistry display uses FULL TEAM score
+    if (fullTeamCount === 0) {
         document.getElementById('optimizeChemistryScore').textContent = '--';
         document.getElementById('optimizeChemistryStatus').textContent = 'No Team Members';
         document.getElementById('optimizeChemistryDesc').textContent = 'Add members to Core or Extend Team to see chemistry score.';
         return;
     }
     
-    // Mock chemistry calculation based on team size
-    // In production, this would call actual Mental Synchrony algorithm
-    const teamSize = allTeamMembers.length;
-    let chemistryScore;
+    // Update main display with full team score
+    document.getElementById('optimizeChemistryScore').textContent = fullScore;
     
-    if (teamSize >= 3 && teamSize <= 5) {
-        chemistryScore = 85; // Optimal size
-    } else if (teamSize === 2 || teamSize === 6) {
-        chemistryScore = 78; // Good size
-    } else if (teamSize === 1 || teamSize === 7) {
-        chemistryScore = 72; // Acceptable
-    } else {
-        chemistryScore = 65; // Too large
-    }
-    
-    // Add some variance based on specific members (mock)
-    const memberIds = allTeamMembers.map(m => m.getAttribute('data-member'));
-    const variance = (memberIds.length * 3) % 7 - 3;
-    chemistryScore += variance;
-    
-    // Update display
-    document.getElementById('optimizeChemistryScore').textContent = chemistryScore;
-    
-    // Update status badge based on score
+    // Update status badge based on full team score
     let status, description;
-    if (chemistryScore >= 85) {
+    if (fullScore >= 85) {
         status = 'Excellent Chemistry';
-        description = `This team configuration shows exceptional collaborative potential. The ${teamSize}-person team has complementary work styles and strong synchrony.`;
-    } else if (chemistryScore >= 75) {
+        description = `This ${fullTeamCount}-person team shows exceptional collaborative potential with strong synchrony across all dimensions.`;
+    } else if (fullScore >= 75) {
         status = 'Good Chemistry';
-        description = `This ${teamSize}-person team shows strong collaborative potential with good alignment across most dimensions.`;
-    } else if (chemistryScore >= 65) {
+        description = `This ${fullTeamCount}-person team shows strong collaborative potential with good alignment across most dimensions.`;
+    } else if (fullScore >= 65) {
         status = 'Moderate Chemistry';
-        description = `This ${teamSize}-person team has workable chemistry but may benefit from adjustments to improve collaboration.`;
+        description = `This ${fullTeamCount}-person team has workable chemistry but may benefit from adjustments to improve collaboration.`;
     } else {
         status = 'Needs Improvement';
         description = `This configuration may face collaboration challenges. Consider adjusting team composition.`;
@@ -3953,7 +4145,7 @@ function updateOptimizeChemistry() {
     document.getElementById('optimizeChemistryStatus').textContent = status;
     document.getElementById('optimizeChemistryDesc').textContent = description;
     
-    console.log('Chemistry updated:', chemistryScore, '% for', teamSize, 'members');
+    console.log('Chemistry updated - Core:', coreScore + '% (' + coreCount + 'm), Full:', fullScore + '% (' + fullTeamCount + 'm)');
 }
 
 // Initialize on optimize view load

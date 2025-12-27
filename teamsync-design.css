@@ -3999,3 +3999,60 @@ body.light-mode .match-indicator.caution.clickable:hover {
 .member-item:active {
     cursor: grabbing;
 }
+
+/* Chemistry Breakdown Boxes */
+.chemistry-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-primary);
+}
+
+.breakdown-box {
+    background: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
+    border: 1px solid var(--border-secondary);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.breakdown-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-blue);
+}
+
+.breakdown-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.breakdown-score {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.breakdown-members {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .chemistry-breakdown {
+        grid-template-columns: 1fr;
+    }
+}
