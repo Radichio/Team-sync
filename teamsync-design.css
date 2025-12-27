@@ -1983,47 +1983,48 @@ body.light-mode .ripple-effect {
    ============================================ */
 
 /* Optimizer Hero Section - Large Chemistry Display */
-.optimizer-hero {
+/* Optimizer Header Grid - 4 columns */
+.optimizer-header-grid {
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 40px;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 32px;
     align-items: center;
-    padding: 32px 40px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: 12px;
     margin-bottom: 32px;
 }
 
-.hero-chemistry {
+.header-chemistry-display {
     text-align: center;
-    padding-right: 40px;
-    border-right: 1px solid var(--border-primary);
+    padding: 16px 24px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
 }
 
-.hero-score {
-    font-size: 5rem;
+.header-chemistry-score {
+    font-size: 3rem;
     font-weight: 800;
     line-height: 1;
-    background: linear-gradient(135deg, #8b5cf6, #60a5fa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
+    color: var(--primary-blue);
+    margin-bottom: 4px;
 }
 
-.hero-label {
-    font-size: 1rem;
+.header-chemistry-score::after {
+    content: '%';
+    font-size: 2rem;
+}
+
+.header-chemistry-label {
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
-.hero-explanation {
+.header-explanation {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: flex-start;
+    max-width: 400px;
 }
 
 .explanation-icon-inline {
@@ -2032,22 +2033,24 @@ body.light-mode .ripple-effect {
     margin-top: 2px;
 }
 
-.hero-explanation-text {
-    font-size: 0.9375rem;
-    line-height: 1.6;
+.explanation-text {
+    font-size: 0.8125rem;
+    line-height: 1.5;
     color: var(--text-secondary);
     font-style: italic;
     margin: 0;
 }
 
-@media (max-width: 1024px) {
-    .optimizer-hero {
+@media (max-width: 1280px) {
+    .optimizer-header-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 16px;
     }
     
-    .hero-chemistry {
-        border-right: none;
+    .header-explanation {
+        max-width: 100%;
+    }
+}
         border-bottom: 1px solid var(--border-primary);
         padding-right: 0;
         padding-bottom: 24px;
@@ -2257,13 +2260,13 @@ body.light-mode .ripple-effect {
     transition: all 0.2s ease;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-primary);
     text-align: left;
 }
 
 .alternate-toggle:hover {
     background: rgba(148, 163, 184, 0.12);
-    border-color: rgba(148, 163, 184, 0.3);
+    border-color: rgba(148, 163, 184, 0.35);
 }
 
 .alternate-toggle.expanded {
@@ -2275,7 +2278,7 @@ body.light-mode .ripple-effect {
     width: 20px;
     height: 20px;
     transition: transform 0.3s ease;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .alternate-toggle.expanded .toggle-icon {
@@ -2835,7 +2838,7 @@ body.dark-mode .alternate-card {
 /* Collapsible Subscale Section */
 .subscale-section {
     background: var(--bg-card);
-    border: 1px solid var(--border-primary);
+    border: none;
     border-radius: 12px;
     margin-bottom: 24px;
     overflow: hidden;

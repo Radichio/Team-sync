@@ -1540,7 +1540,7 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update large chemistry score display
-  document.getElementById('liveChemistryScore').textContent = chemistry;
+  document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Populate member lists (Phase 3B)
   populateOptimizerView();
@@ -1887,7 +1887,7 @@ function recalculateChemistry() {
   if (teamMembers.length < minTeamSize || teamMembers.length > maxTeamSize) {
     // Invalid team size - show N/A
     document.getElementById('heroChemistryScore').textContent = 'N/A';
-    document.getElementById('liveChemistryScore').textContent = '--';
+    document.getElementById('heroChemistryScore').textContent = '--';
     document.getElementById('subscaleUnderstanding').textContent = 'N/A';
     document.getElementById('subscaleTrust').textContent = 'N/A';
     document.getElementById('subscaleEase').textContent = 'N/A';
@@ -1920,7 +1920,7 @@ function recalculateChemistry() {
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update main chemistry score
-  document.getElementById('liveChemistryScore').textContent = chemistry;
+  document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Update subscale scores
   const understandingEl = document.getElementById('subscaleUnderstanding');

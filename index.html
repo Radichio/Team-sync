@@ -446,34 +446,35 @@
     
     <div class="app-container hidden" id="optimizerView">
         <!-- Header with back button -->
-        <div class="app-header">
+        <div class="app-header optimizer-header-grid">
             <div>
                 <h1 class="welcome-title" id="optimizerTeamName">Team Phoenix</h1>
                 <p class="welcome-subtitle">AI-optimized configuration with <span id="optimizerChemistry">85</span>% chemistry</p>
             </div>
-            <button class="action-button secondary" onclick="closeOptimizerView()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Back to Build Team
-            </button>
-        </div>
-
-        <!-- Large Chemistry Score Display -->
-        <div class="optimizer-hero">
-            <div class="hero-chemistry">
-                <div class="hero-score" id="heroChemistryScore">85</div>
-                <div class="hero-label">Overall Team Chemistry</div>
+            
+            <!-- Chemistry Score Display -->
+            <div class="header-chemistry-display">
+                <div class="header-chemistry-score" id="heroChemistryScore">85</div>
+                <div class="header-chemistry-label">Overall Team Chemistry</div>
             </div>
-            <div class="hero-explanation">
+            
+            <!-- Explanation Text -->
+            <div class="header-explanation">
                 <div class="explanation-icon-inline">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 16v-4M12 8h.01"/>
                     </svg>
                 </div>
-                <p class="hero-explanation-text">Answers given to the quiz generate the percentage of time that individuals who work together will spontaneously align with productive chemistry.</p>
+                <p class="explanation-text">Answers given to the quiz generate the percentage of time that individuals who work together will spontaneously align with productive chemistry.</p>
             </div>
+            
+            <button class="action-button secondary" onclick="closeOptimizerView()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Build Team
+            </button>
         </div>
 
         <!-- Main Content Grid -->
@@ -595,21 +596,8 @@
         <!-- Chemistry Score & Controls -->
         <div class="optimizer-controls">
             
-            <!-- Live Chemistry Score -->
+            <!-- Override Checkbox and Deploy -->
             <div class="chemistry-display-card">
-                <div class="chemistry-score-section">
-                    <div class="chemistry-label">Current Chemistry Score</div>
-                    <div class="chemistry-score-large" id="liveChemistryScore">85</div>
-                    <div class="chemistry-comparison" id="chemistryComparison">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--success);">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                            <polyline points="17 6 23 6 23 12"/>
-                        </svg>
-                        <span>Using AI recommendation</span>
-                    </div>
-                </div>
-
-                <!-- Override Checkbox -->
                 <div class="override-section">
                     <label class="override-checkbox-label">
                         <input type="checkbox" id="overrideCheckbox" onchange="handleOverrideToggle()">
@@ -620,28 +608,28 @@
                         </div>
                     </label>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="optimizer-actions">
-                <!-- Deploy Button (Green when AI, Gray when overridden) -->
-                <button class="action-button primary large" id="deployToSlackBtn" onclick="deployTeamToSlack()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
-                        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-                        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
-                        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
-                    </svg>
-                    Deploy to Slack
-                </button>
+                <!-- Action Buttons -->
+                <div class="optimizer-actions">
+                    <!-- Deploy Button (Green when AI, Gray when overridden) -->
+                    <button class="action-button primary large" id="deployToSlackBtn" onclick="deployTeamToSlack()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+                            <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                            <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+                            <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+                        </svg>
+                        Deploy to Slack
+                    </button>
 
-                <!-- Reset to AI Button (only shows when overridden) -->
-                <button class="action-button secondary" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
-                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                    </svg>
-                    Reset to AI Recommendation
-                </button>
+                    <!-- Reset to AI Button (only shows when overridden) -->
+                    <button class="action-button secondary" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Reset to AI Recommendation
+                    </button>
+                </div>
             </div>
         </div>
 
