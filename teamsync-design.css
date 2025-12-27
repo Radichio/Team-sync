@@ -3940,7 +3940,7 @@ body.light-mode .match-indicator.caution.clickable:hover {
     line-height: 1.6;
     color: var(--text-secondary);
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto 4px;
 }
 
 /* Responsive */
@@ -4005,8 +4005,8 @@ body.light-mode .match-indicator.caution.clickable:hover {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    margin-top: 32px;
-    padding-top: 24px;
+    margin-top: 20px;
+    padding-top: 16px;
     border-top: 1px solid var(--border-primary);
 }
 
@@ -4014,7 +4014,7 @@ body.light-mode .match-indicator.caution.clickable:hover {
     background: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
     border: 1px solid var(--border-secondary);
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px 20px;
     text-align: center;
     transition: all 0.3s ease;
 }
@@ -4031,18 +4031,27 @@ body.light-mode .match-indicator.caution.clickable:hover {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .breakdown-score {
     font-size: 2.5rem;
     font-weight: 800;
+    color: var(--primary-blue);
     background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+}
+
+/* Fallback for browsers that don't support background-clip */
+@supports not (background-clip: text) {
+    .breakdown-score {
+        color: var(--primary-blue);
+        background: none;
+    }
 }
 
 .breakdown-members {
