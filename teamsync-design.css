@@ -1985,7 +1985,7 @@ body.light-mode .ripple-effect {
 /* Optimizer Hero Section - Large Chemistry Display */
 /* Inline Chemistry Score Box in Header */
 .inline-chemistry-box {
-    text-align: center;
+    text-align: left;
     padding: 12px 20px;
     background: var(--bg-secondary);
     border-radius: 8px;
@@ -2041,6 +2041,7 @@ body.light-mode .ripple-effect {
     flex-direction: column;
     gap: 16px;
     min-height: auto;
+    align-items: flex-end;
 }
 
 .override-box {
@@ -2048,10 +2049,17 @@ body.light-mode .ripple-effect {
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: 8px;
+    width: auto;
+    max-width: 100%;
 }
 
 .full-width {
     width: 100%;
+}
+
+/* Override full-width for deploy section buttons */
+.deploy-section .full-width {
+    width: auto;
 }
     position: relative;
 }
@@ -2767,7 +2775,7 @@ body.dark-mode .alternate-card {
 }
 
 /* Responsive Design for Optimizer */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .optimizer-content {
         grid-template-columns: 1fr;
     }
