@@ -4115,36 +4115,6 @@ function updateOptimizeChemistry() {
         document.getElementById('fullTeamMembers').textContent = fullTeamCount + (fullTeamCount === 1 ? ' member' : ' members');
     }
     
-    // Main chemistry display uses FULL TEAM score
-    if (fullTeamCount === 0) {
-        document.getElementById('optimizeChemistryScore').textContent = '--';
-        document.getElementById('optimizeChemistryStatus').textContent = 'No Team Members';
-        document.getElementById('optimizeChemistryDesc').textContent = 'Add members to Core or Extend Team to see chemistry score.';
-        return;
-    }
-    
-    // Update main display with full team score
-    document.getElementById('optimizeChemistryScore').textContent = fullScore;
-    
-    // Update status badge based on full team score
-    let status, description;
-    if (fullScore >= 85) {
-        status = 'Excellent Chemistry';
-        description = `This ${fullTeamCount}-person team shows exceptional collaborative potential with strong synchrony across all dimensions.`;
-    } else if (fullScore >= 75) {
-        status = 'Good Chemistry';
-        description = `This ${fullTeamCount}-person team shows strong collaborative potential with good alignment across most dimensions.`;
-    } else if (fullScore >= 65) {
-        status = 'Moderate Chemistry';
-        description = `This ${fullTeamCount}-person team has workable chemistry but may benefit from adjustments to improve collaboration.`;
-    } else {
-        status = 'Needs Improvement';
-        description = `This configuration may face collaboration challenges. Consider adjusting team composition.`;
-    }
-    
-    document.getElementById('optimizeChemistryStatus').textContent = status;
-    document.getElementById('optimizeChemistryDesc').textContent = description;
-    
     console.log('Chemistry updated - Core:', coreScore + '% (' + coreCount + 'm), Full:', fullScore + '% (' + fullTeamCount + 'm)');
 }
 

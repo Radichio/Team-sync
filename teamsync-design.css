@@ -3901,7 +3901,7 @@ body.light-mode .match-indicator.caution.clickable:hover {
     background: var(--surface-primary);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 32px;
+    padding: 20px;
     text-align: center;
 }
 
@@ -4005,9 +4005,8 @@ body.light-mode .match-indicator.caution.clickable:hover {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-primary);
+    margin-top: 0;
+    padding-top: 0;
 }
 
 .breakdown-box {
