@@ -2021,7 +2021,7 @@ function deployTeamToSlack() {
   }
   
   const isOverridden = window.optimizerState.isOverridden;
-  const memberCount = window.optimizerState.optimalTeam ? window.optimizerState.optimalTeam.length : 0;
+  const memberCount = window.optimizerState.currentOptimalTeam ? window.optimizerState.currentOptimalTeam.length : 0;
   
   // Demo deployment preview
   alert(`DEMO: Team Deployment Preview\n\nTeam: ${window.optimizerState.teamName}\nConfiguration: ${isOverridden ? 'Manual Override' : 'AI Recommendation'}\nMembers: ${memberCount}\n\nIn production, this would:\n• Create a dedicated Slack channel\n• Add all ${memberCount} team members automatically\n• Post chemistry insights to the channel\n• Enable real-time collaboration`);
