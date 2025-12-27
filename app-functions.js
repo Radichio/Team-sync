@@ -4171,45 +4171,29 @@ function populateAlternateConfigurations() {
     card.setAttribute('data-rank', index + 2); // 2nd, 3rd, 4th
     card.onclick = () => openAlternateModal(config, ranks[index], index + 2);
     
-    // Header section
-    const headerHTML = `
-      <div class="alternate-card-header">
-        <div class="alternate-rank">${ranks[index]}</div>
-        <div class="alternate-chemistry">${config.chemistry}%</div>
-      </div>
-      <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
-    `;
-    
-    // Member list section
-    const membersHTML = config.members.map(member => {
+    // Get member initials for display
+    const memberAvatars = config.members.slice(0, 5).map(member => {
       const nameParts = member.name.split(' ');
       const initials = nameParts.length >= 2 
         ? nameParts[0][0] + nameParts[1][0]
         : nameParts[0][0] + (nameParts[0][1] || '');
-      
-      console.log('Creating alternate member item:', member.name, initials);
-      
-      return `
-        <div class="alternate-member-item">
-          <div class="alternate-member-avatar">${initials.toUpperCase()}</div>
-          <div class="alternate-member-name">${member.name}</div>
-        </div>
-      `;
+      return `<div class="alternate-member-avatar">${initials.toUpperCase()}</div>`;
     }).join('');
     
-    console.log('Members HTML:', membersHTML);
+    const moreCount = config.members.length > 5 ? `+${config.members.length - 5}` : '';
     
     card.innerHTML = `
-      ${headerHTML}
-      <div class="alternate-members-list">
-        ${membersHTML}
+      <div class="alternate-rank">${ranks[index]}</div>
+      <div class="alternate-chemistry">${config.chemistry}%</div>
+      <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
+      <div class="alternate-members">
+        ${memberAvatars}
+        ${moreCount ? `<div class="alternate-more">${moreCount}</div>` : ''}
       </div>
     `;
     
     alternateGrid.appendChild(card);
   });
-  
-  console.log('Alternates populated, total cards:', window.topAlternateConfigurations.length);
 }
 
 /**

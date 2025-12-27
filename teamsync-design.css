@@ -2241,7 +2241,6 @@ body.light-mode .ripple-effect {
 
 .alternate-configs-section {
     margin-top: 32px;
-    margin-bottom: 48px;
 }
 
 .alternate-toggle {
@@ -2250,8 +2249,8 @@ body.light-mode .ripple-effect {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    background: rgba(148, 163, 184, 0.08);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -2262,8 +2261,8 @@ body.light-mode .ripple-effect {
 }
 
 .alternate-toggle:hover {
-    background: rgba(148, 163, 184, 0.12);
-    border-color: rgba(148, 163, 184, 0.3);
+    background: var(--hover-overlay);
+    border-color: var(--border-secondary);
 }
 
 .alternate-toggle.expanded {
@@ -2283,12 +2282,13 @@ body.light-mode .ripple-effect {
 }
 
 .alternate-configs-content {
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    border: 1px solid var(--border-primary);
     border-top: none;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     padding: 24px;
-    background: rgba(148, 163, 184, 0.05);
+    background: var(--bg-secondary);
+    opacity: 0.95;
 }
 
 .alternate-grid {
@@ -2298,17 +2298,14 @@ body.light-mode .ripple-effect {
 }
 
 .alternate-card {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
     border-radius: 12px;
     padding: 24px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
-}
-
-body.dark-mode .alternate-card {
-    background: rgba(15, 23, 42, 0.5);
+    opacity: 0.9;
 }
 
 .alternate-card:hover {
@@ -2337,7 +2334,7 @@ body.dark-mode .alternate-card {
 .alternate-chemistry {
     font-size: 2rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: var(--primary-blue);
     line-height: 1;
 }
 
@@ -2569,15 +2566,15 @@ body.dark-mode .alternate-card {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
-    padding: 24px;
+    padding: 32px;
     margin-bottom: 24px;
 }
 
 /* Chemistry Display Card */
 .chemistry-display-card {
     display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 24px;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
     align-items: center;
 }
 
@@ -2586,34 +2583,37 @@ body.dark-mode .alternate-card {
 }
 
 .chemistry-label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
 }
 
 .chemistry-score-large {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 800;
-    color: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .chemistry-score-large::after {
     content: '%';
-    font-size: 2rem;
-    margin-left: 2px;
+    font-size: 2.5rem;
+    margin-left: 4px;
 }
 
 .chemistry-comparison {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-size: 0.8125rem;
+    gap: 8px;
+    font-size: 0.9375rem;
     color: var(--success);
     font-weight: 500;
 }
@@ -2629,7 +2629,7 @@ body.dark-mode .alternate-card {
 
 /* Override Section */
 .override-section {
-    padding: 16px 20px;
+    padding: 24px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: 8px;
@@ -2649,15 +2649,15 @@ body.dark-mode .alternate-card {
 }
 
 .checkbox-custom {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border: 2px solid var(--border-primary);
     border-radius: 4px;
     background: var(--bg-primary);
     flex-shrink: 0;
     position: relative;
     transition: all 0.2s ease;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 
 .override-checkbox-label:hover .checkbox-custom {
@@ -2673,9 +2673,9 @@ body.dark-mode .alternate-card {
     content: '';
     position: absolute;
     top: 2px;
-    left: 5px;
-    width: 3px;
-    height: 8px;
+    left: 6px;
+    width: 4px;
+    height: 10px;
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
@@ -2686,22 +2686,22 @@ body.dark-mode .alternate-card {
 }
 
 .checkbox-title {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .checkbox-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
 }
 
 /* Optimizer Actions */
 .optimizer-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 20px;
+    gap: 16px;
+    margin-top: 24px;
 }
 
 .action-button {
@@ -2914,14 +2914,9 @@ body.dark-mode .alternate-card {
     display: inline-block !important;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-blue) !important;
+    color: #ffffff !important; /* Bright white to contrast dark background */
     opacity: 1 !important;
     visibility: visible !important;
-}
-
-/* Dark mode override for subscale values */
-body.dark-mode .subscale-value {
-    color: #93c5fd !important;
 }
 
 @media (max-width: 768px) {
