@@ -1325,6 +1325,9 @@ function simulateInstantResults(teamName) {
       // Get the BEST result (first in array)
       const bestResult = optimalResults[0];
       
+      // Store ALL top results for alternates (2nd, 3rd, 4th place)
+      window.topAlternateConfigurations = optimalResults.slice(1, 4); // Get 2nd, 3rd, 4th place
+      
       // Store the AI-recommended optimal configuration
       window.currentOptimalTeam = bestResult.members.map(m => m.id);
       window.currentOptimalScore = bestResult.chemistry;
@@ -1613,6 +1616,9 @@ function populateOptimizerView() {
   
   // Calculate and display chemistry
   recalculateChemistry();
+  
+  // Populate alternate configurations (2nd, 3rd, 4th place)
+  populateAlternateConfigurations();
 }
 
 /**
@@ -4127,5 +4133,202 @@ if (document.getElementById('optimizeView')) {
     } else {
         initializeOptimizeDragDrop();
     }
+}
+
+// ========================================
+// ALTERNATE CONFIGURATIONS SYSTEM
+// ========================================
+
+/**
+ * Populate alternate configuration cards (2nd, 3rd, 4th place)
+ */
+function populateAlternateConfigurations() {
+  const alternateGrid = document.getElementById('alternateGrid');
+  if (!alternateGrid) return;
+  
+  alternateGrid.innerHTML = '';
+  
+  // Check if we have alternates stored
+  if (!window.topAlternateConfigurations || window.topAlternateConfigurations.length === 0) {
+    // Hide the alternates section if no alternates
+    const alternateConfigs = document.getElementById('alternateConfigs');
+    if (alternateConfigs) alternateConfigs.style.display = 'none';
+    return;
+  }
+  
+  // Show the alternates section
+  const alternateConfigs = document.getElementById('alternateConfigs');
+  if (alternateConfigs) alternateConfigs.style.display = 'block';
+  
+  // Create cards for 2nd, 3rd, 4th place
+  const ranks = ['2nd Place', '3rd Place', '4th Place'];
+  
+  window.topAlternateConfigurations.forEach((config, index) => {
+    if (index >= 3) return; // Only show top 3 alternates
+    
+    const card = document.createElement('div');
+    card.className = 'alternate-card';
+    card.setAttribute('data-rank', index + 2); // 2nd, 3rd, 4th
+    card.onclick = () => openAlternateModal(config, ranks[index], index + 2);
+    
+    // Get member initials for display
+    const memberAvatars = config.members.slice(0, 5).map(member => {
+      const nameParts = member.name.split(' ');
+      const initials = nameParts.length >= 2 
+        ? nameParts[0][0] + nameParts[1][0]
+        : nameParts[0][0] + (nameParts[0][1] || '');
+      return `<div class="alternate-member-avatar">${initials.toUpperCase()}</div>`;
+    }).join('');
+    
+    const moreCount = config.members.length > 5 ? `+${config.members.length - 5}` : '';
+    
+    card.innerHTML = `
+      <div class="alternate-rank">${ranks[index]}</div>
+      <div class="alternate-chemistry">${config.chemistry}%</div>
+      <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
+      <div class="alternate-members">
+        ${memberAvatars}
+        ${moreCount ? `<div class="alternate-more">${moreCount}</div>` : ''}
+      </div>
+    `;
+    
+    alternateGrid.appendChild(card);
+  });
+}
+
+/**
+ * Open alternate configuration modal
+ */
+function openAlternateModal(config, rankLabel, rankNumber) {
+  const modal = document.getElementById('alternateModal');
+  if (!modal) return;
+  
+  // Store current alternate for selection
+  window.currentAlternateConfig = { config, rankNumber };
+  
+  // Update header
+  document.getElementById('alternateRankBadge').textContent = rankLabel;
+  document.getElementById('alternateModalTeamName').textContent = window.optimizerState?.teamName || 'Alternative Team Configuration';
+  document.getElementById('alternateModalChemistry').textContent = config.chemistry;
+  document.getElementById('alternateModalSize').textContent = `${config.members.length} member${config.members.length !== 1 ? 's' : ''}`;
+  
+  // Update hero score
+  document.getElementById('alternateHeroScore').textContent = config.chemistry;
+  
+  // Populate members
+  const membersContainer = document.getElementById('alternateModalMembers');
+  membersContainer.innerHTML = '';
+  
+  config.members.forEach(member => {
+    const nameParts = member.name.split(' ');
+    const initials = nameParts.length >= 2 
+      ? nameParts[0][0] + nameParts[1][0]
+      : nameParts[0][0] + (nameParts[0][1] || '');
+    
+    const memberCard = document.createElement('div');
+    memberCard.className = 'alternate-member-card';
+    memberCard.innerHTML = `
+      <div class="member-avatar">${initials.toUpperCase()}</div>
+      <div class="member-name">${member.name}</div>
+    `;
+    membersContainer.appendChild(memberCard);
+  });
+  
+  // Populate subscales
+  const subscalesContainer = document.getElementById('alternateModalSubscales');
+  const subscales = calculateIndividualSubscales(config.members);
+  
+  subscalesContainer.innerHTML = `
+    <div class="subscale-item">
+      <div class="subscale-icon">🤝</div>
+      <div class="subscale-info">
+        <div class="subscale-name">Understanding</div>
+        <div class="subscale-score">${subscales.understanding}%</div>
+      </div>
+    </div>
+    <div class="subscale-item">
+      <div class="subscale-icon">🔒</div>
+      <div class="subscale-info">
+        <div class="subscale-name">Trust</div>
+        <div class="subscale-score">${subscales.trust}%</div>
+      </div>
+    </div>
+    <div class="subscale-item">
+      <div class="subscale-icon">⚡</div>
+      <div class="subscale-info">
+        <div class="subscale-name">Ease</div>
+        <div class="subscale-score">${subscales.ease}%</div>
+      </div>
+    </div>
+    <div class="subscale-item">
+      <div class="subscale-icon">🎯</div>
+      <div class="subscale-info">
+        <div class="subscale-name">Integration</div>
+        <div class="subscale-score">${subscales.integration}%</div>
+      </div>
+    </div>
+  `;
+  
+  // Show modal
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+/**
+ * Close alternate configuration modal
+ */
+function closeAlternateModal(event) {
+  // Only close if clicking overlay, not modal content
+  if (event && event.target.className !== 'modal-overlay') return;
+  
+  const modal = document.getElementById('alternateModal');
+  if (!modal) return;
+  
+  modal.style.display = 'none';
+  document.body.style.overflow = ''; // Restore scrolling
+  window.currentAlternateConfig = null;
+}
+
+/**
+ * Select alternate configuration as the new optimal team
+ */
+function selectAlternateConfiguration() {
+  if (!window.currentAlternateConfig) return;
+  
+  const { config } = window.currentAlternateConfig;
+  
+  // Update optimizer state with the alternate configuration
+  window.optimizerState.currentOptimalTeam = config.members.map(m => m.id);
+  window.currentOptimalTeam = config.members.map(m => m.id);
+  window.currentOptimalScore = config.chemistry;
+  
+  // Close modal
+  closeAlternateModal();
+  
+  // Repopulate the optimizer view with the new configuration
+  populateOptimizerView();
+  
+  // Show feedback to user
+  const statusMessage = document.createElement('div');
+  statusMessage.className = 'status-toast';
+  statusMessage.textContent = `✓ Configuration selected! Now showing ${window.currentAlternateConfig.rankNumber === 2 ? '2nd' : window.currentAlternateConfig.rankNumber === 3 ? '3rd' : '4th'} place team.`;
+  statusMessage.style.cssText = `
+    position: fixed;
+    top: 100px;
+    right: 24px;
+    background: #22c55e;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+  `;
+  document.body.appendChild(statusMessage);
+  
+  setTimeout(() => {
+    statusMessage.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => statusMessage.remove(), 300);
+  }, 3000);
 }
 
