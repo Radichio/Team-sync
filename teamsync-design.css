@@ -2767,7 +2767,7 @@ body.dark-mode .alternate-card {
 }
 
 /* Responsive Design for Optimizer */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .optimizer-content {
         grid-template-columns: 1fr;
     }
