@@ -439,23 +439,24 @@ function initializeCommandPalette() {
 // ========================================
 
 function toggleTheme() {
-    document.body.classList.toggle('light-mode');
+    document.body.classList.toggle('dark-mode');
     
-    const isLight = document.body.classList.contains('light-mode');
-    localStorage.setItem('teamsync-theme', isLight ? 'light' : 'dark');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('teamsync-theme', isDark ? 'dark' : 'light');
     
     // Update theme toggle button appearance
     const themeToggle = document.getElementById('themeToggle');
     if (themeToggle) {
-        themeToggle.classList.toggle('light', isLight);
+        themeToggle.classList.toggle('light', !isDark);
     }
 }
 
 function loadTheme() {
     const savedTheme = localStorage.getItem('teamsync-theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
     }
+    // Default is light mode (no class needed)
 }
 
 // ========================================
