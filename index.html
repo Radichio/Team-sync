@@ -447,15 +447,11 @@
     <div class="app-container hidden" id="optimizerView">
         <!-- Header with back button -->
         <div class="app-header">
-            <div>
-                <h1 class="welcome-title" id="optimizerTeamName">Team Phoenix</h1>
-                <p class="welcome-subtitle">AI-optimized configuration with <span id="optimizerChemistry">85</span>% chemistry</p>
-            </div>
-            
-            <!-- Inline Chemistry Score -->
-            <div class="inline-chemistry-box">
-                <div class="inline-chemistry-score" id="heroChemistryScore">85</div>
-                <div class="inline-chemistry-label">Overall Team Chemistry</div>
+            <div class="optimizer-title-row">
+                <h1 class="welcome-title">Team Name: <span id="optimizerTeamName">Team Phoenix</span></h1>
+                <div class="chemistry-inline">
+                    <span id="heroChemistryScore" class="chemistry-score-inline">85</span>% Overall Team Chemistry
+                </div>
             </div>
             
             <button class="action-button secondary" onclick="closeOptimizerView()">
@@ -528,28 +524,26 @@
             
             <!-- Right Column: Deploy & Override -->
             <div class="optimizer-section deploy-section">
-                <!-- Override Checkbox -->
-                <div class="override-box">
-                    <label class="override-checkbox-label">
+                <!-- Horizontal layout for Override and Deploy -->
+                <div class="deploy-controls-row">
+                    <!-- Override Checkbox -->
+                    <label class="override-checkbox-compact">
                         <input type="checkbox" id="overrideCheckbox" onchange="handleOverrideToggle()">
                         <span class="checkbox-custom"></span>
-                        <div class="checkbox-text">
-                            <div class="checkbox-title">Override AI Recommendation</div>
-                            <div class="checkbox-subtitle">Manually adjust team configuration</div>
-                        </div>
+                        <span class="checkbox-text-compact">Override AI Recommendation</span>
                     </label>
-                </div>
 
-                <!-- Deploy Button -->
-                <button class="action-button primary large full-width" id="deployToSlackBtn" onclick="deployTeamToSlack()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
-                        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-                        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
-                        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
-                    </svg>
-                    Deploy to Slack
-                </button>
+                    <!-- Deploy Button -->
+                    <button class="action-button primary" id="deployToSlackBtn" onclick="deployTeamToSlack()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
+                            <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+                            <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                            <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+                            <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+                        </svg>
+                        Deploy to Slack
+                    </button>
+                </div>
 
                 <!-- Reset to AI Button (only shows when overridden) -->
                 <button class="action-button secondary full-width" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none; margin-top: 12px;">
