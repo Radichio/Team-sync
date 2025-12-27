@@ -446,27 +446,16 @@
     
     <div class="app-container hidden" id="optimizerView">
         <!-- Header with back button -->
-        <div class="app-header optimizer-header-grid">
+        <div class="app-header">
             <div>
                 <h1 class="welcome-title" id="optimizerTeamName">Team Phoenix</h1>
                 <p class="welcome-subtitle">AI-optimized configuration with <span id="optimizerChemistry">85</span>% chemistry</p>
             </div>
             
-            <!-- Chemistry Score Display -->
-            <div class="header-chemistry-display">
-                <div class="header-chemistry-score" id="heroChemistryScore">85</div>
-                <div class="header-chemistry-label">Overall Team Chemistry</div>
-            </div>
-            
-            <!-- Explanation Text -->
-            <div class="header-explanation">
-                <div class="explanation-icon-inline">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 16v-4M12 8h.01"/>
-                    </svg>
-                </div>
-                <p class="explanation-text">Answers given to the quiz generate the percentage of time that individuals who work together will spontaneously align with productive chemistry.</p>
+            <!-- Inline Chemistry Score -->
+            <div class="inline-chemistry-box">
+                <div class="inline-chemistry-score" id="heroChemistryScore">85</div>
+                <div class="inline-chemistry-label">Overall Team Chemistry</div>
             </div>
             
             <button class="action-button secondary" onclick="closeOptimizerView()">
@@ -477,7 +466,7 @@
             </button>
         </div>
 
-        <!-- Main Content Grid -->
+        <!-- Main Content Grid (3 columns) -->
         <div class="optimizer-content">
             
             <!-- Left Column: AI-Recommended Team -->
@@ -500,16 +489,6 @@
                 <!-- Optimal Team Members Container -->
                 <div class="optimal-team-container" id="optimalTeamContainer">
                     <!-- Members will be populated by JavaScript -->
-                    <!-- Example structure:
-                    <div class="optimizer-member-card optimal" draggable="true" data-member-id="T001">
-                        <div class="optimizer-member-avatar">AS</div>
-                        <div class="optimizer-member-info">
-                            <div class="optimizer-member-name">Alex Smith</div>
-                            <div class="optimizer-member-role">Senior Engineer</div>
-                        </div>
-                        <div class="optimizer-member-badge fresh">Fresh</div>
-                    </div>
-                    -->
                 </div>
 
                 <!-- Drop Zone Indicator (shows when dragging) -->
@@ -518,7 +497,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Remaining Pool -->
+            <!-- Middle Column: Remaining Pool -->
             <div class="optimizer-section">
                 <div class="section-header">
                     <div>
@@ -545,6 +524,40 @@
                 <div class="drop-zone-indicator" id="poolDropZone" style="display: none;">
                     Drop here to remove from team
                 </div>
+            </div>
+            
+            <!-- Right Column: Deploy & Override -->
+            <div class="optimizer-section deploy-section">
+                <!-- Override Checkbox -->
+                <div class="override-box">
+                    <label class="override-checkbox-label">
+                        <input type="checkbox" id="overrideCheckbox" onchange="handleOverrideToggle()">
+                        <span class="checkbox-custom"></span>
+                        <div class="checkbox-text">
+                            <div class="checkbox-title">Override AI Recommendation</div>
+                            <div class="checkbox-subtitle">Manually adjust team configuration</div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Deploy Button -->
+                <button class="action-button primary large full-width" id="deployToSlackBtn" onclick="deployTeamToSlack()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
+                        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
+                        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
+                        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
+                    </svg>
+                    Deploy to Slack
+                </button>
+
+                <!-- Reset to AI Button (only shows when overridden) -->
+                <button class="action-button secondary full-width" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none; margin-top: 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                    Reset to AI Recommendation
+                </button>
             </div>
         </div>
 
@@ -589,46 +602,6 @@
             <div class="alternate-configs-content" id="alternateConfigsContent" style="display: none;">
                 <div class="alternate-grid" id="alternateGrid">
                     <!-- Populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Chemistry Score & Controls -->
-        <div class="optimizer-controls">
-            
-            <!-- Override Checkbox and Deploy -->
-            <div class="chemistry-display-card">
-                <div class="override-section">
-                    <label class="override-checkbox-label">
-                        <input type="checkbox" id="overrideCheckbox" onchange="handleOverrideToggle()">
-                        <span class="checkbox-custom"></span>
-                        <div class="checkbox-text">
-                            <div class="checkbox-title">Override AI Recommendation</div>
-                            <div class="checkbox-subtitle">Manually adjust team configuration</div>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="optimizer-actions">
-                    <!-- Deploy Button (Green when AI, Gray when overridden) -->
-                    <button class="action-button primary large" id="deployToSlackBtn" onclick="deployTeamToSlack()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px;">
-                            <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/>
-                            <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-                            <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"/>
-                            <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"/>
-                        </svg>
-                        Deploy to Slack
-                    </button>
-
-                    <!-- Reset to AI Button (only shows when overridden) -->
-                    <button class="action-button secondary" id="resetToAIBtn" onclick="resetToAIRecommendation()" style="display: none;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-right: 8px;">
-                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-                        </svg>
-                        Reset to AI Recommendation
-                    </button>
                 </div>
             </div>
         </div>
