@@ -2012,11 +2012,6 @@ body.light-mode .ripple-effect {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-        border-bottom: 1px solid var(--border-primary);
-        padding-right: 0;
-        padding-bottom: 24px;
-    }
-}
 
 /* Main Optimizer Layout */
 .optimizer-content {
