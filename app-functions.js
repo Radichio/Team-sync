@@ -1708,9 +1708,9 @@ function initializeOptimizerDragDrop() {
   
   // Enable drag events on containers
   [optimalContainer, remainingContainer].forEach(container => {
-    container.addEventListener('dragover', handleDragOver);
-    container.addEventListener('drop', handleDrop);
-    container.addEventListener('dragleave', handleDragLeave);
+    container.addEventListener('dragover', handleOptimizerDragOver);
+    container.addEventListener('drop', handleOptimizerDrop);
+    container.addEventListener('dragleave', handleOptimizerDragLeave);
   });
   
   // Initialize draggable cards
@@ -1726,15 +1726,15 @@ function updateDraggableCards() {
   const cards = document.querySelectorAll('.optimizer-member-card');
   
   cards.forEach(card => {
-    card.addEventListener('dragstart', handleDragStart);
-    card.addEventListener('dragend', handleDragEnd);
+    card.addEventListener('dragstart', handleOptimizerDragStart);
+    card.addEventListener('dragend', handleOptimizerDragEnd);
   });
 }
 
 /**
  * Handle drag start
  */
-function handleDragStart(e) {
+function handleOptimizerDragStart(e) {
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member-id'));
   e.target.style.opacity = '0.5';
@@ -1751,7 +1751,7 @@ function handleDragStart(e) {
 /**
  * Handle drag end
  */
-function handleDragEnd(e) {
+function handleOptimizerDragEnd(e) {
   e.target.style.opacity = '1';
   
   // Hide all drop zones
@@ -1762,7 +1762,7 @@ function handleDragEnd(e) {
 /**
  * Handle drag over
  */
-function handleDragOver(e) {
+function handleOptimizerDragOver(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
   
@@ -1784,7 +1784,7 @@ function handleDragOver(e) {
 /**
  * Handle drag leave
  */
-function handleDragLeave(e) {
+function handleOptimizerDragLeave(e) {
   // Remove highlight from drop zones
   document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
     zone.classList.remove('active');
@@ -1794,7 +1794,7 @@ function handleDragLeave(e) {
 /**
  * Handle drop
  */
-function handleDrop(e) {
+function handleOptimizerDrop(e) {
   e.preventDefault();
   
   const memberId = e.dataTransfer.getData('text/plain');
