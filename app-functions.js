@@ -3907,10 +3907,13 @@ let currentTeamId = 'alpha';
 // ========================================
 
 /**
- * Initialize drag-and-drop for Optimize Existing Team module
+ * Initialize drag-and-drop for Optimize Existing Team module (2-box layout)
  */
 function initializeOptimizeDragDrop() {
-    const zones = ['optimizeCoreMembers', 'optimizeExtendedMembers', 'optimizeBenchMembers', 'optimizeAvailableMembers'];
+    console.log('[Optimize] Initializing 2-box drag-and-drop...');
+    
+    // Only 2 zones now: Optimized Team and Available Pool
+    const zones = ['optimizeCoreMembers', 'optimizeAvailableMembers'];
     
     zones.forEach(zoneId => {
         const zone = document.getElementById(zoneId);
@@ -3918,6 +3921,9 @@ function initializeOptimizeDragDrop() {
             zone.addEventListener('dragover', handleOptimizeDragOver);
             zone.addEventListener('drop', handleOptimizeDrop);
             zone.addEventListener('dragleave', handleOptimizeDragLeave);
+            console.log('[Optimize] Initialized zone:', zoneId);
+        } else {
+            console.warn('[Optimize] Zone not found:', zoneId);
         }
     });
     
@@ -3930,7 +3936,7 @@ function initializeOptimizeDragDrop() {
     // Calculate initial chemistry
     updateOptimizeChemistry();
     
-    console.log('[Optimize] Drag-and-drop initialized');
+    console.log('[Optimize] Drag-and-drop initialized (2-box layout)');
 }
 
 /**
@@ -4007,70 +4013,88 @@ function handleOptimizeDrop(e) {
 }
 
 /**
- * Calculate and update team chemistry based on current composition (Optimize)
+ * Calculate and update team chemistry based on current composition (2-box layout)
  */
 function updateOptimizeChemistry() {
-    // Get members in Core and Extended zones
-    const coreMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
-    const extendedMembers = Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item'));
+    console.log('[Optimize] Calculating chemistry...');
     
-    // Calculate Core Team score
-    const coreCount = coreMembers.length;
-    let coreScore = 0;
+    // Get members in Optimized Team (only one zone now)
+    const teamMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
+    const availableMembers = Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item'));
     
-    if (coreCount === 0) {
-        coreScore = 0;
-    } else if (coreCount >= 3 && coreCount <= 5) {
-        coreScore = 88; // Optimal core size
-    } else if (coreCount === 2 || coreCount === 6) {
-        coreScore = 82;
-    } else if (coreCount === 1) {
-        coreScore = 70;
+    const teamCount = teamMembers.length;
+    let teamScore = 0;
+    
+    // Calculate team chemistry score based on size
+    if (teamCount === 0) {
+        teamScore = 0;
+    } else if (teamCount >= 3 && teamCount <= 5) {
+        teamScore = 88; // Optimal team size
+    } else if (teamCount === 2 || teamCount === 6) {
+        teamScore = 82;
+    } else if (teamCount === 1) {
+        teamScore = 70;
+    } else if (teamCount === 7) {
+        teamScore = 76;
     } else {
-        coreScore = 68; // Too large
+        teamScore = 68; // Too large
     }
     
-    // Calculate Full Team score (Core + Extended)
-    const fullTeamCount = coreCount + extendedMembers.length;
-    let fullScore = 0;
+    // Add variance based on specific members (mock chemistry algorithm)
+    const memberIds = teamMembers.map(m => m.getAttribute('data-member'));
+    const variance = (memberIds.length * 3) % 7 - 3;
+    if (teamScore > 0) teamScore += variance;
     
-    if (fullTeamCount === 0) {
-        fullScore = 0;
-    } else if (fullTeamCount >= 3 && fullTeamCount <= 5) {
-        fullScore = 85; // Optimal size
-    } else if (fullTeamCount === 2 || fullTeamCount === 6) {
-        fullScore = 78;
-    } else if (fullTeamCount === 1 || fullTeamCount === 7) {
-        fullScore = 72;
+    // Ensure score stays in valid range
+    teamScore = Math.max(0, Math.min(100, teamScore));
+    
+    // Update single chemistry score display
+    const scoreElement = document.getElementById('optimizeChemistryScore');
+    const optimizedSizeBadge = document.getElementById('optimizedTeamSize');
+    const availableSizeBadge = document.getElementById('availablePoolSize');
+    
+    if (scoreElement) {
+        scoreElement.textContent = teamCount === 0 ? '--' : teamScore;
+        console.log('[Optimize] Updated chemistry score:', teamScore);
     } else {
-        fullScore = 65; // Too large
+        console.warn('[Optimize] optimizeChemistryScore element not found');
     }
     
-    // Add variance based on specific members (mock)
-    const allMemberIds = [...coreMembers, ...extendedMembers].map(m => m.getAttribute('data-member'));
-    const variance = (allMemberIds.length * 3) % 7 - 3;
-    if (coreScore > 0) coreScore += variance;
-    if (fullScore > 0) fullScore += variance;
-    
-    // Update Core Team Score box
-    if (coreCount === 0) {
-        document.getElementById('coreTeamScore').textContent = '--';
-        document.getElementById('coreTeamMembers').textContent = 'No members';
-    } else {
-        document.getElementById('coreTeamScore').textContent = coreScore + '%';
-        document.getElementById('coreTeamMembers').textContent = coreCount + (coreCount === 1 ? ' member' : ' members');
+    // Update size badges
+    if (optimizedSizeBadge) {
+        optimizedSizeBadge.textContent = teamCount + (teamCount === 1 ? ' member' : ' members');
     }
     
-    // Update Full Team Score box
-    if (fullTeamCount === 0) {
-        document.getElementById('fullTeamScore').textContent = '--';
-        document.getElementById('fullTeamMembers').textContent = 'No members';
-    } else {
-        document.getElementById('fullTeamScore').textContent = fullScore + '%';
-        document.getElementById('fullTeamMembers').textContent = fullTeamCount + (fullTeamCount === 1 ? ' member' : ' members');
+    if (availableSizeBadge) {
+        availableSizeBadge.textContent = availableMembers.length + (availableMembers.length === 1 ? ' member' : ' members');
     }
     
-    console.log('Chemistry updated - Core:', coreScore + '% (' + coreCount + 'm), Full:', fullScore + '% (' + fullTeamCount + 'm)');
+    console.log('[Optimize] Chemistry:', teamScore + '%, Team:', teamCount, 'Available:', availableMembers.length);
+}
+
+/**
+ * Toggle Alternate Configurations section in Optimize page
+ */
+function toggleOptimizeAlternates() {
+    const toggle = document.getElementById('optimizeAlternateToggle');
+    const content = document.getElementById('optimizeAlternateConfigsContent');
+    
+    if (!toggle || !content) {
+        console.warn('[Optimize] Alternate configs elements not found');
+        return;
+    }
+    
+    const isExpanded = content.style.display === 'block';
+    
+    if (isExpanded) {
+        toggle.classList.remove('expanded');
+        content.style.display = 'none';
+        console.log('[Optimize] Alternates collapsed');
+    } else {
+        toggle.classList.add('expanded');
+        content.style.display = 'block';
+        console.log('[Optimize] Alternates expanded');
+    }
 }
 
 // Initialize on optimize view load
