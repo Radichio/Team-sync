@@ -2012,6 +2012,11 @@ body.light-mode .ripple-effect {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+        border-bottom: 1px solid var(--border-primary);
+        padding-right: 0;
+        padding-bottom: 24px;
+    }
+}
 
 /* Main Optimizer Layout */
 .optimizer-content {
@@ -4380,4 +4385,48 @@ body.light-mode .match-indicator.caution.clickable:hover {
     .chemistry-breakdown {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* FIX: Remove any placeholder/loading content from Optimize zones */
+#optimizeCoreMembers:empty::before,
+#optimizeAvailableMembers:empty::before {
+    display: none !important;
+    content: none !important;
+}
+
+#optimizeCoreMembers,
+#optimizeAvailableMembers {
+    background: transparent !important;
+    min-height: 100px;
+}
+
+.zone-members {
+    background: none !important;
+}
+
+
+/* FIX: Make section icons small and tasteful */
+.section-icon {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    flex-shrink: 0;
+    stroke-width: 2;
+    color: var(--text-secondary);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-left h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
 }
