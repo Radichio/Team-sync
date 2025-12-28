@@ -488,73 +488,114 @@ function updateTeamChemistry(coreTeam, extendedTeam, bench) {
 }
 
 // ========================================
-// DRAG AND DROP HANDLERS
+// OPTIMIZE EXISTING TEAM MODULE - DRAG & DROP SYSTEM
+// ========================================
+// Purpose: Handle member dragging in Optimize Existing Team view (4-box layout)
+// Triggered By: Dashboard → "Optimize Existing Team" card
+// Elements: .draggable-member, .drop-zone, #core-team, #extended-team, #bench
+// Status: Isolated with Optimize prefix to prevent function collision
+// Note: This uses 4-box layout (will be rebuilt to 2-box in Phase 3)
 // ========================================
 
-let draggedElement = null;
-let draggedMemberData = null;
+let optimizeDraggedElement = null;
+let optimizeDraggedMemberData = null;
 
 /**
- * Initialize drag and drop for optimization module
+ * Initialize drag and drop for Optimize Existing Team module
+ * Sets up event listeners for dragging members between Core/Extended/Bench/Available
  */
-function initializeDragAndDrop() {
+function initializeOptimizeDragDrop() {
+  console.log('[Optimize] Initializing drag and drop...');
+  
   const draggables = document.querySelectorAll('.draggable-member');
   const dropZones = document.querySelectorAll('.drop-zone');
   
   draggables.forEach(draggable => {
-    draggable.addEventListener('dragstart', handleDragStart);
-    draggable.addEventListener('dragend', handleDragEnd);
+    draggable.addEventListener('dragstart', handleOptimizeDragStart);
+    draggable.addEventListener('dragend', handleOptimizeDragEnd);
   });
   
   dropZones.forEach(zone => {
-    zone.addEventListener('dragover', handleDragOver);
-    zone.addEventListener('drop', handleDrop);
-    zone.addEventListener('dragleave', handleDragLeave);
+    zone.addEventListener('dragover', handleOptimizeDragOver);
+    zone.addEventListener('drop', handleOptimizeDrop);
+    zone.addEventListener('dragleave', handleOptimizeDragLeave);
   });
+  
+  console.log('[Optimize] Drag and drop initialized');
 }
 
-function handleDragStart(e) {
-  draggedElement = e.target;
-  draggedMemberData = JSON.parse(e.target.dataset.member);
+/**
+ * Handle drag start (Optimize)
+ */
+function handleOptimizeDragStart(e) {
+  optimizeDraggedElement = e.target;
+  optimizeDraggedMemberData = JSON.parse(e.target.dataset.member);
   e.target.classList.add('dragging');
   e.dataTransfer.effectAllowed = 'move';
+  console.log('[Optimize] Drag started:', optimizeDraggedMemberData?.name);
 }
 
-function handleDragEnd(e) {
+/**
+ * Handle drag end (Optimize)
+ */
+function handleOptimizeDragEnd(e) {
   e.target.classList.remove('dragging');
   document.querySelectorAll('.drop-zone').forEach(zone => {
     zone.classList.remove('drag-over');
   });
+  console.log('[Optimize] Drag ended');
 }
 
-function handleDragOver(e) {
+/**
+ * Handle drag over (Optimize)
+ */
+function handleOptimizeDragOver(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
   e.currentTarget.classList.add('drag-over');
 }
 
-function handleDragLeave(e) {
+/**
+ * Handle drag leave (Optimize)
+ */
+function handleOptimizeDragLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
 
-function handleDrop(e) {
+/**
+ * Handle drop (Optimize)
+ */
+function handleOptimizeDrop(e) {
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   
   const targetZone = e.currentTarget;
   const targetZoneId = targetZone.id;
   
-  if (draggedElement && draggedMemberData) {
+  console.log('[Optimize] Dropped into zone:', targetZoneId);
+  
+  if (optimizeDraggedElement && optimizeDraggedMemberData) {
     // Move the element
-    const memberCard = draggedElement;
-    targetZone.querySelector('.members-grid').appendChild(memberCard);
+    const memberCard = optimizeDraggedElement;
+    const membersGrid = targetZone.querySelector('.members-grid');
     
-    // Recalculate chemistry
-    recalculateChemistry();
+    if (membersGrid) {
+      membersGrid.appendChild(memberCard);
+      
+      // Recalculate chemistry
+      recalculateOptimizeChemistry();
+    } else {
+      console.error('[Optimize] No .members-grid found in target zone');
+    }
   }
 }
 
-function recalculateChemistry() {
+/**
+ * Recalculate chemistry for Optimize module (4-box layout)
+ */
+function recalculateOptimizeChemistry() {
+  console.log('[Optimize] Recalculating chemistry...');
+  
   const coreMembers = Array.from(document.querySelectorAll('#core-team .draggable-member'))
     .map(el => JSON.parse(el.dataset.member));
   const extendedMembers = Array.from(document.querySelectorAll('#extended-team .draggable-member'))
@@ -562,19 +603,27 @@ function recalculateChemistry() {
   const benchMembers = Array.from(document.querySelectorAll('#bench .draggable-member'))
     .map(el => JSON.parse(el.dataset.member));
   
+  console.log('[Optimize] Core:', coreMembers.length, 'Extended:', extendedMembers.length, 'Bench:', benchMembers.length);
+  
   const { score, factors } = updateTeamChemistry(coreMembers, extendedMembers, benchMembers);
   
   // Update UI
-  updateChemistryDisplay(score, factors);
+  updateOptimizeChemistryDisplay(score, factors);
 }
 
-function updateChemistryDisplay(score, factors) {
+/**
+ * Update chemistry display (Optimize)
+ */
+function updateOptimizeChemistryDisplay(score, factors) {
   const scoreElement = document.getElementById('chemistry-score');
   const factorsContainer = document.getElementById('chemistry-factors');
   
   if (scoreElement) {
     scoreElement.textContent = `${score}%`;
-    scoreElement.className = 'score ' + getScoreClass(score);
+    scoreElement.className = 'score ' + getOptimizeScoreClass(score);
+    console.log('[Optimize] Updated score to:', score);
+  } else {
+    console.warn('[Optimize] chemistry-score element not found');
   }
   
   if (factorsContainer) {
@@ -584,14 +633,24 @@ function updateChemistryDisplay(score, factors) {
         <span class="factor-text">${factor.text}</span>
       </div>
     `).join('');
+  } else {
+    console.warn('[Optimize] chemistry-factors element not found');
   }
 }
 
-function getScoreClass(score) {
+/**
+ * Get score classification (Optimize)
+ */
+function getOptimizeScoreClass(score) {
   if (score >= 76) return 'excellent';
   if (score >= 66) return 'good';
   return 'needs-improvement';
 }
+
+// ========================================
+// END OPTIMIZE EXISTING TEAM MODULE
+// ========================================
+
 
 // ========================================
 // SLACK SIMULATION
@@ -2204,7 +2263,17 @@ window.TeamSyncApp = {
   toggleTheme,
   startSlackSimulation,
   copySlackPrompt,
-  initializeDragAndDrop,
+  
+  // Optimize Existing Team Module
+  initializeOptimizeDragDrop,
+  handleOptimizeDragStart,
+  handleOptimizeDragEnd,
+  handleOptimizeDragOver,
+  handleOptimizeDragLeave,
+  handleOptimizeDrop,
+  recalculateOptimizeChemistry,
+  updateOptimizeChemistryDisplay,
+  getOptimizeScoreClass,
   
   // V45 Data
   memberPools: memberPools,
@@ -3995,47 +4064,54 @@ const teamConfigurations = {
 let originalTeamConfig = null;
 let currentTeamId = 'alpha';
 
+// ========================================
+// OPTIMIZE V2 MODULE (ALTERNATIVE VERSION)
+// Note: This is a duplicate/alternative Optimize module
+// Uses different element IDs: optimizeCoreMembers, optimizeExtendedMembers, etc.
+// Renamed to OptimizeV2 to prevent collision with main Optimize module
+// ========================================
+
 /**
- * Initialize drag-and-drop for Optimize Existing Team module
+ * Initialize drag-and-drop for Optimize V2 module
  */
-function initializeOptimizeDragDrop() {
+function initializeOptimizeV2DragDrop() {
     const zones = ['optimizeCoreMembers', 'optimizeExtendedMembers', 'optimizeBenchMembers', 'optimizeAvailableMembers'];
     
     zones.forEach(zoneId => {
         const zone = document.getElementById(zoneId);
         if (zone) {
-            zone.addEventListener('dragover', handleOptimizeDragOver);
-            zone.addEventListener('drop', handleOptimizeDrop);
-            zone.addEventListener('dragleave', handleOptimizeDragLeave);
+            zone.addEventListener('dragover', handleOptimizeV2DragOver);
+            zone.addEventListener('drop', handleOptimizeV2Drop);
+            zone.addEventListener('dragleave', handleOptimizeV2DragLeave);
         }
     });
     
     // Initialize all member items as draggable
-    updateOptimizeDraggables();
+    updateOptimizeV2Draggables();
     
     // Store original configuration
     saveOriginalConfig();
     
     // Calculate initial chemistry
-    updateOptimizeChemistry();
+    updateOptimizeV2Chemistry();
     
-    console.log('Optimize drag-and-drop initialized');
+    console.log('[OptimizeV2] Drag-and-drop initialized');
 }
 
 /**
- * Update all draggable member items
+ * Update all draggable member items (OptimizeV2)
  */
-function updateOptimizeDraggables() {
+function updateOptimizeV2Draggables() {
     document.querySelectorAll('.zone-members .member-item').forEach(item => {
-        item.addEventListener('dragstart', handleOptimizeDragStart);
-        item.addEventListener('dragend', handleOptimizeDragEnd);
+        item.addEventListener('dragstart', handleOptimizeV2DragStart);
+        item.addEventListener('dragend', handleOptimizeV2DragEnd);
     });
 }
 
 /**
- * Handle drag start
+ * Handle drag start (OptimizeV2)
  */
-function handleOptimizeDragStart(e) {
+function handleOptimizeV2DragStart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member'));
     e.target.style.opacity = '0.4';
@@ -4047,9 +4123,9 @@ function handleOptimizeDragStart(e) {
 }
 
 /**
- * Handle drag end
+ * Handle drag end (OptimizeV2)
  */
-function handleOptimizeDragEnd(e) {
+function handleOptimizeV2DragEnd(e) {
     e.target.style.opacity = '1';
     
     // Remove dragging class from all zones
@@ -4060,26 +4136,26 @@ function handleOptimizeDragEnd(e) {
 }
 
 /**
- * Handle drag over
+ * Handle drag over (OptimizeV2)
  */
-function handleOptimizeDragOver(e) {
+function handleOptimizeV2DragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     e.currentTarget.classList.add('drag-over');
 }
 
 /**
- * Handle drag leave
+ * Handle drag leave (OptimizeV2)
  */
-function handleOptimizeDragLeave(e) {
+function handleOptimizeV2DragLeave(e) {
     if (e.currentTarget.contains(e.relatedTarget)) return;
     e.currentTarget.classList.remove('drag-over');
 }
 
 /**
- * Handle drop
+ * Handle drop (OptimizeV2)
  */
-function handleOptimizeDrop(e) {
+function handleOptimizeV2Drop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
     
@@ -4091,14 +4167,14 @@ function handleOptimizeDrop(e) {
         e.currentTarget.appendChild(memberElement);
         
         // Update chemistry after move
-        updateOptimizeChemistry();
+        updateOptimizeV2Chemistry();
     }
 }
 
 /**
- * Calculate and update team chemistry based on current composition
+ * Calculate and update team chemistry based on current composition (OptimizeV2)
  */
-function updateOptimizeChemistry() {
+function updateOptimizeV2Chemistry() {
     // Get members in Core and Extended zones
     const coreMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
     const extendedMembers = Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item'));
