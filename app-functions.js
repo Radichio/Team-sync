@@ -1300,7 +1300,7 @@ function addNewTeamToList(teamName, memberCount, chemistryScore, optimalMembers 
         <div class="team-progress-dots">
           ${Array(memberCount).fill('<div class="progress-dot completed"></div>').join('')}
         </div>
-        <button class="chemistry-badge" onclick="openOptimizerForTeam('${teamName}', ${chemistryScore})">
+        <button class="chemistry-badge" onclick="openTeamExplorerForTeam('${teamName}', ${chemistryScore})">
           ${chemistryScore}% Chemistry
         </button>
       </div>
@@ -1402,8 +1402,8 @@ function resetFormAfterSuccess() {
  * @param {string} teamName - Name of the team
  * @param {number} chemistry - Chemistry score
  */
-function openOptimizerForTeam(teamName, chemistry) {
-  console.log('Opening Optimizer View for:', teamName, 'Chemistry:', chemistry);
+function openTeamExplorerForTeam(teamName, chemistry) {
+  console.log('Opening Team Explorer View for:', teamName, 'Chemistry:', chemistry);
   
   // Find team card in DOM to get stored team data
   const teamCards = document.querySelectorAll('.team-card');
@@ -1421,8 +1421,8 @@ function openOptimizerForTeam(teamName, chemistry) {
     return;
   }
   
-  // Store optimizer state globally
-  window.optimizerState = {
+  // Store explorer state globally
+  window.explorerState = {
     teamName: teamName,
     originalChemistry: chemistry,
     currentOptimalTeam: teamData.optimalMembers || [],
@@ -1431,11 +1431,11 @@ function openOptimizerForTeam(teamName, chemistry) {
     isOverridden: false
   };
   
-  console.log('Optimizer state:', window.optimizerState);
+  console.log('Team Explorer state:', window.explorerState);
   
-  // Update optimizer view header
-  document.getElementById('optimizerTeamName').textContent = teamName;
-  document.getElementById('optimizerChemistry').textContent = chemistry;
+  // Update explorer view header
+  document.getElementById('explorerTeamName').textContent = teamName;
+  document.getElementById('explorerChemistry').textContent = chemistry;
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
@@ -1444,31 +1444,31 @@ function openOptimizerForTeam(teamName, chemistry) {
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
   // Populate member lists (Phase 3B)
-  populateOptimizerView();
+  populateTeamExplorerView();
   
-  // Hide Build Team view, show Optimizer view
+  // Hide Build Team view, show Team Explorer view
   document.getElementById('buildView').classList.add('hidden');
-  document.getElementById('optimizerView').classList.remove('hidden');
+  document.getElementById('teamExplorerView').classList.remove('hidden');
   
   // Scroll to top of page
   window.scrollTo({ top: 0, behavior: 'smooth' });
   
-  console.log('Optimizer View opened successfully');
+  console.log('Team Explorer View opened successfully');
 }
 
 /**
  * Populate Optimizer View with member cards (Phase 3B)
  */
-function populateOptimizerView() {
-  if (!window.optimizerState) {
-    console.error('No optimizer state found');
+function populateTeamExplorerView() {
+  if (!window.explorerState) {
+    console.error('No explorer state found');
     return;
   }
   
-  console.log('Populating Optimizer View...');
-  console.log('Optimizer state:', window.optimizerState);
+  console.log('Populating Team Explorer View...');
+  console.log('Explorer state:', window.explorerState);
   
-  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
+  const { currentOptimalTeam, currentTeamPool, quizType } = window.explorerState;
   
   console.log('Current optimal team IDs:', currentOptimalTeam);
   console.log('Current team pool:', currentTeamPool);
@@ -1493,7 +1493,7 @@ function populateOptimizerView() {
   currentOptimalTeam.forEach(memberId => {
     const member = currentTeamPool.find(m => m.id === memberId);
     if (member) {
-      optimalContainer.appendChild(createOptimizerMemberCard(member, true));
+      optimalContainer.appendChild(createExplorerMemberCard(member, true));
     } else {
       console.warn('Member not found in pool:', memberId);
     }
@@ -1501,7 +1501,7 @@ function populateOptimizerView() {
   
   // Populate remaining pool
   remainingMembers.forEach(member => {
-    remainingContainer.appendChild(createOptimizerMemberCard(member, false));
+    remainingContainer.appendChild(createExplorerMemberCard(member, false));
   });
   
   // Update size badges
@@ -1510,7 +1510,7 @@ function populateOptimizerView() {
   document.getElementById('remainingPoolSize').textContent = 
     `${remainingMembers.length} member${remainingMembers.length !== 1 ? 's' : ''}`;
   
-  console.log('Optimizer View populated successfully');
+  console.log('Team Explorer View populated successfully');
   
   // Initialize drag and drop
   initializeExplorerDragDrop();
@@ -1527,7 +1527,7 @@ function populateOptimizerView() {
  * @param {Object} member - Member data
  * @param {boolean} isOptimal - Whether this is in the optimal team
  */
-function createOptimizerMemberCard(member, isOptimal) {
+function createExplorerMemberCard(member, isOptimal) {
   const card = document.createElement('div');
   card.className = `optimizer-member-card${isOptimal ? ' optimal' : ''}`;
   card.setAttribute('draggable', 'true');
@@ -1730,19 +1730,19 @@ function handleExplorerDrop(e) {
  * Move member to optimal team (Team Explorer)
  */
 function moveToExplorerOptimalTeam(memberId) {
-  if (!window.optimizerState) return;
+  if (!window.explorerState) return;
   
   // Add to optimal team if not already there
-  if (!window.optimizerState.currentOptimalTeam.includes(memberId)) {
-    window.optimizerState.currentOptimalTeam.push(memberId);
+  if (!window.explorerState.currentOptimalTeam.includes(memberId)) {
+    window.explorerState.currentOptimalTeam.push(memberId);
     
     // Mark as overridden
-    window.optimizerState.isOverridden = true;
+    window.explorerState.isOverridden = true;
     document.getElementById('overrideCheckbox').checked = true;
     handleOverrideToggle();
     
     // Repopulate view
-    populateOptimizerView();
+    populateTeamExplorerView();
     
     // Recalculate chemistry
     recalculateExplorerChemistry();
@@ -1756,20 +1756,20 @@ function moveToExplorerOptimalTeam(memberId) {
  * Move member to remaining pool (Team Explorer)
  */
 function moveToExplorerRemainingPool(memberId) {
-  if (!window.optimizerState) return;
+  if (!window.explorerState) return;
   
   // Allow removal - we'll show N/A if team becomes too small
-  const index = window.optimizerState.currentOptimalTeam.indexOf(memberId);
+  const index = window.explorerState.currentOptimalTeam.indexOf(memberId);
   if (index > -1) {
-    window.optimizerState.currentOptimalTeam.splice(index, 1);
+    window.explorerState.currentOptimalTeam.splice(index, 1);
     
     // Mark as overridden
-    window.optimizerState.isOverridden = true;
+    window.explorerState.isOverridden = true;
     document.getElementById('overrideCheckbox').checked = true;
     handleOverrideToggle();
     
     // Repopulate view
-    populateOptimizerView();
+    populateTeamExplorerView();
     
     // Recalculate chemistry (will show N/A if too small)
     recalculateExplorerChemistry();
@@ -1783,9 +1783,9 @@ function moveToExplorerRemainingPool(memberId) {
  * Recalculate team chemistry based on current optimal team (Team Explorer)
  */
 function recalculateExplorerChemistry() {
-  if (!window.optimizerState) return;
+  if (!window.explorerState) return;
   
-  const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
+  const { currentOptimalTeam, currentTeamPool, quizType } = window.explorerState;
   const minTeamSize = quizType === 'dyad' ? 2 : 3;
   const maxTeamSize = quizType === 'dyad' ? 2 : 8;
   
@@ -1892,14 +1892,14 @@ function recalculateExplorerChemistry() {
 /**
  * Close Optimizer View and return to Build Team (Phase 3A)
  */
-function closeOptimizerView() {
-  console.log('Closing Optimizer View');
+function closeTeamExplorerView() {
+  console.log('Closing Team Explorer View');
   
-  // Clear optimizer state
-  window.optimizerState = null;
+  // Clear explorer state
+  window.explorerState = null;
   
-  // Hide Optimizer view, show Build Team view
-  document.getElementById('optimizerView').classList.add('hidden');
+  // Hide Team Explorer view, show Build Team view
+  document.getElementById('teamExplorerView').classList.add('hidden');
   document.getElementById('buildView').classList.remove('hidden');
 }
 
@@ -1912,8 +1912,8 @@ function handleOverrideToggle() {
   
   console.log('Override toggled:', isChecked);
   
-  if (window.optimizerState) {
-    window.optimizerState.isOverridden = isChecked;
+  if (window.explorerState) {
+    window.explorerState.isOverridden = isChecked;
   }
   
   // Update UI states (check if elements exist first)
@@ -1959,16 +1959,16 @@ function handleOverrideToggle() {
  * Deploy Team to Slack (Phase 3C placeholder)
  */
 function deployTeamToSlack() {
-  if (!window.optimizerState) {
+  if (!window.explorerState) {
     console.error('No optimizer state found');
     return;
   }
   
-  const isOverridden = window.optimizerState.isOverridden;
-  const memberCount = window.optimizerState.currentOptimalTeam ? window.optimizerState.currentOptimalTeam.length : 0;
+  const isOverridden = window.explorerState.isOverridden;
+  const memberCount = window.explorerState.currentOptimalTeam ? window.explorerState.currentOptimalTeam.length : 0;
   
   // Demo deployment preview
-  alert(`DEMO: Team Deployment Preview\n\nTeam: ${window.optimizerState.teamName}\nConfiguration: ${isOverridden ? 'Manual Override' : 'AI Recommendation'}\nMembers: ${memberCount}\n\nIn production, this would:\n• Create a dedicated Slack channel\n• Add all ${memberCount} team members automatically\n• Post chemistry insights to the channel\n• Enable real-time collaboration`);
+  alert(`DEMO: Team Deployment Preview\n\nTeam: ${window.explorerState.teamName}\nConfiguration: ${isOverridden ? 'Manual Override' : 'AI Recommendation'}\nMembers: ${memberCount}\n\nIn production, this would:\n• Create a dedicated Slack channel\n• Add all ${memberCount} team members automatically\n• Post chemistry insights to the channel\n• Enable real-time collaboration`);
 }
 
 /**
@@ -1977,10 +1977,10 @@ function deployTeamToSlack() {
 function resetToAIRecommendation() {
   console.log('Resetting to AI recommendation');
   
-  if (!window.optimizerState) return;
+  if (!window.explorerState) return;
   
   // Find the original team data
-  const teamName = window.optimizerState.teamName;
+  const teamName = window.explorerState.teamName;
   const teamCards = document.querySelectorAll('.team-card');
   let originalTeamData = null;
   
@@ -1993,8 +1993,8 @@ function resetToAIRecommendation() {
   
   if (originalTeamData) {
     // Restore original optimal team
-    window.optimizerState.currentOptimalTeam = [...originalTeamData.optimalMembers];
-    window.optimizerState.isOverridden = false;
+    window.explorerState.currentOptimalTeam = [...originalTeamData.optimalMembers];
+    window.explorerState.isOverridden = false;
     
     // Uncheck override
     const checkbox = document.getElementById('overrideCheckbox');
@@ -2004,7 +2004,7 @@ function resetToAIRecommendation() {
     handleOverrideToggle();
     
     // Repopulate view with original team
-    populateOptimizerView();
+    populateTeamExplorerView();
     
     console.log('Restored to AI recommendation:', originalTeamData.optimalMembers);
   }
@@ -2070,16 +2070,16 @@ window.TeamSyncApp = {
   addNewTeamToList,
   resetFormAfterSuccess,
   
-  // Phase 3A - Optimizer View Functions
-  openOptimizerForTeam,
-  closeOptimizerView,
+  // Phase 3A - Team Explorer View Functions
+  openTeamExplorerForTeam,
+  closeTeamExplorerView,
   handleOverrideToggle,
   deployTeamToSlack,
   resetToAIRecommendation,
   
-  // Phase 3B - Optimizer Member Population
-  populateOptimizerView,
-  createOptimizerMemberCard,
+  // Phase 3B - Team Explorer Member Population
+  populateTeamExplorerView,
+  createExplorerMemberCard,
   
   // Phase 3C - Team Explorer Drag & Drop System
   toggleSubscales,
@@ -4313,7 +4313,7 @@ function openAlternateModal(config, rankLabel, rankNumber) {
   
   // Update header
   document.getElementById('alternateRankBadge').textContent = rankLabel;
-  document.getElementById('alternateModalTeamName').textContent = window.optimizerState?.teamName || 'Alternative Team Configuration';
+  document.getElementById('alternateModalTeamName').textContent = window.explorerState?.teamName || 'Alternative Team Configuration';
   document.getElementById('alternateModalChemistry').textContent = config.chemistry;
   document.getElementById('alternateModalSize').textContent = `${config.members.length} member${config.members.length !== 1 ? 's' : ''}`;
   
@@ -4403,7 +4403,7 @@ function selectAlternateConfiguration() {
   const { config } = window.currentAlternateConfig;
   
   // Update optimizer state with the alternate configuration
-  window.optimizerState.currentOptimalTeam = config.members.map(m => m.id);
+  window.explorerState.currentOptimalTeam = config.members.map(m => m.id);
   window.currentOptimalTeam = config.members.map(m => m.id);
   window.currentOptimalScore = config.chemistry;
   
@@ -4411,7 +4411,7 @@ function selectAlternateConfiguration() {
   closeAlternateModal();
   
   // Repopulate the optimizer view with the new configuration
-  populateOptimizerView();
+  populateTeamExplorerView();
   
   // Show feedback to user
   const statusMessage = document.createElement('div');

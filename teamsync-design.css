@@ -2019,7 +2019,7 @@ body.light-mode .ripple-effect {
 }
 
 /* Main Optimizer Layout - TEAM EXPLORER (3 columns) */
-#optimizerView .optimizer-content {
+#teamExplorerView .optimizer-content {
     display: grid;
     grid-template-columns: 1fr 1fr 320px;
     gap: 24px;
