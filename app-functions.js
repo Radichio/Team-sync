@@ -1433,8 +1433,7 @@ function openTeamExplorerForTeam(teamName, chemistry) {
   
   console.log('Team Explorer state:', window.explorerState);
   
-  // Update explorer view header
-  document.getElementById('explorerTeamName').textContent = teamName;
+  // Update explorer view header (title is now static "Team Explorer")
   document.getElementById('explorerChemistry').textContent = chemistry;
   
   // Update hero chemistry score
