@@ -3788,6 +3788,9 @@ function loadTeamConfig(teamId) {
     // Update chemistry
     updateOptimizeChemistry();
     
+    // Populate alternate configurations for Optimize page
+    populateOptimizeAlternateConfigurations();
+    
     console.log('[Optimize] Loaded team:', config.name);
 }
 
@@ -4029,6 +4032,9 @@ function handleOptimizeDrop(e) {
 
 /**
  * Calculate and update team chemistry based on current composition (2-box layout)
+ * Valid team: 3-8 members
+ * Dyad: Exactly 2 members (special case)
+ * Invalid: 0, 1, or 9+ members
  */
 function updateOptimizeChemistry() {
     console.log('[Optimize] Calculating chemistry...');
@@ -4039,29 +4045,44 @@ function updateOptimizeChemistry() {
     
     const teamCount = teamMembers.length;
     let teamScore = 0;
+    let displayScore = '';
     
     // Calculate team chemistry score based on size
-    if (teamCount === 0) {
+    if (teamCount === 0 || teamCount === 1) {
+        // Invalid: 0 or 1 member
+        displayScore = 'N/A';
         teamScore = 0;
-    } else if (teamCount >= 3 && teamCount <= 5) {
-        teamScore = 88; // Optimal team size
-    } else if (teamCount === 2 || teamCount === 6) {
+    } else if (teamCount === 2) {
+        // Dyad: exactly 2 members
         teamScore = 82;
-    } else if (teamCount === 1) {
-        teamScore = 70;
-    } else if (teamCount === 7) {
+        displayScore = teamScore.toString();
+    } else if (teamCount >= 3 && teamCount <= 5) {
+        // Optimal team size: 3-5 members
+        teamScore = 88;
+        displayScore = teamScore.toString();
+    } else if (teamCount === 6) {
+        // Good team size: 6 members
+        teamScore = 82;
+        displayScore = teamScore.toString();
+    } else if (teamCount === 7 || teamCount === 8) {
+        // Large team: 7-8 members
         teamScore = 76;
+        displayScore = teamScore.toString();
     } else {
-        teamScore = 68; // Too large
+        // Too large: 9+ members
+        displayScore = 'N/A';
+        teamScore = 0;
     }
     
     // Add variance based on specific members (mock chemistry algorithm)
-    const memberIds = teamMembers.map(m => m.getAttribute('data-member'));
-    const variance = (memberIds.length * 3) % 7 - 3;
-    if (teamScore > 0) teamScore += variance;
-    
-    // Ensure score stays in valid range
-    teamScore = Math.max(0, Math.min(100, teamScore));
+    if (teamScore > 0) {
+        const memberIds = teamMembers.map(m => m.getAttribute('data-member'));
+        const variance = (memberIds.length * 3) % 7 - 3;
+        teamScore += variance;
+        // Ensure score stays in valid range
+        teamScore = Math.max(0, Math.min(100, teamScore));
+        displayScore = teamScore.toString();
+    }
     
     // Update single chemistry score display
     const scoreElement = document.getElementById('optimizeChemistryScore');
@@ -4069,8 +4090,8 @@ function updateOptimizeChemistry() {
     const availableSizeBadge = document.getElementById('availablePoolSize');
     
     if (scoreElement) {
-        scoreElement.textContent = teamCount === 0 ? '--' : teamScore;
-        console.log('[Optimize] Updated chemistry score:', teamScore);
+        scoreElement.textContent = displayScore;
+        console.log('[Optimize] Updated chemistry score:', displayScore);
     } else {
         console.warn('[Optimize] optimizeChemistryScore element not found');
     }
@@ -4084,7 +4105,7 @@ function updateOptimizeChemistry() {
         availableSizeBadge.textContent = availableMembers.length + (availableMembers.length === 1 ? ' member' : ' members');
     }
     
-    console.log('[Optimize] Chemistry:', teamScore + '%, Team:', teamCount, 'Available:', availableMembers.length);
+    console.log('[Optimize] Chemistry:', displayScore, 'Team:', teamCount, 'Available:', availableMembers.length);
 }
 
 /**
@@ -4110,6 +4131,81 @@ function toggleOptimizeAlternates() {
         content.style.display = 'block';
         console.log('[Optimize] Alternates expanded');
     }
+}
+
+/**
+ * Populate Alternate Configurations for Optimize page
+ */
+function populateOptimizeAlternateConfigurations() {
+    const alternateGrid = document.getElementById('optimizeAlternateGrid');
+    const alternateSection = document.getElementById('optimizeAlternateConfigsSection');
+    
+    console.log('[Optimize] Populating alternate configurations...');
+    
+    if (!alternateGrid || !alternateSection) {
+        console.warn('[Optimize] Alternate grid or section not found');
+        return;
+    }
+    
+    alternateGrid.innerHTML = '';
+    
+    // Check if we have alternates stored
+    if (!window.topAlternateConfigurations || window.topAlternateConfigurations.length === 0) {
+        // Hide the entire section if no alternates
+        alternateSection.style.display = 'none';
+        console.log('[Optimize] No alternates available');
+        return;
+    }
+    
+    // Show the section
+    alternateSection.style.display = 'block';
+    
+    // Create cards for 2nd, 3rd, 4th place
+    const ranks = ['2nd Place', '3rd Place', '4th Place'];
+    
+    window.topAlternateConfigurations.forEach((config, index) => {
+        if (index >= 3) return; // Only show top 3 alternates
+        
+        const card = document.createElement('div');
+        card.className = 'alternate-card';
+        card.setAttribute('data-rank', index + 2); // 2nd, 3rd, 4th
+        card.onclick = () => openAlternateModal(config, ranks[index], index + 2);
+        
+        // Header section
+        const headerHTML = `
+            <div class="alternate-card-header">
+                <div class="alternate-rank">${ranks[index]}</div>
+                <div class="alternate-chemistry">${config.chemistry}%</div>
+            </div>
+            <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
+        `;
+        
+        // Member list section
+        const membersHTML = config.members.map(member => {
+            const nameParts = member.name.split(' ');
+            const initials = nameParts.length >= 2 
+                ? nameParts[0][0] + nameParts[1][0]
+                : nameParts[0][0] + (nameParts[0][1] || '');
+            
+            return `
+                <div class="alternate-member-item">
+                    <div class="alternate-member-avatar">${initials.toUpperCase()}</div>
+                    <div class="alternate-member-name">${member.name}</div>
+                </div>
+            `;
+        }).join('');
+        
+        card.innerHTML = `
+            ${headerHTML}
+            <div class="alternate-members-list">
+                ${membersHTML}
+            </div>
+        `;
+        
+        alternateGrid.appendChild(card);
+    });
+    
+    console.log('[Optimize] Populated', window.topAlternateConfigurations.length, 'alternate configurations');
 }
 
 // Initialize on optimize view load
