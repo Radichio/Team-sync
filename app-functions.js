@@ -1612,10 +1612,10 @@ function populateOptimizerView() {
   console.log('Optimizer View populated successfully');
   
   // Initialize drag and drop
-  initializeOptimizerDragDrop();
+  initializeExplorerDragDrop();
   
   // Calculate and display chemistry
-  recalculateChemistry();
+  recalculateExplorerChemistry();
   
   // Populate alternate configurations (2nd, 3rd, 4th place)
   populateAlternateConfigurations();
@@ -1695,11 +1695,21 @@ function toggleAlternates() {
   }
 }
 
+// ========================================
+// TEAM EXPLORER MODULE - DRAG & DROP SYSTEM
+// ========================================
+// Purpose: Handle member dragging in Team Explorer view (AI Team ↔ Remaining Pool)
+// Triggered By: Build Team → "Analyze Chemistry" button
+// Elements: .optimizer-member-card, #optimalTeamContainer, #remainingPoolContainer
+// Status: Isolated with Explorer prefix to prevent function collision
+// ========================================
+
 /**
- * Initialize drag and drop for optimizer view (Phase 3C)
+ * Initialize drag and drop for Team Explorer view
+ * Sets up event listeners for dragging members between AI Team and Remaining Pool
  */
-function initializeOptimizerDragDrop() {
-  console.log('Initializing drag and drop...');
+function initializeExplorerDragDrop() {
+  console.log('[Team Explorer] Initializing drag and drop...');
   
   const optimalContainer = document.getElementById('optimalTeamContainer');
   const remainingContainer = document.getElementById('remainingPoolContainer');
@@ -1708,33 +1718,33 @@ function initializeOptimizerDragDrop() {
   
   // Enable drag events on containers
   [optimalContainer, remainingContainer].forEach(container => {
-    container.addEventListener('dragover', handleOptimizerDragOver);
-    container.addEventListener('drop', handleOptimizerDrop);
-    container.addEventListener('dragleave', handleOptimizerDragLeave);
+    container.addEventListener('dragover', handleExplorerDragOver);
+    container.addEventListener('drop', handleExplorerDrop);
+    container.addEventListener('dragleave', handleExplorerDragLeave);
   });
   
   // Initialize draggable cards
-  updateDraggableCards();
+  updateExplorerDraggableCards();
   
-  console.log('Drag and drop initialized');
+  console.log('[Team Explorer] Drag and drop initialized');
 }
 
 /**
- * Update draggable cards with event listeners
+ * Update draggable cards with event listeners (Team Explorer)
  */
-function updateDraggableCards() {
+function updateExplorerDraggableCards() {
   const cards = document.querySelectorAll('.optimizer-member-card');
   
   cards.forEach(card => {
-    card.addEventListener('dragstart', handleOptimizerDragStart);
-    card.addEventListener('dragend', handleOptimizerDragEnd);
+    card.addEventListener('dragstart', handleExplorerDragStart);
+    card.addEventListener('dragend', handleExplorerDragEnd);
   });
 }
 
 /**
- * Handle drag start
+ * Handle drag start (Team Explorer)
  */
-function handleOptimizerDragStart(e) {
+function handleExplorerDragStart(e) {
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member-id'));
   e.target.style.opacity = '0.5';
@@ -1749,9 +1759,9 @@ function handleOptimizerDragStart(e) {
 }
 
 /**
- * Handle drag end
+ * Handle drag end (Team Explorer)
  */
-function handleOptimizerDragEnd(e) {
+function handleExplorerDragEnd(e) {
   e.target.style.opacity = '1';
   
   // Hide all drop zones
@@ -1760,9 +1770,9 @@ function handleOptimizerDragEnd(e) {
 }
 
 /**
- * Handle drag over
+ * Handle drag over (Team Explorer)
  */
-function handleOptimizerDragOver(e) {
+function handleExplorerDragOver(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
   
@@ -1782,9 +1792,9 @@ function handleOptimizerDragOver(e) {
 }
 
 /**
- * Handle drag leave
+ * Handle drag leave (Team Explorer)
  */
-function handleOptimizerDragLeave(e) {
+function handleExplorerDragLeave(e) {
   // Remove highlight from drop zones
   document.querySelectorAll('.drop-zone-indicator').forEach(zone => {
     zone.classList.remove('active');
@@ -1792,21 +1802,21 @@ function handleOptimizerDragLeave(e) {
 }
 
 /**
- * Handle drop
+ * Handle drop (Team Explorer)
  */
-function handleOptimizerDrop(e) {
+function handleExplorerDrop(e) {
   e.preventDefault();
   
   const memberId = e.dataTransfer.getData('text/plain');
   const targetContainer = e.currentTarget;
   
-  console.log('Dropped member:', memberId, 'into:', targetContainer.id);
+  console.log('[Team Explorer] Dropped member:', memberId, 'into:', targetContainer.id);
   
   // Move member between lists
   if (targetContainer.id === 'optimalTeamContainer') {
-    moveToOptimalTeam(memberId);
+    moveToExplorerOptimalTeam(memberId);
   } else if (targetContainer.id === 'remainingPoolContainer') {
-    moveToRemainingPool(memberId);
+    moveToExplorerRemainingPool(memberId);
   }
   
   // Remove drop zone highlights
@@ -1816,9 +1826,9 @@ function handleOptimizerDrop(e) {
 }
 
 /**
- * Move member to optimal team
+ * Move member to optimal team (Team Explorer)
  */
-function moveToOptimalTeam(memberId) {
+function moveToExplorerOptimalTeam(memberId) {
   if (!window.optimizerState) return;
   
   // Add to optimal team if not already there
@@ -1834,17 +1844,17 @@ function moveToOptimalTeam(memberId) {
     populateOptimizerView();
     
     // Recalculate chemistry
-    recalculateChemistry();
+    recalculateExplorerChemistry();
     
     // Reinitialize drag and drop
-    updateDraggableCards();
+    updateExplorerDraggableCards();
   }
 }
 
 /**
- * Move member to remaining pool
+ * Move member to remaining pool (Team Explorer)
  */
-function moveToRemainingPool(memberId) {
+function moveToExplorerRemainingPool(memberId) {
   if (!window.optimizerState) return;
   
   // Allow removal - we'll show N/A if team becomes too small
@@ -1861,17 +1871,17 @@ function moveToRemainingPool(memberId) {
     populateOptimizerView();
     
     // Recalculate chemistry (will show N/A if too small)
-    recalculateChemistry();
+    recalculateExplorerChemistry();
     
     // Reinitialize drag and drop
-    updateDraggableCards();
+    updateExplorerDraggableCards();
   }
 }
 
 /**
- * Recalculate team chemistry based on current optimal team
+ * Recalculate team chemistry based on current optimal team (Team Explorer)
  */
-function recalculateChemistry() {
+function recalculateExplorerChemistry() {
   if (!window.optimizerState) return;
   
   const { currentOptimalTeam, currentTeamPool, quizType } = window.optimizerState;
@@ -1894,9 +1904,9 @@ function recalculateChemistry() {
     document.getElementById('subscaleIntegration').textContent = 'N/A';
     
     if (teamMembers.length < minTeamSize) {
-      console.log(`Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
+      console.log(`[Team Explorer] Team too small (${teamMembers.length}), minimum is ${minTeamSize}`);
     } else {
-      console.log(`Team too large (${teamMembers.length}), maximum is ${maxTeamSize} for ${quizType} mode`);
+      console.log(`[Team Explorer] Team too large (${teamMembers.length}), maximum is ${maxTeamSize} for ${quizType} mode`);
     }
     return;
   }
@@ -1905,7 +1915,7 @@ function recalculateChemistry() {
   const chemistry = calculateTeamChemistry(teamMembers);
   
   // Calculate individual subscale scores by averaging member subscales
-  console.log('Team members for subscale calc:', teamMembers.map(m => ({ id: m.id, subscales: m.subscales })));
+  console.log('[Team Explorer] Team members for subscale calc:', teamMembers.map(m => ({ id: m.id, subscales: m.subscales })));
   
   const subscales = {
     understanding: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.understanding || 0), 0) / teamMembers.length),
@@ -1914,7 +1924,7 @@ function recalculateChemistry() {
     integration: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.integration || 0), 0) / teamMembers.length)
   };
   
-  console.log('Calculated subscales:', subscales);
+  console.log('[Team Explorer] Calculated subscales:', subscales);
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
@@ -1928,7 +1938,7 @@ function recalculateChemistry() {
   const easeEl = document.getElementById('subscaleEase');
   const integrationEl = document.getElementById('subscaleIntegration');
   
-  console.log('Found elements:', {
+  console.log('[Team Explorer] Found elements:', {
     understanding: understandingEl,
     trust: trustEl,
     ease: easeEl,
@@ -1937,41 +1947,46 @@ function recalculateChemistry() {
   
   if (understandingEl) {
     understandingEl.textContent = subscales.understanding + '%';
-    console.log('Set understanding to:', understandingEl.textContent);
+    console.log('[Team Explorer] Set understanding to:', understandingEl.textContent);
   } else {
-    console.error('subscaleUnderstanding element NOT FOUND');
+    console.error('[Team Explorer] subscaleUnderstanding element NOT FOUND');
   }
   
   if (trustEl) {
     trustEl.textContent = subscales.trust + '%';
-    console.log('Set trust to:', trustEl.textContent);
+    console.log('[Team Explorer] Set trust to:', trustEl.textContent);
   } else {
-    console.error('subscaleTrust element NOT FOUND');
+    console.error('[Team Explorer] subscaleTrust element NOT FOUND');
   }
   
   if (easeEl) {
     easeEl.textContent = subscales.ease + '%';
-    console.log('Set ease to:', easeEl.textContent);
+    console.log('[Team Explorer] Set ease to:', easeEl.textContent);
   } else {
-    console.error('subscaleEase element NOT FOUND');
+    console.error('[Team Explorer] subscaleEase element NOT FOUND');
   }
   
   if (integrationEl) {
     integrationEl.textContent = subscales.integration + '%';
-    console.log('Set integration to:', integrationEl.textContent);
+    console.log('[Team Explorer] Set integration to:', integrationEl.textContent);
   } else {
-    console.error('subscaleIntegration element NOT FOUND');
+    console.error('[Team Explorer] subscaleIntegration element NOT FOUND');
   }
   
-  console.log('Subscale elements updated:', {
+  console.log('[Team Explorer] Subscale elements updated:', {
     understanding: understandingEl?.textContent,
     trust: trustEl?.textContent,
     ease: easeEl?.textContent,
     integration: integrationEl?.textContent
   });
   
-  console.log('Chemistry recalculated:', chemistry, 'Subscales:', subscales);
+  console.log('[Team Explorer] Chemistry recalculated:', chemistry, 'Subscales:', subscales);
 }
+
+// ========================================
+// END TEAM EXPLORER MODULE
+// ========================================
+
 
 /**
  * Close Optimizer View and return to Build Team (Phase 3A)
@@ -2161,18 +2176,18 @@ window.TeamSyncApp = {
   populateOptimizerView,
   createOptimizerMemberCard,
   
-  // Phase 3C - Drag & Drop and Chemistry Recalculation
+  // Phase 3C - Team Explorer Drag & Drop System
   toggleSubscales,
-  initializeOptimizerDragDrop,
-  updateDraggableCards,
-  handleDragStart,
-  handleDragEnd,
-  handleDragOver,
-  handleDragLeave,
-  handleDrop,
-  moveToOptimalTeam,
-  moveToRemainingPool,
-  recalculateChemistry,
+  initializeExplorerDragDrop,
+  updateExplorerDraggableCards,
+  handleExplorerDragStart,
+  handleExplorerDragEnd,
+  handleExplorerDragOver,
+  handleExplorerDragLeave,
+  handleExplorerDrop,
+  moveToExplorerOptimalTeam,
+  moveToExplorerRemainingPool,
+  recalculateExplorerChemistry,
   
   // Legacy Functions
   calculateChemistryScore,
