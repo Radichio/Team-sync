@@ -1735,13 +1735,10 @@ function moveToExplorerOptimalTeam(memberId) {
   if (!window.explorerState.currentOptimalTeam.includes(memberId)) {
     window.explorerState.currentOptimalTeam.push(memberId);
     
-    // Mark as overridden (with null check)
+    // Mark as overridden
     window.explorerState.isOverridden = true;
-    const overrideCheckbox = document.getElementById('overrideCheckbox');
-    if (overrideCheckbox) {
-      overrideCheckbox.checked = true;
-      handleOverrideToggle();
-    }
+    document.getElementById('overrideCheckbox').checked = true;
+    handleOverrideToggle();
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1765,13 +1762,10 @@ function moveToExplorerRemainingPool(memberId) {
   if (index > -1) {
     window.explorerState.currentOptimalTeam.splice(index, 1);
     
-    // Mark as overridden (with null check)
+    // Mark as overridden
     window.explorerState.isOverridden = true;
-    const overrideCheckbox = document.getElementById('overrideCheckbox');
-    if (overrideCheckbox) {
-      overrideCheckbox.checked = true;
-      handleOverrideToggle();
-    }
+    document.getElementById('overrideCheckbox').checked = true;
+    handleOverrideToggle();
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1913,8 +1907,6 @@ function closeTeamExplorerView() {
  */
 function handleOverrideToggle() {
   const checkbox = document.getElementById('overrideCheckbox');
-  if (!checkbox) return; // Guard clause if checkbox doesn't exist
-  
   const isChecked = checkbox.checked;
   
   console.log('Override toggled:', isChecked);
@@ -3795,9 +3787,6 @@ function loadTeamConfig(teamId) {
     // Update chemistry
     updateOptimizeChemistry();
     
-    // Populate alternate configurations for Optimize page
-    populateOptimizeAlternateConfigurations();
-    
     console.log('[Optimize] Loaded team:', config.name);
 }
 
@@ -4115,106 +4104,6 @@ function updateOptimizeChemistry() {
     console.log('[Optimize] Chemistry:', displayScore, 'Team:', teamCount, 'Available:', availableMembers.length);
 }
 
-/**
- * Toggle Alternate Configurations section in Optimize page
- */
-function toggleOptimizeAlternates() {
-    const toggle = document.getElementById('optimizeAlternateToggle');
-    const content = document.getElementById('optimizeAlternateConfigsContent');
-    
-    if (!toggle || !content) {
-        console.warn('[Optimize] Alternate configs elements not found');
-        return;
-    }
-    
-    const isExpanded = content.style.display === 'block';
-    
-    if (isExpanded) {
-        toggle.classList.remove('expanded');
-        content.style.display = 'none';
-        console.log('[Optimize] Alternates collapsed');
-    } else {
-        toggle.classList.add('expanded');
-        content.style.display = 'block';
-        console.log('[Optimize] Alternates expanded');
-    }
-}
-
-/**
- * Populate Alternate Configurations for Optimize page
- */
-function populateOptimizeAlternateConfigurations() {
-    const alternateGrid = document.getElementById('optimizeAlternateGrid');
-    const alternateSection = document.getElementById('optimizeAlternateConfigsSection');
-    
-    console.log('[Optimize] Populating alternate configurations...');
-    
-    if (!alternateGrid || !alternateSection) {
-        console.warn('[Optimize] Alternate grid or section not found');
-        return;
-    }
-    
-    alternateGrid.innerHTML = '';
-    
-    // Check if we have alternates stored
-    if (!window.topAlternateConfigurations || window.topAlternateConfigurations.length === 0) {
-        // Hide the entire section if no alternates
-        alternateSection.style.display = 'none';
-        console.log('[Optimize] No alternates available');
-        return;
-    }
-    
-    // Show the section
-    alternateSection.style.display = 'block';
-    
-    // Create cards for 2nd, 3rd, 4th place
-    const ranks = ['2nd Place', '3rd Place', '4th Place'];
-    
-    window.topAlternateConfigurations.forEach((config, index) => {
-        if (index >= 3) return; // Only show top 3 alternates
-        
-        const card = document.createElement('div');
-        card.className = 'alternate-card';
-        card.setAttribute('data-rank', index + 2); // 2nd, 3rd, 4th
-        card.onclick = () => openAlternateModal(config, ranks[index], index + 2);
-        
-        // Header section
-        const headerHTML = `
-            <div class="alternate-card-header">
-                <div class="alternate-rank">${ranks[index]}</div>
-                <div class="alternate-chemistry">${config.chemistry}%</div>
-            </div>
-            <div class="alternate-size">${config.members.length} member${config.members.length !== 1 ? 's' : ''}</div>
-        `;
-        
-        // Member list section
-        const membersHTML = config.members.map(member => {
-            const nameParts = member.name.split(' ');
-            const initials = nameParts.length >= 2 
-                ? nameParts[0][0] + nameParts[1][0]
-                : nameParts[0][0] + (nameParts[0][1] || '');
-            
-            return `
-                <div class="alternate-member-item">
-                    <div class="alternate-member-avatar">${initials.toUpperCase()}</div>
-                    <div class="alternate-member-name">${member.name}</div>
-                </div>
-            `;
-        }).join('');
-        
-        card.innerHTML = `
-            ${headerHTML}
-            <div class="alternate-members-list">
-                ${membersHTML}
-            </div>
-        `;
-        
-        alternateGrid.appendChild(card);
-    });
-    
-    console.log('[Optimize] Populated', window.topAlternateConfigurations.length, 'alternate configurations');
-}
-
 // Initialize on optimize view load
 if (document.getElementById('optimizeView')) {
     // Wait for DOM to be ready
@@ -4234,6 +4123,31 @@ if (document.getElementById('optimizeView')) {
 // ========================================
 // ALTERNATE CONFIGURATIONS SYSTEM
 // ========================================
+
+/**
+ * Toggle Alternate Configurations section in Team Explorer
+ */
+function toggleAlternates() {
+    const toggle = document.getElementById('alternateToggle');
+    const content = document.getElementById('alternateConfigsContent');
+    
+    if (!toggle || !content) {
+        console.warn('[Team Explorer] Alternate configs elements not found');
+        return;
+    }
+    
+    const isExpanded = content.style.display === 'block';
+    
+    if (isExpanded) {
+        toggle.classList.remove('expanded');
+        content.style.display = 'none';
+        console.log('[Team Explorer] Alternates collapsed');
+    } else {
+        toggle.classList.add('expanded');
+        content.style.display = 'block';
+        console.log('[Team Explorer] Alternates expanded');
+    }
+}
 
 /**
  * Populate alternate configuration cards (2nd, 3rd, 4th place)

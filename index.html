@@ -492,7 +492,9 @@
                 </div>
 
                 <!-- Drop Zone Indicator (shows when dragging) -->
-                <div class="drop-zone-indicator" id="optimalDropZone" style="display: none;"></div>
+                <div class="drop-zone-indicator" id="optimalDropZone" style="display: none;">
+                    Drop here to add to optimal team
+                </div>
             </div>
 
             <!-- Right Column: Remaining Pool -->
@@ -519,7 +521,9 @@
                 </div>
 
                 <!-- Drop Zone Indicator (shows when dragging) -->
-                <div class="drop-zone-indicator" id="poolDropZone" style="display: none;"></div>
+                <div class="drop-zone-indicator" id="poolDropZone" style="display: none;">
+                    Drop here to remove from team
+                </div>
             </div>
         </div>
 
@@ -549,6 +553,21 @@
                         <div class="subscale-label">Spontaneously thinking and acting alike:</div>
                         <div class="subscale-value" id="subscaleIntegration">90%</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsible Alternative Configurations -->
+        <div class="alternate-configs-section" id="alternateConfigsSection">
+            <button class="alternate-toggle" id="alternateToggle" onclick="toggleAlternates()">
+                <span>Alternative Configurations</span>
+                <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </button>
+            <div class="alternate-configs-content" id="alternateConfigsContent" style="display: none;">
+                <div class="alternate-grid" id="alternateGrid">
+                    <!-- Populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -1024,21 +1043,6 @@
                         </div>
                         <p class="section-description">Drag members to test alternatives</p>
                         <div id="optimizeAvailableMembers" class="zone-members">
-                            <!-- Populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Collapsible Alternate Configurations (Moved from Team Explorer) -->
-                <div class="alternate-configs-section" id="optimizeAlternateConfigsSection">
-                    <button class="alternate-toggle" id="optimizeAlternateToggle" onclick="toggleOptimizeAlternates()">
-                        <span>Alternative Configurations</span>
-                        <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </button>
-                    <div class="alternate-configs-content" id="optimizeAlternateConfigsContent" style="display: none;">
-                        <div class="alternate-grid" id="optimizeAlternateGrid">
                             <!-- Populated by JavaScript -->
                         </div>
                     </div>
