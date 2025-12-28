@@ -2033,6 +2033,7 @@ body.light-mode .ripple-effect {
     border-radius: 12px;
     padding: 24px;
     min-height: 400px;
+    position: relative; /* Anchor for absolutely positioned drop zones */
 }
 
 /* ========================================
@@ -2130,6 +2131,8 @@ body.light-mode .ripple-effect {
     border-radius: 8px;
     cursor: grab;
     transition: all 0.2s ease;
+    outline: none; /* Remove default browser outline */
+    -webkit-user-drag: element;
 }
 
 .optimizer-member-card:hover {
@@ -2141,6 +2144,19 @@ body.light-mode .ripple-effect {
 .optimizer-member-card:active {
     cursor: grabbing;
     transform: scale(0.98);
+}
+
+.optimizer-member-card:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+/* Dragging state - applied via JavaScript */
+.optimizer-member-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Optimal team cards have special styling */
@@ -2219,9 +2235,10 @@ body.light-mode .ripple-effect {
     left: 24px;
     right: 24px;
     bottom: 24px;
-    border: 2px dashed var(--primary-blue);
+    border: 2px solid transparent;
     border-radius: 8px;
-    background: rgba(96, 165, 250, 0.05);
+    background: rgba(96, 165, 250, 0.08);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2230,12 +2247,15 @@ body.light-mode .ripple-effect {
     color: var(--primary-blue);
     pointer-events: none;
     z-index: 10;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 0 20px rgba(96, 165, 250, 0.1);
 }
 
 .drop-zone-indicator.active {
-    background: rgba(96, 165, 250, 0.1);
+    background: rgba(16, 185, 129, 0.12);
     border-color: var(--primary-green);
     color: var(--primary-green);
+    box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.15);
 }
 
 /* ============================================
@@ -2947,6 +2967,18 @@ body.dark-mode .subscale-value {
 
 .active {
     display: block !important;
+}
+
+/* Global drag styling - suppress browser defaults */
+[draggable="true"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+[draggable="true"]:focus {
+    outline: none;
 }
 
 /* ============================================
