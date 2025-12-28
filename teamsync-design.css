@@ -2032,6 +2032,7 @@ body.light-mode .ripple-effect {
 
 /* Team Explorer Box Sections */
 .explorer-box {
+    display: block; /* Ensure it's block, not grid */
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 12px;
@@ -2794,6 +2795,10 @@ body.dark-mode .alternate-card {
 /* Responsive Design for Optimizer */
 @media (max-width: 480px) {
     .optimizer-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .explorer-grid {
         grid-template-columns: 1fr;
     }
     
