@@ -4430,3 +4430,10 @@ body.light-mode .match-indicator.caution.clickable:hover {
     font-size: 1.125rem;
     font-weight: 600;
 }
+
+/* CRITICAL: Force 2-column layout for Optimize page */
+#optimizeView .optimizer-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+}
