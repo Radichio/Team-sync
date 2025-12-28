@@ -15,7 +15,8 @@ const views = {
     build: 'buildView',
     optimize: 'optimizeView',
     supervisor: 'supervisorView',
-    conflict: 'conflictView'
+    conflict: 'conflictView',
+    teamExplorer: 'teamExplorerView'
 };
 
 let currentView = 'landing';
