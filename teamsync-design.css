@@ -2012,11 +2012,6 @@ body.light-mode .ripple-effect {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-        border-bottom: 1px solid var(--border-primary);
-        padding-right: 0;
-        padding-bottom: 24px;
-    }
-}
 
 /* ========================================
    TEAM EXPLORER - DEDICATED STYLES
@@ -2078,8 +2073,6 @@ body.light-mode .ripple-effect {
 
 .full-width {
     width: 100%;
-}
-    position: relative;
 }
 
 /* Section Headers */
@@ -2954,7 +2947,7 @@ body.dark-mode .subscale-value {
 
 .active {
     display: block !important;
-}}
+}
 
 /* ============================================
    RESOLVE CONFLICT MODULE
