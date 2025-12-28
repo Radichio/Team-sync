@@ -2015,36 +2015,40 @@ function handleOverrideToggle() {
     window.optimizerState.isOverridden = isChecked;
   }
   
-  // Update UI states
+  // Update UI states (check if elements exist first)
   const deployBtn = document.getElementById('deployToSlackBtn');
   const resetBtn = document.getElementById('resetToAIBtn');
   const comparison = document.getElementById('chemistryComparison');
   
   if (isChecked) {
     // Manual override mode
-    deployBtn.classList.add('overridden');
-    resetBtn.style.display = 'flex';
-    comparison.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--warning);">
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      <span>Manual configuration</span>
-    `;
-    comparison.classList.add('warning');
+    if (deployBtn) deployBtn.classList.add('overridden');
+    if (resetBtn) resetBtn.style.display = 'flex';
+    if (comparison) {
+      comparison.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--warning);">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span>Manual configuration</span>
+      `;
+      comparison.classList.add('warning');
+    }
   } else {
     // AI recommendation mode
-    deployBtn.classList.remove('overridden');
-    resetBtn.style.display = 'none';
-    comparison.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--success);">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-        <polyline points="17 6 23 6 23 12"/>
-      </svg>
-      <span>Using AI recommendation</span>
-    `;
-    comparison.classList.remove('warning');
+    if (deployBtn) deployBtn.classList.remove('overridden');
+    if (resetBtn) resetBtn.style.display = 'none';
+    if (comparison) {
+      comparison.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--success);">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        <span>Using AI recommendation</span>
+      `;
+      comparison.classList.remove('warning');
+    }
   }
   
   console.log('Override UI updated');
