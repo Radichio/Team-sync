@@ -3689,34 +3689,42 @@ console.log('Module 3: Match a Supervisor functions loaded');
  * Load team configuration - ACTUAL IMPLEMENTATION
  */
 function loadTeamConfig(teamId) {
+    console.log('[Optimize] Loading team config:', teamId);
+    
     // Update active state in sidebar
     document.querySelectorAll('.team-list-item').forEach(item => {
         item.classList.remove('active');
-        item.querySelector('.team-check').classList.add('hidden');
+        const checkmark = item.querySelector('.team-check');
+        if (checkmark) checkmark.classList.add('hidden');
     });
     
     const selectedItem = document.querySelector(`.team-list-item[data-team-id="${teamId}"]`);
     if (selectedItem) {
         selectedItem.classList.add('active');
-        selectedItem.querySelector('.team-check').classList.remove('hidden');
+        const checkmark = selectedItem.querySelector('.team-check');
+        if (checkmark) checkmark.classList.remove('hidden');
     }
     
     // Get team configuration
     const config = teamConfigurations[teamId];
     if (!config) {
-        console.error('Team configuration not found:', teamId);
+        console.error('[Optimize] Team configuration not found:', teamId);
         return;
     }
     
     // Update team name in header
-    document.getElementById('currentTeamName').textContent = config.name;
+    const teamNameEl = document.getElementById('currentTeamName');
+    if (teamNameEl) {
+        teamNameEl.textContent = config.name;
+    }
     currentTeamId = teamId;
     
-    // Clear all zones
-    document.getElementById('optimizeCoreMembers').innerHTML = '';
-    document.getElementById('optimizeExtendedMembers').innerHTML = '';
-    document.getElementById('optimizeBenchMembers').innerHTML = '';
-    document.getElementById('optimizeAvailableMembers').innerHTML = '';
+    // Clear zones (only 2 zones now)
+    const coreZone = document.getElementById('optimizeCoreMembers');
+    const availableZone = document.getElementById('optimizeAvailableMembers');
+    
+    if (coreZone) coreZone.innerHTML = '';
+    if (availableZone) availableZone.innerHTML = '';
     
     // Member database with names and initials
     const memberData = {
@@ -3733,6 +3741,10 @@ function loadTeamConfig(teamId) {
     // Helper to create member element
     const createMemberElement = (memberId) => {
         const data = memberData[memberId];
+        if (!data) {
+            console.warn('[Optimize] Member data not found:', memberId);
+            return null;
+        }
         const div = document.createElement('div');
         div.className = 'member-item';
         div.setAttribute('draggable', 'true');
@@ -3744,22 +3756,28 @@ function loadTeamConfig(teamId) {
         return div;
     };
     
-    // Populate zones
-    config.core.forEach(memberId => {
-        document.getElementById('optimizeCoreMembers').appendChild(createMemberElement(memberId));
-    });
+    // Combine core + extended into optimized team (2-box layout)
+    const optimizedTeam = [...config.core, ...(config.extended || [])];
+    // Combine bench + available into available pool
+    const availablePool = [...(config.bench || []), ...config.available];
     
-    config.extended.forEach(memberId => {
-        document.getElementById('optimizeExtendedMembers').appendChild(createMemberElement(memberId));
-    });
+    console.log('[Optimize] Optimized team:', optimizedTeam.length, 'Available:', availablePool.length);
     
-    config.bench.forEach(memberId => {
-        document.getElementById('optimizeBenchMembers').appendChild(createMemberElement(memberId));
-    });
+    // Populate Optimized Team zone
+    if (coreZone) {
+        optimizedTeam.forEach(memberId => {
+            const element = createMemberElement(memberId);
+            if (element) coreZone.appendChild(element);
+        });
+    }
     
-    config.available.forEach(memberId => {
-        document.getElementById('optimizeAvailableMembers').appendChild(createMemberElement(memberId));
-    });
+    // Populate Available Pool zone
+    if (availableZone) {
+        availablePool.forEach(memberId => {
+            const element = createMemberElement(memberId);
+            if (element) availableZone.appendChild(element);
+        });
+    }
     
     // Re-initialize draggables
     updateOptimizeDraggables();
@@ -3770,21 +3788,19 @@ function loadTeamConfig(teamId) {
     // Update chemistry
     updateOptimizeChemistry();
     
-    console.log('Loaded team config:', teamId, '-', config.name);
+    console.log('[Optimize] Loaded team:', config.name);
 }
 
 /**
- * Save current configuration as original (for discard functionality)
+ * Save current configuration as original (for discard functionality) - 2-box layout
  */
 function saveOriginalConfig() {
     originalTeamConfig = {
         teamId: currentTeamId,
-        core: Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item')).map(m => m.cloneNode(true)),
-        extended: Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item')).map(m => m.cloneNode(true)),
-        bench: Array.from(document.querySelectorAll('#optimizeBenchMembers .member-item')).map(m => m.cloneNode(true)),
+        optimized: Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item')).map(m => m.cloneNode(true)),
         available: Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item')).map(m => m.cloneNode(true))
     };
-    console.log('Original config saved');
+    console.log('[Optimize] Original config saved - Team:', originalTeamConfig.optimized.length, 'Available:', originalTeamConfig.available.length);
 }
 
 /**
@@ -3806,36 +3822,35 @@ function saveTeamChanges() {
 }
 
 /**
- * Discard changes and reload original configuration - ACTUAL IMPLEMENTATION
+ * Discard changes and reload original configuration - 2-box layout
  */
 function discardChanges() {
+    console.log('[Optimize] Discarding changes...');
+    
     if (!originalTeamConfig) {
-        console.warn('No original config to restore');
+        console.warn('[Optimize] No original config to restore');
         return;
     }
     
-    // Clear all zones
-    document.getElementById('optimizeCoreMembers').innerHTML = '';
-    document.getElementById('optimizeExtendedMembers').innerHTML = '';
-    document.getElementById('optimizeBenchMembers').innerHTML = '';
-    document.getElementById('optimizeAvailableMembers').innerHTML = '';
+    // Clear zones (only 2 zones now)
+    const coreZone = document.getElementById('optimizeCoreMembers');
+    const availableZone = document.getElementById('optimizeAvailableMembers');
+    
+    if (coreZone) coreZone.innerHTML = '';
+    if (availableZone) availableZone.innerHTML = '';
     
     // Restore original members
-    originalTeamConfig.core.forEach(member => {
-        document.getElementById('optimizeCoreMembers').appendChild(member.cloneNode(true));
-    });
+    if (coreZone && originalTeamConfig.optimized) {
+        originalTeamConfig.optimized.forEach(member => {
+            coreZone.appendChild(member.cloneNode(true));
+        });
+    }
     
-    originalTeamConfig.extended.forEach(member => {
-        document.getElementById('optimizeExtendedMembers').appendChild(member.cloneNode(true));
-    });
-    
-    originalTeamConfig.bench.forEach(member => {
-        document.getElementById('optimizeBenchMembers').appendChild(member.cloneNode(true));
-    });
-    
-    originalTeamConfig.available.forEach(member => {
-        document.getElementById('optimizeAvailableMembers').appendChild(member.cloneNode(true));
-    });
+    if (availableZone && originalTeamConfig.available) {
+        originalTeamConfig.available.forEach(member => {
+            availableZone.appendChild(member.cloneNode(true));
+        });
+    }
     
     // Re-initialize draggables
     updateOptimizeDraggables();
@@ -3843,7 +3858,7 @@ function discardChanges() {
     // Update chemistry to original state
     updateOptimizeChemistry();
     
-    console.log('Changes discarded - original configuration restored');
+    console.log('[Optimize] Changes discarded - original configuration restored');
 }
 
 // ========================================
