@@ -591,21 +591,6 @@
             </div>
         </div>
 
-        <!-- Collapsible Alternate Configurations (Full Width Below Main Grid) -->
-        <div class="alternate-configs-section" id="alternateConfigsSection">
-            <button class="alternate-toggle" id="alternateToggle" onclick="toggleAlternates()">
-                <span>Alternative Configurations</span>
-                <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                </svg>
-            </button>
-            <div class="alternate-configs-content" id="alternateConfigsContent" style="display: none;">
-                <div class="alternate-grid" id="alternateGrid">
-                    <!-- Populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-
         <!-- Info Panel: How Drag & Drop Works -->
         <div class="info-panel">
             <div class="info-icon">
@@ -1028,16 +1013,16 @@
                 </div>
             </div>
 
-            <!-- Right Area: Drag-and-Drop Zones (Same as Module 1) -->
+            <!-- Right Area: 2-Box Drag-and-Drop Layout -->
             <div class="optimize-workspace">
                 <div class="workspace-header">
                     <div class="current-team-info">
                         <h2 id="currentTeamName">Engineering Alpha</h2>
-                        <p id="currentTeamInfo">Drag members between zones to modify composition</p>
+                        <p id="currentTeamInfo">Drag members to test alternative configurations</p>
                     </div>
                     <div class="workspace-actions">
                         <button class="action-button secondary" onclick="discardChanges()">
-                            Discard / Reset
+                            Reset to Original
                         </button>
                         <button class="action-button primary" onclick="saveTeamChanges()" id="saveChangesBtn">
                             Save Changes
@@ -1045,86 +1030,66 @@
                     </div>
                 </div>
 
-                <!-- Drag-and-Drop Zones Grid -->
-                <div class="modules-grid">
-                    <!-- Core Team Zone -->
-                    <div class="module-card blue" id="optimizeCoreZone">
-                        <h3 class="module-title">Core Team</h3>
-                        <p class="module-description">Primary contributors with high interaction</p>
+                <!-- Chemistry Score Display -->
+                <div class="inline-chemistry-box">
+                    <div class="inline-chemistry-score" id="optimizeChemistryScore">85</div>
+                    <div class="inline-chemistry-label">TEAM CHEMISTRY</div>
+                </div>
+
+                <!-- 2-Column Drag-and-Drop Grid (Matches Team Explorer) -->
+                <div class="optimizer-content">
+                    <!-- Optimized Team (Left Column) -->
+                    <div class="optimizer-section">
+                        <div class="section-header">
+                            <div class="header-left">
+                                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <h3>Optimized Team</h3>
+                            </div>
+                            <span class="size-badge" id="optimizedTeamSize">5 members</span>
+                        </div>
+                        <p class="section-description">Core team with highest chemistry</p>
                         <div id="optimizeCoreMembers" class="zone-members">
-                            <div class="member-item" draggable="true" data-member="alex-smith">
-                                <span class="member-initials">AS</span>
-                                Alex Smith
-                            </div>
-                            <div class="member-item" draggable="true" data-member="jordan-davis">
-                                <span class="member-initials">JD</span>
-                                Jordan Davis
-                            </div>
-                            <div class="member-item" draggable="true" data-member="sam-johnson">
-                                <span class="member-initials">SJ</span>
-                                Sam Johnson
-                            </div>
+                            <!-- Populated by JavaScript -->
                         </div>
                     </div>
 
-                    <!-- Extend Team Zone -->
-                    <div class="module-card purple" id="optimizeExtendedZone">
-                        <h3 class="module-title">Extend Team</h3>
-                        <p class="module-description">Part-time contributors and collaborators</p>
-                        <div id="optimizeExtendedMembers" class="zone-members">
-                            <div class="member-item" draggable="true" data-member="morgan-chen">
-                                <span class="member-initials">MC</span>
-                                Morgan Chen
+                    <!-- Available Pool Members (Right Column) -->
+                    <div class="optimizer-section">
+                        <div class="section-header">
+                            <div class="header-left">
+                                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <h3>Available Pool Members</h3>
                             </div>
-                            <div class="member-item" draggable="true" data-member="riley-lee">
-                                <span class="member-initials">RL</span>
-                                Riley Lee
-                            </div>
+                            <span class="size-badge" id="availablePoolSize">3 members</span>
                         </div>
-                    </div>
-
-                    <!-- Bench Zone -->
-                    <div class="module-card pink" id="optimizeBenchZone">
-                        <h3 class="module-title">Bench</h3>
-                        <p class="module-description">Benched members - removed from active rotation</p>
-                        <div id="optimizeBenchMembers" class="zone-members">
-                            <div class="member-item" draggable="true" data-member="taylor-park">
-                                <span class="member-initials">TP</span>
-                                Taylor Park
-                            </div>
-                            <div class="member-item" draggable="true" data-member="casey-brown">
-                                <span class="member-initials">CB</span>
-                                Casey Brown
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Available Members Pool Zone -->
-                    <div class="module-card green" id="optimizeAvailableZone">
-                        <h3 class="module-title">Available Members Pool</h3>
-                        <p class="module-description">Drag members to add to team</p>
+                        <p class="section-description">Drag members to test alternatives</p>
                         <div id="optimizeAvailableMembers" class="zone-members">
-                            <div class="member-item" draggable="true" data-member="avery-white">
-                                <span class="member-initials">AW</span>
-                                Avery White
-                            </div>
+                            <!-- Populated by JavaScript -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Chemistry Display -->
-                <div class="chemistry-card">
-                    <!-- Detailed Score Breakdown -->
-                    <div class="chemistry-breakdown">
-                        <div class="breakdown-box">
-                            <div class="breakdown-label">Core Team Only</div>
-                            <div class="breakdown-score" id="coreTeamScore">88%</div>
-                            <div class="breakdown-members" id="coreTeamMembers">3 members</div>
-                        </div>
-                        <div class="breakdown-box">
-                            <div class="breakdown-label">Full Team (Core + Extended)</div>
-                            <div class="breakdown-score" id="fullTeamScore">85%</div>
-                            <div class="breakdown-members" id="fullTeamMembers">5 members</div>
+                <!-- Collapsible Alternate Configurations (Moved from Team Explorer) -->
+                <div class="alternate-configs-section" id="optimizeAlternateConfigsSection">
+                    <button class="alternate-toggle" id="optimizeAlternateToggle" onclick="toggleOptimizeAlternates()">
+                        <span>Alternative Configurations</span>
+                        <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <div class="alternate-configs-content" id="optimizeAlternateConfigsContent" style="display: none;">
+                        <div class="alternate-grid" id="optimizeAlternateGrid">
+                            <!-- Populated by JavaScript -->
                         </div>
                     </div>
                 </div>

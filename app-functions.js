@@ -488,165 +488,7 @@ function updateTeamChemistry(coreTeam, extendedTeam, bench) {
 }
 
 // ========================================
-// OPTIMIZE EXISTING TEAM MODULE - DRAG & DROP SYSTEM
-// ========================================
-// Purpose: Handle member dragging in Optimize Existing Team view (4-box layout)
-// Triggered By: Dashboard → "Optimize Existing Team" card
-// Elements: .draggable-member, .drop-zone, #core-team, #extended-team, #bench
-// Status: Isolated with Optimize prefix to prevent function collision
-// Note: This uses 4-box layout (will be rebuilt to 2-box in Phase 3)
-// ========================================
-
-let optimizeDraggedElement = null;
-let optimizeDraggedMemberData = null;
-
-/**
- * Initialize drag and drop for Optimize Existing Team module
- * Sets up event listeners for dragging members between Core/Extended/Bench/Available
- */
-function initializeOptimizeDragDrop() {
-  console.log('[Optimize] Initializing drag and drop...');
-  
-  const draggables = document.querySelectorAll('.draggable-member');
-  const dropZones = document.querySelectorAll('.drop-zone');
-  
-  draggables.forEach(draggable => {
-    draggable.addEventListener('dragstart', handleOptimizeDragStart);
-    draggable.addEventListener('dragend', handleOptimizeDragEnd);
-  });
-  
-  dropZones.forEach(zone => {
-    zone.addEventListener('dragover', handleOptimizeDragOver);
-    zone.addEventListener('drop', handleOptimizeDrop);
-    zone.addEventListener('dragleave', handleOptimizeDragLeave);
-  });
-  
-  console.log('[Optimize] Drag and drop initialized');
-}
-
-/**
- * Handle drag start (Optimize)
- */
-function handleOptimizeDragStart(e) {
-  optimizeDraggedElement = e.target;
-  optimizeDraggedMemberData = JSON.parse(e.target.dataset.member);
-  e.target.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-  console.log('[Optimize] Drag started:', optimizeDraggedMemberData?.name);
-}
-
-/**
- * Handle drag end (Optimize)
- */
-function handleOptimizeDragEnd(e) {
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.drop-zone').forEach(zone => {
-    zone.classList.remove('drag-over');
-  });
-  console.log('[Optimize] Drag ended');
-}
-
-/**
- * Handle drag over (Optimize)
- */
-function handleOptimizeDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('drag-over');
-}
-
-/**
- * Handle drag leave (Optimize)
- */
-function handleOptimizeDragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
-}
-
-/**
- * Handle drop (Optimize)
- */
-function handleOptimizeDrop(e) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
-  
-  const targetZone = e.currentTarget;
-  const targetZoneId = targetZone.id;
-  
-  console.log('[Optimize] Dropped into zone:', targetZoneId);
-  
-  if (optimizeDraggedElement && optimizeDraggedMemberData) {
-    // Move the element
-    const memberCard = optimizeDraggedElement;
-    const membersGrid = targetZone.querySelector('.members-grid');
-    
-    if (membersGrid) {
-      membersGrid.appendChild(memberCard);
-      
-      // Recalculate chemistry
-      recalculateOptimizeChemistry();
-    } else {
-      console.error('[Optimize] No .members-grid found in target zone');
-    }
-  }
-}
-
-/**
- * Recalculate chemistry for Optimize module (4-box layout)
- */
-function recalculateOptimizeChemistry() {
-  console.log('[Optimize] Recalculating chemistry...');
-  
-  const coreMembers = Array.from(document.querySelectorAll('#core-team .draggable-member'))
-    .map(el => JSON.parse(el.dataset.member));
-  const extendedMembers = Array.from(document.querySelectorAll('#extended-team .draggable-member'))
-    .map(el => JSON.parse(el.dataset.member));
-  const benchMembers = Array.from(document.querySelectorAll('#bench .draggable-member'))
-    .map(el => JSON.parse(el.dataset.member));
-  
-  console.log('[Optimize] Core:', coreMembers.length, 'Extended:', extendedMembers.length, 'Bench:', benchMembers.length);
-  
-  const { score, factors } = updateTeamChemistry(coreMembers, extendedMembers, benchMembers);
-  
-  // Update UI
-  updateOptimizeChemistryDisplay(score, factors);
-}
-
-/**
- * Update chemistry display (Optimize)
- */
-function updateOptimizeChemistryDisplay(score, factors) {
-  const scoreElement = document.getElementById('chemistry-score');
-  const factorsContainer = document.getElementById('chemistry-factors');
-  
-  if (scoreElement) {
-    scoreElement.textContent = `${score}%`;
-    scoreElement.className = 'score ' + getOptimizeScoreClass(score);
-    console.log('[Optimize] Updated score to:', score);
-  } else {
-    console.warn('[Optimize] chemistry-score element not found');
-  }
-  
-  if (factorsContainer) {
-    factorsContainer.innerHTML = factors.map(factor => `
-      <div class="factor-tag">
-        <span class="factor-icon">${factor.icon}</span>
-        <span class="factor-text">${factor.text}</span>
-      </div>
-    `).join('');
-  } else {
-    console.warn('[Optimize] chemistry-factors element not found');
-  }
-}
-
-/**
- * Get score classification (Optimize)
- */
-function getOptimizeScoreClass(score) {
-  if (score >= 76) return 'excellent';
-  if (score >= 66) return 'good';
-  return 'needs-improvement';
-}
-
+// UTILITY FUNCTIONS
 // ========================================
 // END OPTIMIZE EXISTING TEAM MODULE
 // ========================================
@@ -2263,17 +2105,6 @@ window.TeamSyncApp = {
   toggleTheme,
   startSlackSimulation,
   copySlackPrompt,
-  
-  // Optimize Existing Team Module
-  initializeOptimizeDragDrop,
-  handleOptimizeDragStart,
-  handleOptimizeDragEnd,
-  handleOptimizeDragOver,
-  handleOptimizeDragLeave,
-  handleOptimizeDrop,
-  recalculateOptimizeChemistry,
-  updateOptimizeChemistryDisplay,
-  getOptimizeScoreClass,
   
   // V45 Data
   memberPools: memberPools,
@@ -4065,53 +3896,57 @@ let originalTeamConfig = null;
 let currentTeamId = 'alpha';
 
 // ========================================
-// OPTIMIZE V2 MODULE (ALTERNATIVE VERSION)
-// Note: This is a duplicate/alternative Optimize module
-// Uses different element IDs: optimizeCoreMembers, optimizeExtendedMembers, etc.
-// Renamed to OptimizeV2 to prevent collision with main Optimize module
+// OPTIMIZE EXISTING TEAM MODULE - DRAG & DROP SYSTEM
+// ========================================
+// Purpose: Handle member dragging in Optimize Existing Team view
+// Triggered By: Dashboard → "Optimize Existing Team" card
+// Elements: .member-item, .zone-members
+// IDs: optimizeCoreMembers, optimizeExtendedMembers, optimizeBenchMembers, optimizeAvailableMembers
+// Status: Active module with Optimize prefix
+// Note: Currently 4-box layout, will be converted to 2-box in this phase
 // ========================================
 
 /**
- * Initialize drag-and-drop for Optimize V2 module
+ * Initialize drag-and-drop for Optimize Existing Team module
  */
-function initializeOptimizeV2DragDrop() {
+function initializeOptimizeDragDrop() {
     const zones = ['optimizeCoreMembers', 'optimizeExtendedMembers', 'optimizeBenchMembers', 'optimizeAvailableMembers'];
     
     zones.forEach(zoneId => {
         const zone = document.getElementById(zoneId);
         if (zone) {
-            zone.addEventListener('dragover', handleOptimizeV2DragOver);
-            zone.addEventListener('drop', handleOptimizeV2Drop);
-            zone.addEventListener('dragleave', handleOptimizeV2DragLeave);
+            zone.addEventListener('dragover', handleOptimizeDragOver);
+            zone.addEventListener('drop', handleOptimizeDrop);
+            zone.addEventListener('dragleave', handleOptimizeDragLeave);
         }
     });
     
     // Initialize all member items as draggable
-    updateOptimizeV2Draggables();
+    updateOptimizeDraggables();
     
     // Store original configuration
     saveOriginalConfig();
     
     // Calculate initial chemistry
-    updateOptimizeV2Chemistry();
+    updateOptimizeChemistry();
     
-    console.log('[OptimizeV2] Drag-and-drop initialized');
+    console.log('[Optimize] Drag-and-drop initialized');
 }
 
 /**
- * Update all draggable member items (OptimizeV2)
+ * Update all draggable member items (Optimize)
  */
-function updateOptimizeV2Draggables() {
+function updateOptimizeDraggables() {
     document.querySelectorAll('.zone-members .member-item').forEach(item => {
-        item.addEventListener('dragstart', handleOptimizeV2DragStart);
-        item.addEventListener('dragend', handleOptimizeV2DragEnd);
+        item.addEventListener('dragstart', handleOptimizeDragStart);
+        item.addEventListener('dragend', handleOptimizeDragEnd);
     });
 }
 
 /**
- * Handle drag start (OptimizeV2)
+ * Handle drag start (Optimize)
  */
-function handleOptimizeV2DragStart(e) {
+function handleOptimizeDragStart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', e.target.getAttribute('data-member'));
     e.target.style.opacity = '0.4';
@@ -4123,9 +3958,9 @@ function handleOptimizeV2DragStart(e) {
 }
 
 /**
- * Handle drag end (OptimizeV2)
+ * Handle drag end (Optimize)
  */
-function handleOptimizeV2DragEnd(e) {
+function handleOptimizeDragEnd(e) {
     e.target.style.opacity = '1';
     
     // Remove dragging class from all zones
@@ -4136,26 +3971,26 @@ function handleOptimizeV2DragEnd(e) {
 }
 
 /**
- * Handle drag over (OptimizeV2)
+ * Handle drag over (Optimize)
  */
-function handleOptimizeV2DragOver(e) {
+function handleOptimizeDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     e.currentTarget.classList.add('drag-over');
 }
 
 /**
- * Handle drag leave (OptimizeV2)
+ * Handle drag leave (Optimize)
  */
-function handleOptimizeV2DragLeave(e) {
+function handleOptimizeDragLeave(e) {
     if (e.currentTarget.contains(e.relatedTarget)) return;
     e.currentTarget.classList.remove('drag-over');
 }
 
 /**
- * Handle drop (OptimizeV2)
+ * Handle drop (Optimize)
  */
-function handleOptimizeV2Drop(e) {
+function handleOptimizeDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('drag-over');
     
@@ -4167,14 +4002,14 @@ function handleOptimizeV2Drop(e) {
         e.currentTarget.appendChild(memberElement);
         
         // Update chemistry after move
-        updateOptimizeV2Chemistry();
+        updateOptimizeChemistry();
     }
 }
 
 /**
- * Calculate and update team chemistry based on current composition (OptimizeV2)
+ * Calculate and update team chemistry based on current composition (Optimize)
  */
-function updateOptimizeV2Chemistry() {
+function updateOptimizeChemistry() {
     // Get members in Core and Extended zones
     const coreMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
     const extendedMembers = Array.from(document.querySelectorAll('#optimizeExtendedMembers .member-item'));
