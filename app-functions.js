@@ -1425,10 +1425,12 @@ function openTeamExplorerForTeam(teamName, chemistry) {
   window.explorerState = {
     teamName: teamName,
     originalChemistry: chemistry,
+    originalOptimalTeam: teamData.optimalMembers || [], // Store original for reset
     currentOptimalTeam: teamData.optimalMembers || [],
     currentTeamPool: teamData.teamPool || (teamData.quizType === 'team' ? memberPools.team : memberPools.dyad),
     quizType: teamData.quizType,
-    isOverridden: false
+    isOverridden: false,
+    selectedRank: 1 // 1 = AI recommendation, 2/3/4 = alternates
   };
   
   console.log('Team Explorer state:', window.explorerState);
@@ -4321,23 +4323,41 @@ function closeAlternateModal(event) {
 function selectAlternateConfiguration() {
   if (!window.currentAlternateConfig) return;
   
-  const { config } = window.currentAlternateConfig;
+  const { config, rankNumber } = window.currentAlternateConfig;
   
-  // Update optimizer state with the alternate configuration
+  // Update explorer state with the alternate configuration
   window.explorerState.currentOptimalTeam = config.members.map(m => m.id);
+  window.explorerState.selectedRank = rankNumber;
+  window.explorerState.isOverridden = true;
   window.currentOptimalTeam = config.members.map(m => m.id);
   window.currentOptimalScore = config.chemistry;
+  
+  // Update the box title to reflect the selection
+  const rankText = rankNumber === 2 ? '2nd' : rankNumber === 3 ? '3rd' : '4th';
+  const titleTextEl = document.getElementById('optimalTeamTitleText');
+  const subtitleEl = document.getElementById('optimalTeamSubtitle');
+  const resetLinkEl = document.getElementById('resetToAILink');
+  
+  if (titleTextEl) {
+    titleTextEl.textContent = `${rankText} Place Configuration`;
+  }
+  if (subtitleEl) {
+    subtitleEl.textContent = 'You selected this alternative';
+  }
+  if (resetLinkEl) {
+    resetLinkEl.style.display = 'inline';
+  }
   
   // Close modal
   closeAlternateModal();
   
-  // Repopulate the optimizer view with the new configuration
+  // Repopulate the explorer view with the new configuration
   populateTeamExplorerView();
   
   // Show feedback to user
   const statusMessage = document.createElement('div');
   statusMessage.className = 'status-toast';
-  statusMessage.textContent = `✓ Configuration selected! Now showing ${window.currentAlternateConfig.rankNumber === 2 ? '2nd' : window.currentAlternateConfig.rankNumber === 3 ? '3rd' : '4th'} place team.`;
+  statusMessage.textContent = `✓ Configuration selected! Now showing ${rankText} place team.`;
   statusMessage.style.cssText = `
     position: fixed;
     top: 100px;
@@ -4356,5 +4376,62 @@ function selectAlternateConfiguration() {
     statusMessage.style.animation = 'slideOutRight 0.3s ease';
     setTimeout(() => statusMessage.remove(), 300);
   }, 3000);
+}
+
+/**
+ * Reset to AI-recommended team configuration
+ */
+function resetToAIRecommendation() {
+  if (!window.explorerState || !window.explorerState.originalOptimalTeam) return;
+  
+  // Restore original team
+  window.explorerState.currentOptimalTeam = [...window.explorerState.originalOptimalTeam];
+  window.explorerState.selectedRank = 1;
+  window.explorerState.isOverridden = false;
+  window.currentOptimalTeam = [...window.explorerState.originalOptimalTeam];
+  window.currentOptimalScore = window.explorerState.originalChemistry;
+  
+  // Reset the box title
+  const titleTextEl = document.getElementById('optimalTeamTitleText');
+  const subtitleEl = document.getElementById('optimalTeamSubtitle');
+  const resetLinkEl = document.getElementById('resetToAILink');
+  
+  if (titleTextEl) {
+    titleTextEl.textContent = 'AI-Recommended Team';
+  }
+  if (subtitleEl) {
+    subtitleEl.textContent = 'Optimal configuration for maximum chemistry';
+  }
+  if (resetLinkEl) {
+    resetLinkEl.style.display = 'none';
+  }
+  
+  // Repopulate the explorer view
+  populateTeamExplorerView();
+  
+  // Show feedback
+  const statusMessage = document.createElement('div');
+  statusMessage.className = 'status-toast';
+  statusMessage.textContent = '✓ Reset to AI recommendation';
+  statusMessage.style.cssText = `
+    position: fixed;
+    top: 100px;
+    right: 24px;
+    background: var(--primary-blue);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+  `;
+  document.body.appendChild(statusMessage);
+  
+  setTimeout(() => {
+    statusMessage.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => statusMessage.remove(), 300);
+  }, 3000);
+  
+  console.log('[Team Explorer] Reset to AI recommendation');
 }
 

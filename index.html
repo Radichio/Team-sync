@@ -473,15 +473,16 @@
             <div class="explorer-box">
                 <div class="section-header">
                     <div>
-                        <h2 class="section-title">
+                        <h2 class="section-title" id="optimalTeamTitle">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; margin-right: 8px; color: var(--primary-blue);">
                                 <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                                 <path d="M2 17l10 5 10-5"/>
                                 <path d="M2 12l10 5 10-5"/>
                             </svg>
-                            AI-Recommended Team
+                            <span id="optimalTeamTitleText">AI-Recommended Team</span>
+                            <a href="#" id="resetToAILink" class="reset-to-ai-link" onclick="resetToAIRecommendation(); return false;" style="display: none;">↺ Reset to AI</a>
                         </h2>
-                        <p class="section-subtitle">Optimal configuration for maximum chemistry</p>
+                        <p class="section-subtitle" id="optimalTeamSubtitle">Optimal configuration for maximum chemistry</p>
                     </div>
                     <div class="team-size-badge" id="optimalTeamSize">4 members</div>
                 </div>
