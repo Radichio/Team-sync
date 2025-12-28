@@ -4116,9 +4116,15 @@ function toggleOptimizeAlternates() {
 if (document.getElementById('optimizeView')) {
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeOptimizeDragDrop);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeOptimizeDragDrop();
+            // Load first team automatically
+            setTimeout(() => loadTeamConfig('alpha'), 100);
+        });
     } else {
         initializeOptimizeDragDrop();
+        // Load first team automatically
+        setTimeout(() => loadTeamConfig('alpha'), 100);
     }
 }
 
