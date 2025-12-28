@@ -2018,13 +2018,30 @@ body.light-mode .ripple-effect {
     }
 }
 
-/* Main Optimizer Layout - TEAM EXPLORER (3 columns) */
-#teamExplorerView .optimizer-content {
+/* ========================================
+   TEAM EXPLORER - DEDICATED STYLES
+   ======================================== */
+
+/* Team Explorer Grid - 2 columns only */
+.explorer-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 320px;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
     margin-bottom: 32px;
 }
+
+/* Team Explorer Box Sections */
+.explorer-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 24px;
+    min-height: 400px;
+}
+
+/* ========================================
+   OPTIMIZE PAGE - DEDICATED STYLES  
+   ======================================== */
 
 /* Main Optimizer Layout - OPTIMIZE PAGE (2 columns) */
 #optimizeView .optimizer-content {
