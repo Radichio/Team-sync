@@ -1735,10 +1735,13 @@ function moveToExplorerOptimalTeam(memberId) {
   if (!window.explorerState.currentOptimalTeam.includes(memberId)) {
     window.explorerState.currentOptimalTeam.push(memberId);
     
-    // Mark as overridden
+    // Mark as overridden (with null check)
     window.explorerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
+    const overrideCheckbox = document.getElementById('overrideCheckbox');
+    if (overrideCheckbox) {
+      overrideCheckbox.checked = true;
+      handleOverrideToggle();
+    }
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1762,10 +1765,13 @@ function moveToExplorerRemainingPool(memberId) {
   if (index > -1) {
     window.explorerState.currentOptimalTeam.splice(index, 1);
     
-    // Mark as overridden
+    // Mark as overridden (with null check)
     window.explorerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
+    const overrideCheckbox = document.getElementById('overrideCheckbox');
+    if (overrideCheckbox) {
+      overrideCheckbox.checked = true;
+      handleOverrideToggle();
+    }
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1907,6 +1913,8 @@ function closeTeamExplorerView() {
  */
 function handleOverrideToggle() {
   const checkbox = document.getElementById('overrideCheckbox');
+  if (!checkbox) return; // Guard clause if checkbox doesn't exist
+  
   const isChecked = checkbox.checked;
   
   console.log('Override toggled:', isChecked);
