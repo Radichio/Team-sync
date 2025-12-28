@@ -2018,8 +2018,16 @@ body.light-mode .ripple-effect {
     }
 }
 
-/* Main Optimizer Layout */
-.optimizer-content {
+/* Main Optimizer Layout - TEAM EXPLORER (3 columns) */
+#optimizerView .optimizer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+/* Main Optimizer Layout - OPTIMIZE PAGE (2 columns) */
+#optimizeView .optimizer-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
