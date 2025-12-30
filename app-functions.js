@@ -1739,8 +1739,6 @@ function moveToExplorerOptimalTeam(memberId) {
     
     // Mark as overridden
     window.explorerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1750,6 +1748,8 @@ function moveToExplorerOptimalTeam(memberId) {
     
     // Reinitialize drag and drop
     updateExplorerDraggableCards();
+    
+    console.log('[Team Explorer] Member added to optimal team:', memberId);
   }
 }
 
@@ -1766,8 +1766,6 @@ function moveToExplorerRemainingPool(memberId) {
     
     // Mark as overridden
     window.explorerState.isOverridden = true;
-    document.getElementById('overrideCheckbox').checked = true;
-    handleOverrideToggle();
     
     // Repopulate view
     populateTeamExplorerView();
@@ -1777,6 +1775,8 @@ function moveToExplorerRemainingPool(memberId) {
     
     // Reinitialize drag and drop
     updateExplorerDraggableCards();
+    
+    console.log('[Team Explorer] Member removed from optimal team:', memberId);
   }
 }
 
@@ -4332,7 +4332,13 @@ function selectAlternateConfiguration() {
   window.currentOptimalTeam = config.members.map(m => m.id);
   window.currentOptimalScore = config.chemistry;
   
-  // Update the box title to reflect the selection
+  // Close modal
+  closeAlternateModal();
+  
+  // Repopulate the explorer view with the new configuration
+  populateTeamExplorerView();
+  
+  // Update the box title to reflect the selection (AFTER repopulating view)
   const rankText = rankNumber === 2 ? '2nd' : rankNumber === 3 ? '3rd' : '4th';
   const titleTextEl = document.getElementById('optimalTeamTitleText');
   const subtitleEl = document.getElementById('optimalTeamSubtitle');
@@ -4347,12 +4353,6 @@ function selectAlternateConfiguration() {
   if (resetLinkEl) {
     resetLinkEl.style.display = 'inline';
   }
-  
-  // Close modal
-  closeAlternateModal();
-  
-  // Repopulate the explorer view with the new configuration
-  populateTeamExplorerView();
   
   // Show feedback to user
   const statusMessage = document.createElement('div');
