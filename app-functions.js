@@ -246,14 +246,15 @@ function calculateTeamChemistry(members) {
     const idNum = parseInt(m.id.replace(/\D/g, '')) || 0;
     return sum + idNum;
   }, 0);
-  const combinationVariance = ((memberIdSum * 7) % 13) - 6; // Range: -6 to +6
+  const combinationVariance = ((memberIdSum * 7) % 11) - 5; // Range: -5 to +5
   
   // Combine factors for final chemistry score
   const baseScore = (avgMS * 0.6 + alignmentScore * 0.4);
   const rawScore = baseScore * rangeFactor * trustFactor * sizeModifier + combinationVariance;
   
-  // Ensure realistic range (45-95%) with more granularity
-  return Math.min(95, Math.max(45, Math.round(rawScore)));
+  // CLIENT SPECIFICATION: Max score is 88% (90-95% is "impossible")
+  // Realistic range: 45-88%
+  return Math.min(88, Math.max(45, Math.round(rawScore)));
 }
 
 /**
