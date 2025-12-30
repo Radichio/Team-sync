@@ -1975,42 +1975,6 @@ function deployTeamToSlack() {
 /**
  * Reset to AI Recommendation (Phase 3C)
  */
-function resetToAIRecommendation() {
-  console.log('Resetting to AI recommendation');
-  
-  if (!window.explorerState) return;
-  
-  // Find the original team data
-  const teamName = window.explorerState.teamName;
-  const teamCards = document.querySelectorAll('.team-card');
-  let originalTeamData = null;
-  
-  for (let card of teamCards) {
-    if (card.getAttribute('data-team-name') === teamName) {
-      originalTeamData = card.teamData;
-      break;
-    }
-  }
-  
-  if (originalTeamData) {
-    // Restore original optimal team
-    window.explorerState.currentOptimalTeam = [...originalTeamData.optimalMembers];
-    window.explorerState.isOverridden = false;
-    
-    // Uncheck override
-    const checkbox = document.getElementById('overrideCheckbox');
-    checkbox.checked = false;
-    
-    // Trigger UI update
-    handleOverrideToggle();
-    
-    // Repopulate view with original team
-    populateTeamExplorerView();
-    
-    console.log('Restored to AI recommendation:', originalTeamData.optimalMembers);
-  }
-}
-
 // ========================================
 // INITIALIZATION
 // ========================================
@@ -4370,7 +4334,13 @@ function selectAlternateConfiguration() {
  * Reset to AI-recommended team configuration
  */
 function resetToAIRecommendation() {
-  if (!window.explorerState || !window.explorerState.originalOptimalTeam) return;
+  if (!window.explorerState || !window.explorerState.originalOptimalTeam) {
+    console.warn('[Team Explorer] Cannot reset - no original team data');
+    return;
+  }
+  
+  console.log('[Team Explorer] Resetting to AI recommendation...');
+  console.log('[Team Explorer] Original team:', window.explorerState.originalOptimalTeam);
   
   // Restore original team
   window.explorerState.currentOptimalTeam = [...window.explorerState.originalOptimalTeam];
@@ -4397,6 +4367,12 @@ function resetToAIRecommendation() {
   // Repopulate the explorer view
   populateTeamExplorerView();
   
+  // Recalculate and display chemistry
+  recalculateExplorerChemistry();
+  
+  // Reinitialize drag and drop
+  updateExplorerDraggableCards();
+  
   // Show feedback
   const statusMessage = document.createElement('div');
   statusMessage.className = 'status-toast';
@@ -4405,7 +4381,7 @@ function resetToAIRecommendation() {
     position: fixed;
     top: 100px;
     right: 24px;
-    background: var(--primary-blue);
+    background: #3b82f6;
     color: white;
     padding: 16px 24px;
     border-radius: 8px;
@@ -4420,6 +4396,6 @@ function resetToAIRecommendation() {
     setTimeout(() => statusMessage.remove(), 300);
   }, 3000);
   
-  console.log('[Team Explorer] Reset to AI recommendation');
+  console.log('[Team Explorer] Reset complete');
 }
 
