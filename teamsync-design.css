@@ -2252,7 +2252,7 @@ body.light-mode .ripple-effect {
 /* Drop Zone Indicators */
 .drop-zone-indicator {
     position: absolute;
-    top: 60px;
+    top: 100px;
     left: 24px;
     right: 24px;
     bottom: 24px;
