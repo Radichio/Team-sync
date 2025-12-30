@@ -4267,33 +4267,21 @@ function openAlternateModal(config, rankLabel, rankNumber) {
   const subscales = calculateIndividualSubscales(config.members);
   
   subscalesContainer.innerHTML = `
-    <div class="subscale-item">
-      <div class="subscale-icon">🤝</div>
-      <div class="subscale-info">
-        <div class="subscale-name">Understanding</div>
-        <div class="subscale-score">${subscales.understanding}%</div>
-      </div>
+    <div class="subscale-item-compact">
+      <span class="subscale-label-compact">Understanding</span>
+      <span class="subscale-value-compact">${subscales.understanding}%</span>
     </div>
-    <div class="subscale-item">
-      <div class="subscale-icon">🔒</div>
-      <div class="subscale-info">
-        <div class="subscale-name">Trust</div>
-        <div class="subscale-score">${subscales.trust}%</div>
-      </div>
+    <div class="subscale-item-compact">
+      <span class="subscale-label-compact">Trust</span>
+      <span class="subscale-value-compact">${subscales.trust}%</span>
     </div>
-    <div class="subscale-item">
-      <div class="subscale-icon">⚡</div>
-      <div class="subscale-info">
-        <div class="subscale-name">Ease</div>
-        <div class="subscale-score">${subscales.ease}%</div>
-      </div>
+    <div class="subscale-item-compact">
+      <span class="subscale-label-compact">Ease</span>
+      <span class="subscale-value-compact">${subscales.ease}%</span>
     </div>
-    <div class="subscale-item">
-      <div class="subscale-icon">🎯</div>
-      <div class="subscale-info">
-        <div class="subscale-name">Integration</div>
-        <div class="subscale-score">${subscales.integration}%</div>
-      </div>
+    <div class="subscale-item-compact">
+      <span class="subscale-label-compact">Integration</span>
+      <span class="subscale-value-compact">${subscales.integration}%</span>
     </div>
   `;
   
