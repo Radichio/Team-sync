@@ -549,7 +549,7 @@ function animateBadges() {
 function resetBadges() {
     const badgeData = [
         { id: 'badge-build', value: 'Start' },
-        { id: 'badge-optimize', value: 'Analyze' },
+        { id: 'badge-optimize', value: 'Assess' },
         { id: 'badge-supervisor', value: 'Explore' },
         { id: 'badge-conflict', value: 'Diagnose' }
     ];

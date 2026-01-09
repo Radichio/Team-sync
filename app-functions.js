@@ -1073,7 +1073,7 @@ function autoPopulateTeamName() {
 }
 
 /**
- * Validate form and enable/disable Analyze button
+ * Validate form and enable/disable Assess button
  */
 function validateForm() {
   const analyzeBtn = document.getElementById('analyzeBtn');
@@ -1206,7 +1206,7 @@ function initializeBuildTeamView() {
 // ========================================
 
 /**
- * Main entry point - Analyze Team Chemistry button click
+ * Main entry point - Assess Team Chemistry button click
  */
 function analyzeTeamChemistry() {
   const teamNameInput = document.getElementById('teamNameInput');
@@ -1221,13 +1221,13 @@ function analyzeTeamChemistry() {
   
   // Disable button and show processing
   analyzeBtn.disabled = true;
-  analyzeBtn.textContent = 'Analyzing...';
+  analyzeBtn.textContent = 'Assessing...';
   
   if (processingStatus) {
     processingStatus.style.display = 'block';
   }
   if (statusText) {
-    statusText.textContent = 'Analyzing team composition...';
+    statusText.textContent = 'Assessing team composition...';
   }
   
   // Run async simulation
@@ -1248,7 +1248,7 @@ function simulateInstantResults(teamName) {
   // Step 1: Show pool analysis (1 second delay)
   setTimeout(() => {
     if (statusText) {
-      statusText.textContent = 'Analyzing pool of ' + selectedPool.length + ' candidates...';
+      statusText.textContent = 'Assessing pool of ' + selectedPool.length + ' candidates...';
     }
     
     // Step 2: Run AI optimization to find best team
@@ -1389,7 +1389,7 @@ function resetFormAfterSuccess() {
   // Reset button
   if (analyzeBtn) {
     analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'Analyze Team Chemistry';
+    analyzeBtn.textContent = 'Assess Team Chemistry';
   }
   
   // Clear team name
@@ -1647,7 +1647,7 @@ function toggleAlternates() {
 // TEAM EXPLORER MODULE - DRAG & DROP SYSTEM
 // ========================================
 // Purpose: Handle member dragging in Team Explorer view (AI Team ↔ Remaining Pool)
-// Triggered By: Build Team → "Analyze Chemistry" button
+// Triggered By: Build Team → "Assess Chemistry" button
 // Elements: .optimizer-member-card, #optimalTeamContainer, #remainingPoolContainer
 // Status: Isolated with Explorer prefix to prevent function collision
 // ========================================
@@ -2199,7 +2199,7 @@ function updateConflictAnalysis() {
         
         // Show message if same person selected
         if (personAId && personBId && personAId === personBId) {
-            console.log('Cannot analyze same person against themselves');
+            console.log('Cannot assess same person against themselves');
         }
         return;
     }
@@ -2213,7 +2213,7 @@ function updateConflictAnalysis() {
         return;
     }
     
-    console.log('Analyzing conflict between:', personA.name, 'and', personB.name);
+    console.log('Assessing conflict between:', personA.name, 'and', personB.name);
     
     // Calculate dyadic chemistry
     const dyadicResults = calculateDyadicChemistry(personA, personB);
