@@ -162,7 +162,9 @@ const memberPools = {
     { id: 'T010', name: 'Kevin Brown', initials: 'KB', quizDate: null,
       msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } },
     { id: 'T011', name: 'Marcus Rivera', initials: 'MR', quizDate: null,
-      msScore: null, subscales: null } // New candidate - no assessment yet
+      msScore: null, subscales: null }, // New candidate - no assessment yet
+    { id: 'T012', name: 'James Norton', initials: 'JN', quizDate: '2024-05-10',
+      msScore: 48, subscales: { understanding: 42, trust: 52, ease: 46, integration: 50 } }
   ],
   dyad: [
     { id: 'D001', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-12-19', hasDual: true,
@@ -180,7 +182,9 @@ const memberPools = {
     { id: 'D007', name: 'Oliver Chen', initials: 'OC', quizDate: '2024-07-15',
       msScore: 60, subscales: { understanding: 58, trust: 64, ease: 62, integration: 56 } },
     { id: 'D008', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-03-20', hasDual: true,
-      msScore: 72, subscales: { understanding: 68, trust: 80, ease: 72, integration: 70 } }
+      msScore: 72, subscales: { understanding: 68, trust: 80, ease: 72, integration: 70 } },
+    { id: 'D009', name: 'James Norton', initials: 'JN', quizDate: '2024-05-10',
+      msScore: 48, subscales: { understanding: 42, trust: 52, ease: 46, integration: 50 } }
   ]
 };
 
@@ -2658,20 +2662,20 @@ function displayPath1Interventions(subscales, severity) {
     // Intervention templates with no-blame language
     const interventions = {
         understanding: {
-            title: '💬 Structured Communication Protocol',
-            description: 'Implement the "Clarify-Confirm-Continue" framework. Each person explicitly states their understanding before proceeding. This respects different communication styles and ensures alignment.'
+            title: 'Clear Communication Check-ins',
+            description: 'Set up regular brief meetings where both people confirm they understand key points before moving forward. This helps prevent misunderstandings.'
         },
         trust: {
-            title: '🤝 Explicit Commitment Practice',
-            description: 'Make all commitments visible and specific. Use phrases like "I\'ll complete X by Y time." This bridges different reliability expectations without judging either approach.'
+            title: 'Written Commitment Tracking',
+            description: 'Write down who will do what and by when. Keep it simple and visible to both people. This builds accountability and trust.'
         },
         ease: {
-            title: '😊 Interaction Style Mapping',
-            description: 'Discuss preferred communication styles openly. Some prefer direct feedback, others prefer gradual. Create norms that honor both comfort zones. Neither style is wrong - just different.'
+            title: 'Communication Style Discussion',
+            description: 'Talk openly about how each person prefers to receive feedback and communicate. Some like direct, others prefer gentle. Find a middle ground that works for both.'
         },
         integration: {
-            title: '⚙️ Collaborative Working Agreement',
-            description: 'Co-create a shared process that incorporates both work styles. One might prefer planning, the other flexibility. Document how you\'ll coordinate to respect both approaches.'
+            title: 'Work Style Agreement',
+            description: 'Create a simple written agreement about how you will work together. Cover things like planning vs. flexibility, meeting frequency, and decision-making. Keep it practical and update as needed.'
         }
     };
     
@@ -2845,20 +2849,20 @@ function displayInterventionRecommendations(subscales) {
     // Intervention templates (evidence-based, no-fault language)
     const interventions = {
         understanding: {
-            title: '🎯 Structured Communication Protocol',
-            description: 'Implement the "Clarify-Confirm-Continue" framework. Each party explicitly states their understanding before proceeding with tasks or decisions. Schedule weekly 15-minute check-ins to ensure alignment and address misunderstandings proactively.'
+            title: 'Clear Communication Check-ins',
+            description: 'Set up weekly 15-minute meetings where both people confirm they understand key points before moving forward. This helps prevent misunderstandings from building up.'
         },
         trust: {
-            title: '🤝 Reliability Commitment Practice',
-            description: 'Establish small, achievable commitments and consistently follow through. Build trust incrementally through demonstrated reliability over time. Use a shared commitment tracker to maintain visibility and accountability.'
+            title: 'Build Reliability Step-by-Step',
+            description: 'Start with small promises and consistently follow through. Use a simple shared list to track commitments. Trust builds gradually through reliable actions over time.'
         },
         ease: {
-            title: '💬 Interaction Preference Mapping',
-            description: 'Collaboratively identify preferred communication channels, timing, and interaction styles. Create explicit norms that honor both parties\' comfort zones. Document these preferences in a shared working agreement.'
+            title: 'Communication Style Discussion',
+            description: 'Have an open conversation about how each person prefers to communicate - email, phone, Slack, face-to-face. Write down what works for both and stick to it.'
         },
         integration: {
-            title: '📋 Collaborative Working Agreement',
-            description: 'Co-create explicit documentation of work processes, decision-making approaches, and coordination mechanisms. Review and adjust regularly in monthly retrospectives to maintain alignment as needs evolve.'
+            title: 'Work Style Agreement',
+            description: 'Write a simple document together covering how you will work - meeting frequency, decision-making, and planning. Review it monthly and adjust as needed.'
         }
     };
     

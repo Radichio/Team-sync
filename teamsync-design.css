@@ -3226,7 +3226,10 @@ body.dark-mode .subscale-value {
 .hero-score {
     font-size: 4rem;
     font-weight: 800;
-    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     line-height: 1;
 }
 
