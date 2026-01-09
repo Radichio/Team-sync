@@ -2705,6 +2705,37 @@ function displayPath1Interventions(subscales, severity) {
         container.appendChild(card);
     });
     
+    // For Moderate/Significant/Critical scores: Add alternative team configuration recommendation
+    if (severity === 'minor' || severity === 'moderate' || severity === 'critical') {
+        const altConfigCard = document.createElement('div');
+        altConfigCard.className = 'intervention-card alternative-config-card';
+        altConfigCard.style.borderLeft = '4px solid #8b5cf6';
+        altConfigCard.style.background = 'linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(59, 130, 246, 0.05))';
+        
+        altConfigCard.innerHTML = `
+            <div style="display: flex; align-items: start; gap: 16px;">
+                <div style="font-size: 2rem; line-height: 1; flex-shrink: 0;">🔄</div>
+                <div style="flex: 1;">
+                    <div class="intervention-title" style="color: #8b5cf6;">Consider Alternative Team Configuration</div>
+                    <div class="intervention-description" style="margin-bottom: 12px;">
+                        Based on this chemistry analysis, these team members may thrive better in different team configurations. 
+                        Rather than forcing compatibility, consider exploring alternative pairings where both individuals can excel naturally.
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button onclick="showView('build')" style="padding: 8px 16px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.875rem;">
+                            Build New Team
+                        </button>
+                        <button onclick="showView('optimize')" style="padding: 8px 16px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-primary); border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.875rem;">
+                            Optimize Existing Team
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(altConfigCard);
+    }
+    
     console.log('Path 1 interventions displayed:', topInterventions.length);
 }
 
