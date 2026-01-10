@@ -3944,38 +3944,38 @@ function discardChanges() {
 const teamConfigurations = {
     'alpha': {
         name: 'Engineering Alpha',
-        core: ['alex-smith', 'jordan-davis', 'sam-johnson'],
-        extended: ['morgan-chen', 'riley-lee'],
-        bench: ['taylor-park', 'casey-brown'],
-        available: ['avery-white']
+        core: ['alex-smith', 'sam-johnson', 'morgan-chen', 'avery-white'],
+        extended: [],
+        bench: ['jordan-davis', 'riley-lee'],
+        available: ['taylor-park', 'casey-brown']
     },
     'beta': {
         name: 'Sales Division Beta',
-        core: ['morgan-chen', 'riley-lee', 'taylor-park'],
-        extended: ['casey-brown', 'avery-white'],
-        bench: ['alex-smith'],
-        available: ['jordan-davis', 'sam-johnson']
+        core: ['morgan-chen', 'taylor-park', 'casey-brown', 'avery-white'],
+        extended: [],
+        bench: ['riley-lee'],
+        available: []
     },
     'innovation': {
         name: 'Product Innovation',
-        core: ['jordan-davis', 'sam-johnson', 'casey-brown'],
-        extended: ['alex-smith'],
-        bench: ['morgan-chen'],
-        available: ['riley-lee', 'taylor-park', 'avery-white']
+        core: ['sam-johnson', 'casey-brown', 'alex-smith'],
+        extended: [],
+        bench: ['jordan-davis'],
+        available: []
     },
     'q4-sprint': {
         name: 'Q4 Innovation Sprint',
         core: ['alex-smith', 'morgan-chen', 'taylor-park'],
-        extended: ['jordan-davis'],
-        bench: ['riley-lee', 'casey-brown'],
-        available: ['sam-johnson', 'avery-white']
+        extended: [],
+        bench: ['jordan-davis'],
+        available: []
     },
     'cs-rapid': {
         name: 'Customer Success',
         core: ['riley-lee', 'casey-brown', 'avery-white'],
         extended: [],
-        bench: ['sam-johnson', 'jordan-davis'],
-        available: ['alex-smith', 'morgan-chen', 'taylor-park']
+        bench: [],
+        available: []
     }
 };
 
@@ -3995,10 +3995,10 @@ function calculateAllTeamScores() {
     console.log('=== AUTO-CALCULATING SIDEBAR SCORES ===');
     
     const teamConfigs = {
-        'alpha': ['alex-smith', 'jordan-davis', 'sam-johnson', 'morgan-chen', 'riley-lee'],
-        'beta': ['morgan-chen', 'riley-lee', 'taylor-park', 'casey-brown', 'avery-white'],
-        'innovation': ['jordan-davis', 'sam-johnson', 'casey-brown', 'alex-smith'],
-        'q4-sprint': ['alex-smith', 'morgan-chen', 'taylor-park', 'jordan-davis'],
+        'alpha': ['alex-smith', 'sam-johnson', 'morgan-chen', 'avery-white'],
+        'beta': ['morgan-chen', 'taylor-park', 'casey-brown', 'avery-white'],
+        'innovation': ['sam-johnson', 'casey-brown', 'alex-smith'],
+        'q4-sprint': ['alex-smith', 'morgan-chen', 'taylor-park'],
         'cs-rapid': ['riley-lee', 'casey-brown', 'avery-white']
     };
     
