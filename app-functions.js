@@ -144,17 +144,17 @@ const memberPools = {
     { id: 'T001', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-12-19', hasDual: true,
       msScore: 72, subscales: { understanding: 68, trust: 80, ease: 72, integration: 70 } },
     { id: 'T002', name: 'Michael Chen', initials: 'MC', quizDate: '2024-12-18',
-      msScore: 68, subscales: { understanding: 64, trust: 76, ease: 66, integration: 68 } },
+      msScore: 72, subscales: { understanding: 68, trust: 78, ease: 70, integration: 72 } },
     { id: 'T003', name: 'Emily Parker', initials: 'EP', quizDate: '2024-12-16',
       msScore: 78, subscales: { understanding: 76, trust: 82, ease: 80, integration: 74 } },
     { id: 'T004', name: 'David Wilson', initials: 'DW', quizDate: '2024-12-05',
-      msScore: 65, subscales: { understanding: 60, trust: 72, ease: 64, integration: 66 } },
+      msScore: 70, subscales: { understanding: 66, trust: 74, ease: 68, integration: 72 } },
     { id: 'T005', name: 'Jessica Rodriguez', initials: 'JR', quizDate: '2024-11-20',
       msScore: 74, subscales: { understanding: 72, trust: 78, ease: 70, integration: 76 } },
     { id: 'T006', name: 'Robert Kim', initials: 'RK', quizDate: '2024-10-15',
-      msScore: 61, subscales: { understanding: 56, trust: 68, ease: 60, integration: 62 } },
+      msScore: 68, subscales: { understanding: 64, trust: 72, ease: 66, integration: 68 } },
     { id: 'T007', name: 'Amanda Foster', initials: 'AF', quizDate: '2024-09-30',
-      msScore: 70, subscales: { understanding: 68, trust: 74, ease: 66, integration: 72 } },
+      msScore: 73, subscales: { understanding: 70, trust: 76, ease: 70, integration: 74 } },
     { id: 'T008', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-08-01', hasDual: true,
       msScore: 76, subscales: { understanding: 80, trust: 72, ease: 78, integration: 74 } },
     { id: 'T009', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-06-15', hasDual: true,
@@ -253,7 +253,7 @@ function calculateTeamChemistry(members) {
   const combinationVariance = ((memberIdSum * 7) % 11) - 5; // Range: -5 to +5
   
   // Combine factors for final chemistry score
-  const baseScore = (avgMS * 0.6 + alignmentScore * 0.4);
+  const baseScore = (avgMS * 0.7 + alignmentScore * 0.4);
   const rawScore = baseScore * rangeFactor * trustFactor * sizeModifier + combinationVariance;
   
   // CLIENT SPECIFICATION: Max score is 88% (90-95% is "impossible")
