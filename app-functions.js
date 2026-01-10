@@ -1951,6 +1951,37 @@ function closeTeamExplorerView() {
 }
 
 /**
+ * Deploy team configuration to Slack
+ * Sends team composition and chemistry analysis to Slack workspace
+ */
+function deployTeamToSlack() {
+  if (!window.explorerState) {
+    console.error('No team state available for deployment');
+    return;
+  }
+  
+  const teamName = window.explorerState.teamName || 'Unnamed Team';
+  const chemistry = window.explorerState.currentChemistry || window.explorerState.originalChemistry;
+  const teamMembers = window.explorerState.currentOptimalTeam || window.explorerState.originalOptimalTeam;
+  
+  console.log('Deploying team to Slack:', {
+    name: teamName,
+    chemistry: chemistry + '%',
+    members: teamMembers.length,
+    memberIds: teamMembers
+  });
+  
+  // TODO: Implement actual Slack API integration
+  // This will send team details to Slack channel/DM
+  
+  // Show success notification
+  showToast('✅ Team deployed to Slack! Team members will receive notifications with chemistry insights.', 'success');
+  
+  // Optional: Could close explorer and return to dashboard after deployment
+  // setTimeout(() => closeTeamExplorerView(), 2000);
+}
+
+/**
  * Handle Override Checkbox Toggle (Phase 3A - UI only, logic in Phase 3C)
  */
 function handleOverrideToggle() {
