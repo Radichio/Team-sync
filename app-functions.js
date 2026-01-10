@@ -3984,6 +3984,63 @@ let originalTeamConfig = null;
 let currentTeamId = 'alpha';
 
 // ========================================
+// AUTO-CALCULATE SIDEBAR SCORES
+// ========================================
+/**
+ * Calculate real chemistry scores for all saved teams
+ * This ensures sidebar scores match main display scores
+ * Run this on page load to get accurate values
+ */
+function calculateAllTeamScores() {
+    console.log('=== AUTO-CALCULATING SIDEBAR SCORES ===');
+    
+    const teamConfigs = {
+        'alpha': ['alex-smith', 'jordan-davis', 'sam-johnson', 'morgan-chen', 'riley-lee'],
+        'beta': ['morgan-chen', 'riley-lee', 'taylor-park', 'casey-brown', 'avery-white'],
+        'innovation': ['jordan-davis', 'sam-johnson', 'casey-brown', 'alex-smith'],
+        'q4-sprint': ['alex-smith', 'morgan-chen', 'taylor-park', 'jordan-davis'],
+        'cs-rapid': ['riley-lee', 'casey-brown', 'avery-white']
+    };
+    
+    const memberMap = {
+        'alex-smith': 'T008',
+        'jordan-davis': 'T004',
+        'sam-johnson': 'T001',
+        'morgan-chen': 'T002',
+        'riley-lee': 'T006',
+        'taylor-park': 'T007',
+        'casey-brown': 'T005',
+        'avery-white': 'T003'
+    };
+    
+    const results = {};
+    
+    Object.keys(teamConfigs).forEach(teamId => {
+        const memberIds = teamConfigs[teamId];
+        const teamMembers = memberIds.map(id => {
+            const tId = memberMap[id];
+            return memberPools.team.find(m => m.id === tId);
+        }).filter(m => m);
+        
+        if (teamMembers.length >= 2) {
+            const score = calculateTeamChemistry(teamMembers);
+            results[teamId] = score;
+            console.log(`${teamId}: ${score}% (${teamMembers.length} members)`);
+        }
+    });
+    
+    console.log('=== SCORES TO UPDATE IN SIDEBAR ===');
+    console.log('Engineering Alpha:', results.alpha + '%');
+    console.log('Sales Division Beta:', results.beta + '%');
+    console.log('Product Innovation:', results.innovation + '%');
+    console.log('Q4 Innovation Sprint:', results['q4-sprint'] + '%');
+    console.log('Customer Success:', results['cs-rapid'] + '%');
+    console.log('===================================');
+    
+    return results;
+}
+
+// ========================================
 // OPTIMIZE EXISTING TEAM MODULE - DRAG & DROP SYSTEM
 // ========================================
 // Purpose: Handle member dragging in Optimize Existing Team view

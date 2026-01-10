@@ -137,6 +137,10 @@ function navigateToModule(moduleName) {
     // Phase 3 - Initialize Optimize view when it loads
     if (viewName === 'optimize') {
         setTimeout(() => {
+            // Calculate all team scores for sidebar verification
+            if (typeof calculateAllTeamScores === 'function') {
+                calculateAllTeamScores();
+            }
             if (typeof initializeOptimizeDragDrop === 'function') {
                 initializeOptimizeDragDrop();
             }
