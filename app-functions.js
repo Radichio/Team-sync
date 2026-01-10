@@ -3858,8 +3858,16 @@ function loadTeamConfig(teamId) {
     // Save as new original config
     saveOriginalConfig();
     
-    // Update chemistry
-    updateOptimizeChemistry();
+    // Force clear chemistry display before recalculating
+    const scoreElement = document.getElementById('optimizeChemistryScore');
+    if (scoreElement) {
+        scoreElement.textContent = '...';
+    }
+    
+    // Update chemistry with slight delay to ensure DOM is ready
+    setTimeout(() => {
+        updateOptimizeChemistry();
+    }, 50);
     
     console.log('[Optimize] Loaded team:', config.name);
 }
