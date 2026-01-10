@@ -4107,51 +4107,54 @@ function handleOptimizeDrop(e) {
  * Invalid: 0, 1, or 9+ members
  */
 function updateOptimizeChemistry() {
-    console.log('[Optimize] Calculating chemistry...');
+    console.log('[Optimize] Calculating chemistry with real algorithm...');
     
     // Get members in Optimized Team (only one zone now)
-    const teamMembers = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
-    const availableMembers = Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item'));
+    const teamMemberElements = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
+    const availableMemberElements = Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item'));
     
-    const teamCount = teamMembers.length;
+    const teamCount = teamMemberElements.length;
     let teamScore = 0;
     let displayScore = '';
     
-    // Calculate team chemistry score based on size
-    if (teamCount === 0 || teamCount === 1) {
-        // Invalid: 0 or 1 member
+    // Get actual member data for chemistry calculation
+    if (teamCount >= 2) {
+        const memberIds = teamMemberElements.map(m => m.getAttribute('data-member'));
+        
+        // Map member IDs to actual member objects from memberPool
+        const teamMembers = memberIds.map(id => {
+            // Convert optimize ID format (e.g., 'alex-smith') to team format (e.g., 'T001')
+            const memberMap = {
+                'alex-smith': 'T008',
+                'jordan-davis': 'T004',
+                'sam-johnson': 'T001',
+                'morgan-chen': 'T002',
+                'riley-lee': 'T006',
+                'taylor-park': 'T007',
+                'casey-brown': 'T005',
+                'avery-white': 'T003'
+            };
+            
+            const teamId = memberMap[id];
+            return memberPools.team.find(m => m.id === teamId);
+        }).filter(m => m); // Remove any undefined members
+        
+        if (teamMembers.length >= 2) {
+            // Use real chemistry calculation algorithm
+            const result = calculateTeamChemistry(teamMembers);
+            teamScore = result.chemistry;
+            displayScore = teamScore.toString();
+            console.log('[Optimize] Real chemistry calculated:', teamScore, 'for', teamMembers.length, 'members');
+        } else {
+            displayScore = 'N/A';
+            teamScore = 0;
+        }
+    } else if (teamCount === 1) {
         displayScore = 'N/A';
         teamScore = 0;
-    } else if (teamCount === 2) {
-        // Dyad: exactly 2 members
-        teamScore = 82;
-        displayScore = teamScore.toString();
-    } else if (teamCount >= 3 && teamCount <= 5) {
-        // Optimal team size: 3-5 members
-        teamScore = 88;
-        displayScore = teamScore.toString();
-    } else if (teamCount === 6) {
-        // Good team size: 6 members
-        teamScore = 82;
-        displayScore = teamScore.toString();
-    } else if (teamCount === 7 || teamCount === 8) {
-        // Large team: 7-8 members
-        teamScore = 76;
-        displayScore = teamScore.toString();
     } else {
-        // Too large: 9+ members
         displayScore = 'N/A';
         teamScore = 0;
-    }
-    
-    // Add variance based on specific members (mock chemistry algorithm)
-    if (teamScore > 0) {
-        const memberIds = teamMembers.map(m => m.getAttribute('data-member'));
-        const variance = (memberIds.length * 3) % 7 - 3;
-        teamScore += variance;
-        // Ensure score stays in valid range
-        teamScore = Math.max(0, Math.min(100, teamScore));
-        displayScore = teamScore.toString();
     }
     
     // Update single chemistry score display
@@ -4172,10 +4175,10 @@ function updateOptimizeChemistry() {
     }
     
     if (availableSizeBadge) {
-        availableSizeBadge.textContent = availableMembers.length + (availableMembers.length === 1 ? ' member' : ' members');
+        availableSizeBadge.textContent = availableMemberElements.length + (availableMemberElements.length === 1 ? ' member' : ' members');
     }
     
-    console.log('[Optimize] Chemistry:', displayScore, 'Team:', teamCount, 'Available:', availableMembers.length);
+    console.log('[Optimize] Chemistry:', displayScore, 'Team:', teamCount, 'Available:', availableMemberElements.length);
 }
 
 // Initialize on optimize view load
