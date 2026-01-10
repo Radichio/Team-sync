@@ -253,7 +253,7 @@ function calculateTeamChemistry(members) {
   const combinationVariance = ((memberIdSum * 7) % 11) - 5; // Range: -5 to +5
   
   // Combine factors for final chemistry score
-  const baseScore = (avgMS * 0.7 + alignmentScore * 0.4);
+  const baseScore = (avgMS * 0.65 + alignmentScore * 0.35);
   const rawScore = baseScore * rangeFactor * trustFactor * sizeModifier + combinationVariance;
   
   // CLIENT SPECIFICATION: Max score is 88% (90-95% is "impossible")
@@ -4255,8 +4255,14 @@ function updateOptimizeChemistry() {
     const availableSizeBadge = document.getElementById('availablePoolSize');
     
     if (scoreElement) {
+        // Force DOM update by setting both textContent AND innerHTML
         scoreElement.textContent = displayScore;
-        console.log('[Optimize] ✓ Updated display to:', displayScore);
+        scoreElement.innerHTML = displayScore;
+        // Force repaint
+        scoreElement.style.display = 'none';
+        scoreElement.offsetHeight; // Trigger reflow
+        scoreElement.style.display = '';
+        console.log('[Optimize] ✓ FORCED UPDATE display to:', displayScore, 'Element value:', scoreElement.textContent);
     } else {
         console.error('[Optimize] ✗ optimizeChemistryScore element NOT FOUND in DOM');
     }
