@@ -4107,52 +4107,79 @@ function handleOptimizeDrop(e) {
  * Invalid: 0, 1, or 9+ members
  */
 function updateOptimizeChemistry() {
-    console.log('[Optimize] Calculating chemistry with real algorithm...');
+    console.log('[Optimize] === Starting chemistry calculation ===');
     
     // Get members in Optimized Team (only one zone now)
     const teamMemberElements = Array.from(document.querySelectorAll('#optimizeCoreMembers .member-item'));
     const availableMemberElements = Array.from(document.querySelectorAll('#optimizeAvailableMembers .member-item'));
     
     const teamCount = teamMemberElements.length;
+    console.log('[Optimize] Found', teamCount, 'team member elements in DOM');
+    
     let teamScore = 0;
     let displayScore = '';
     
     // Get actual member data for chemistry calculation
     if (teamCount >= 2) {
         const memberIds = teamMemberElements.map(m => m.getAttribute('data-member'));
+        console.log('[Optimize] Member IDs from DOM:', memberIds);
         
         // Map member IDs to actual member objects from memberPool
+        const memberMap = {
+            'alex-smith': 'T008',      // Alex Thompson
+            'jordan-davis': 'T004',    // David Wilson 
+            'sam-johnson': 'T001',     // Sarah Johnson
+            'morgan-chen': 'T002',     // Michael Chen
+            'riley-lee': 'T006',       // Robert Kim
+            'taylor-park': 'T007',     // Amanda Foster
+            'casey-brown': 'T005',     // Jessica Rodriguez
+            'avery-white': 'T003'      // Emily Parker
+        };
+        
+        console.log('[Optimize] memberPools available?', typeof memberPools !== 'undefined');
+        console.log('[Optimize] memberPools.team length:', memberPools ? memberPools.team.length : 'N/A');
+        
         const teamMembers = memberIds.map(id => {
-            // Convert optimize ID format (e.g., 'alex-smith') to team format (e.g., 'T001')
-            const memberMap = {
-                'alex-smith': 'T008',
-                'jordan-davis': 'T004',
-                'sam-johnson': 'T001',
-                'morgan-chen': 'T002',
-                'riley-lee': 'T006',
-                'taylor-park': 'T007',
-                'casey-brown': 'T005',
-                'avery-white': 'T003'
-            };
-            
             const teamId = memberMap[id];
-            return memberPools.team.find(m => m.id === teamId);
+            console.log('[Optimize] Mapping', id, '→', teamId);
+            
+            if (!memberPools || !memberPools.team) {
+                console.error('[Optimize] memberPools or memberPools.team is undefined!');
+                return null;
+            }
+            
+            const member = memberPools.team.find(m => m.id === teamId);
+            
+            if (!member) {
+                console.error('[Optimize] Member not found in pool:', id, '→', teamId);
+            } else {
+                console.log('[Optimize] Found member:', member.name, 'MS:', member.msScore);
+            }
+            
+            return member;
         }).filter(m => m); // Remove any undefined members
         
+        console.log('[Optimize] Successfully mapped', teamMembers.length, 'members');
+        
         if (teamMembers.length >= 2) {
+            console.log('[Optimize] Calling calculateTeamChemistry with', teamMembers.length, 'members');
+            
             // Use real chemistry calculation algorithm
             const result = calculateTeamChemistry(teamMembers);
             teamScore = result.chemistry;
             displayScore = teamScore.toString();
-            console.log('[Optimize] Real chemistry calculated:', teamScore, 'for', teamMembers.length, 'members');
+            console.log('[Optimize] ✓ Chemistry calculated:', teamScore);
         } else {
+            console.warn('[Optimize] ✗ Not enough valid members:', teamMembers.length);
             displayScore = 'N/A';
             teamScore = 0;
         }
     } else if (teamCount === 1) {
+        console.log('[Optimize] Only 1 member - cannot calculate');
         displayScore = 'N/A';
         teamScore = 0;
     } else {
+        console.log('[Optimize] No members in team');
         displayScore = 'N/A';
         teamScore = 0;
     }
@@ -4164,9 +4191,9 @@ function updateOptimizeChemistry() {
     
     if (scoreElement) {
         scoreElement.textContent = displayScore;
-        console.log('[Optimize] Updated chemistry score:', displayScore);
+        console.log('[Optimize] ✓ Updated display to:', displayScore);
     } else {
-        console.warn('[Optimize] optimizeChemistryScore element not found');
+        console.error('[Optimize] ✗ optimizeChemistryScore element NOT FOUND in DOM');
     }
     
     // Update size badges
@@ -4178,7 +4205,7 @@ function updateOptimizeChemistry() {
         availableSizeBadge.textContent = availableMemberElements.length + (availableMemberElements.length === 1 ? ' member' : ' members');
     }
     
-    console.log('[Optimize] Chemistry:', displayScore, 'Team:', teamCount, 'Available:', availableMemberElements.length);
+    console.log('[Optimize] === Calculation complete ===');
 }
 
 // Initialize on optimize view load
