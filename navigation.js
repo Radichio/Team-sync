@@ -133,6 +133,18 @@ function navigateToModule(moduleName) {
             }
         }, 10);
     }
+    
+    // Phase 3 - Initialize Optimize view when it loads
+    if (viewName === 'optimize') {
+        setTimeout(() => {
+            if (typeof initializeOptimizeDragDrop === 'function') {
+                initializeOptimizeDragDrop();
+            }
+            if (typeof loadTeamConfig === 'function') {
+                loadTeamConfig('alpha'); // Load first team by default
+            }
+        }, 100);
+    }
 }
 
 /**
