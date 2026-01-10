@@ -4165,8 +4165,8 @@ function updateOptimizeChemistry() {
             console.log('[Optimize] Calling calculateTeamChemistry with', teamMembers.length, 'members');
             
             // Use real chemistry calculation algorithm
-            const result = calculateTeamChemistry(teamMembers);
-            teamScore = result.chemistry;
+            // NOTE: calculateTeamChemistry returns a NUMBER directly, not an object
+            teamScore = calculateTeamChemistry(teamMembers);
             displayScore = teamScore.toString();
             console.log('[Optimize] ✓ Chemistry calculated:', teamScore);
         } else {
