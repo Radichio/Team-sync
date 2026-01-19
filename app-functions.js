@@ -2580,7 +2580,10 @@ function updateConflictAnalysisFromGrid() {
     const personBId = conflictState.personB;
     const resultsContainer = document.getElementById('conflictResults');
     
+    console.log('updateConflictAnalysisFromGrid called', {personAId, personBId});
+    
     if (!personAId || !personBId || personAId === personBId) {
+        console.log('Invalid selection');
         if (resultsContainer) resultsContainer.style.display = 'none';
         return;
     }
@@ -2588,22 +2591,35 @@ function updateConflictAnalysisFromGrid() {
     const personA = memberPools.team.find(m => m.id === personAId);
     const personB = memberPools.team.find(m => m.id === personBId);
     
-    if (!personA || !personB) return;
+    console.log('Found persons:', personA?.name, personB?.name);
+    
+    if (!personA || !personB) {
+        console.log('Could not find persons');
+        return;
+    }
     
     if (!personA.quizDate || !personB.quizDate) {
+        console.log('Missing quiz dates:', personA.quizDate, personB.quizDate);
         if (resultsContainer) resultsContainer.style.display = 'none';
         return;
     }
     
+    console.log('Calculating dyadic chemistry...');
+    
     // Directly calculate dyadic chemistry
     const dyadicResults = calculateDyadicChemistry(personA, personB);
+    
+    console.log('Dyadic results:', dyadicResults);
     
     // Display results
     displayConflictResults(dyadicResults, personA, personB);
     
     // Show results container
     if (resultsContainer) {
+        console.log('Showing results container');
         resultsContainer.style.display = 'block';
+    } else {
+        console.log('ERROR: conflictResults container not found!');
     }
 }
 
