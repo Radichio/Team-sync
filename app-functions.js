@@ -876,29 +876,9 @@ function populatePool(poolType, containerId) {
   if (!pool) return;
   
   container.innerHTML = pool.map(member => {
-    const freshnessClass = formatQuizDate(member.quizDate);
     const isSelected = AppState.selectedMemberIds.includes(member.id);
     
-    let badgeText = '';
-    let badgeClass = 'member-badge ';
-    
-    if (freshnessClass === 'none') {
-      badgeText = 'No Quiz';
-      badgeClass += 'badge-none';
-    } else {
-      const quizDate = new Date(member.quizDate);
-      const today = new Date();
-      const daysDiff = Math.floor((today - quizDate) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff === 0) badgeText = 'Today';
-      else if (daysDiff === 1) badgeText = '1 day ago';
-      else if (daysDiff <= 30) badgeText = `${daysDiff} days ago`;
-      else if (daysDiff <= 60) badgeText = '1 month ago';
-      else if (daysDiff <= 90) badgeText = `${Math.floor(daysDiff / 30)} months ago`;
-      else badgeText = '3+ months ago';
-      
-      badgeClass += `badge-${freshnessClass}`;
-    }
+    let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
     
     return `
       <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -907,8 +887,7 @@ function populatePool(poolType, containerId) {
            onclick="toggleMember('${poolType}', '${member.id}')">
         <div class="member-avatar">${member.initials}</div>
         <div class="member-info">
-          <div class="member-name">${member.name}</div>
-          <span class="${badgeClass}">${badgeText}</span>
+          <div class="member-name">${member.name} <span class="member-badge">${badgeText}</span></div>
         </div>
         <div class="member-check">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -2226,30 +2205,10 @@ function populateConflictGrid(gridId, person) {
     if (!grid) return;
     
     grid.innerHTML = memberPools.team.map(member => {
-        const freshnessClass = formatQuizDate(member.quizDate);
         const isSelected = (person === 'A' && conflictState.personA === member.id) || 
                           (person === 'B' && conflictState.personB === member.id);
         
-        let badgeText = '';
-        let badgeClass = 'member-badge ';
-        
-        if (freshnessClass === 'none') {
-            badgeText = 'No Quiz';
-            badgeClass += 'badge-none';
-        } else {
-            const quizDate = new Date(member.quizDate);
-            const today = new Date();
-            const daysDiff = Math.floor((today - quizDate) / (1000 * 60 * 60 * 24));
-            
-            if (daysDiff === 0) badgeText = 'Today';
-            else if (daysDiff === 1) badgeText = '1 day ago';
-            else if (daysDiff <= 30) badgeText = `${daysDiff} days ago`;
-            else if (daysDiff <= 60) badgeText = '1 month ago';
-            else if (daysDiff <= 90) badgeText = `${Math.floor(daysDiff / 30)} months ago`;
-            else badgeText = '3+ months ago';
-            
-            badgeClass += `badge-${freshnessClass}`;
-        }
+        let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
         
         return `
             <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -2257,8 +2216,7 @@ function populateConflictGrid(gridId, person) {
                  onclick="selectConflictMember('${person}', '${member.id}')">
                 <div class="member-avatar">${member.initials}</div>
                 <div class="member-info">
-                    <div class="member-name">${member.name}</div>
-                    <span class="${badgeClass}">${badgeText}</span>
+                    <div class="member-name">${member.name} <span class="member-badge">${badgeText}</span></div>
                 </div>
                 <div class="member-check">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
