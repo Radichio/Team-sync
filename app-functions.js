@@ -2330,7 +2330,9 @@ function checkSurveyStatus() {
         
         alertDiv.style.display = 'flex';
     } else {
+        // Both complete - show results!
         alertDiv.style.display = 'none';
+        updateConflictAnalysisFromGrid();
     }
 }
 
