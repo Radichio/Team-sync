@@ -2702,6 +2702,12 @@ function resetConflictView() {
         resultsContainer.style.display = 'none';
     }
     
+    // Hide top preview area
+    const previewArea = document.getElementById('conflictScorePreview');
+    if (previewArea) {
+        previewArea.style.display = 'none';
+    }
+    
     console.log('Conflict view reset');
 }
 
@@ -2799,10 +2805,20 @@ function calculateDyadicChemistry(personA, personB) {
  * Branches to Path 1 (action) or Path 2 (observation) based on severity
  */
 function displayConflictResults(results, personA, personB) {
-    // Display hero score
+    // Display hero score in BOTH locations
     const heroScore = document.getElementById('dyadicChemistryScore');
+    const heroScoreTop = document.getElementById('dyadicChemistryScoreTop');
     if (heroScore) {
         heroScore.textContent = results.chemistry + '%';
+    }
+    if (heroScoreTop) {
+        heroScoreTop.textContent = results.chemistry + '%';
+    }
+    
+    // Show the top preview area
+    const previewArea = document.getElementById('conflictScorePreview');
+    if (previewArea) {
+        previewArea.style.display = 'block';
     }
     
     // Get overall assessment
