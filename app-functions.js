@@ -2070,6 +2070,47 @@ function initializeApp() {
   console.log('TeamSync AI initialized');
 }
 
+// ========================================
+// TOAST NOTIFICATION SYSTEM
+// ========================================
+
+/**
+ * Show a toast notification
+ * @param {string} message - Message to display
+ * @param {string} type - Type of toast (success, error, info) - optional
+ */
+function showToast(message, type = 'success') {
+  // Remove any existing toast
+  const existingToast = document.querySelector('.toast-notification');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = `toast-notification toast-${type}`;
+  toast.textContent = message;
+  
+  // Add to body
+  document.body.appendChild(toast);
+  
+  // Trigger animation
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 10);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 3000);
+}
+
+// Export toast function
+window.showToast = showToast;
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
