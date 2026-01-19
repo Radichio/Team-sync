@@ -639,31 +639,6 @@ body.dark-mode .value-prop svg {
     opacity: 1;
 }
 
-/* Disabled/Locked Card State - New User Mode */
-.module-card.locked {
-    cursor: not-allowed;
-    opacity: 0.4;
-    pointer-events: none;
-}
-
-.module-card.locked:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm), var(--shadow-md);
-    border-color: var(--border-primary);
-}
-
-.module-card.locked::after {
-    display: none;
-}
-
-.module-card.locked::before {
-    display: none;
-}
-
-.module-card.locked .module-icon {
-    transform: none;
-}
-
 .module-header {
     display: flex;
     justify-content: space-between;
@@ -3635,35 +3610,6 @@ body.dark-mode .subscale-value {
 }
 
 /* Level 5: Strong Synchrony (80%+) - Green */
-/* Insignificant Disconnect (85-100%) - Green */
-.disconnect-level.disconnect-insignificant {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border: 1px solid #22c55e;
-    color: #166534;
-}
-
-/* Mild Disconnect (71-84%) - Light Yellow/Green */
-.disconnect-level.disconnect-mild {
-    background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%);
-    border: 1px solid #eab308;
-    color: #854d0e;
-}
-
-/* Moderate Disconnect (55-70%) - Orange */
-.disconnect-level.disconnect-moderate {
-    background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
-    border: 1px solid #f97316;
-    color: #9a3412;
-}
-
-/* Significant Disconnect (Below 55%) - Red */
-.disconnect-level.disconnect-significant {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border: 1px solid #ef4444;
-    color: #991b1b;
-}
-
-/* LEGACY classes for backwards compatibility */
 .disconnect-level.disconnect-strong {
     background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
     border: 1px solid #22c55e;
@@ -3684,14 +3630,14 @@ body.dark-mode .subscale-value {
     color: #854d0e;
 }
 
-/* Level 2: Moderate Disconnect (50-59%) - Orange - LEGACY */
+/* Level 2: Moderate Disconnect (50-59%) - Orange */
 .disconnect-level.disconnect-moderate {
     background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
     border: 1px solid #f97316;
     color: #9a3412;
 }
 
-/* Level 1: Critical Disconnect (Below 50%) - Red - LEGACY */
+/* Level 1: Critical Disconnect (Below 50%) - Red */
 .disconnect-level.disconnect-critical {
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     border: 1px solid #ef4444;
@@ -4978,30 +4924,4 @@ body.light-mode .match-indicator.caution.clickable:hover {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
     border-color: #2563eb;
-}
-
-/* ========================================
-   TOAST ANIMATIONS (BOTTOM-RIGHT)
-   ======================================== */
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideOutDown {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(20px);
-    }
 }

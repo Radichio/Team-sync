@@ -611,69 +611,44 @@ function completeTeamCreation() {
 // DEMO MODE
 // ========================================
 
-// Store original quiz dates for demo toggle
-const originalQuizDates = {};
-
 function toggleDemoMode() {
   AppState.demoMode = !AppState.demoMode;
   
-  const button = document.getElementById('demoToggle');
-  const label = document.getElementById('toggleLabel');
-  const analyzeBtn = document.getElementById('analyzeBtn');
+  const button = document.querySelector('.populate-btn');
+  const badge = document.querySelector('.value-badge');
+  const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
-    // POPULATE MODE - Restore quiz dates
-    label.textContent = 'Reset';
+    // Activate demo mode
+    button.classList.add('active');
+    button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
     
-    // Update button text to assessment mode
-    if (analyzeBtn) {
-      analyzeBtn.textContent = 'Assess Team Chemistry';
+    // Animate badge counts
+    animateBadgeCounts();
+    
+    // Update welcome message
+    if (welcomeMsg) {
+      welcomeMsg.textContent = 'Demo mode active - Explore features with sample data';
     }
     
-    // Restore all quiz dates
-    memberPools.team.forEach(member => {
-      if (originalQuizDates[member.id]) {
-        member.quizDate = originalQuizDates[member.id];
-      }
-    });
-    
-    memberPools.dyad.forEach(member => {
-      if (originalQuizDates[member.id]) {
-        member.quizDate = originalQuizDates[member.id];
-      }
-    });
-    
-    // Repopulate pools with survey data
-    populatePool('team', 'teamMemberSelection');
-    populatePool('dyad', 'dyadMemberSelection');
+    // Populate sample data
+    populateSampleData();
     
   } else {
-    // UNPOPULATED MODE - Remove quiz dates
-    label.textContent = 'Populate';
+    // Deactivate demo mode
+    button.classList.remove('active');
+    button.textContent = 'Populate';
     
-    // Update button text to survey code generation mode
-    if (analyzeBtn) {
-      analyzeBtn.textContent = 'Generate Survey Code';
+    // Reset badge counts
+    resetBadgeCounts();
+    
+    // Reset welcome message
+    if (welcomeMsg) {
+      welcomeMsg.textContent = 'Select a module to get started';
     }
     
-    // Save original quiz dates and set all to null
-    memberPools.team.forEach(member => {
-      if (!originalQuizDates[member.id]) {
-        originalQuizDates[member.id] = member.quizDate;
-      }
-      member.quizDate = null;
-    });
-    
-    memberPools.dyad.forEach(member => {
-      if (!originalQuizDates[member.id]) {
-        originalQuizDates[member.id] = member.quizDate;
-      }
-      member.quizDate = null;
-    });
-    
-    // Repopulate pools with "No Quiz"
-    populatePool('team', 'teamMemberSelection');
-    populatePool('dyad', 'dyadMemberSelection');
+    // Clear sample data
+    clearSampleData();
   }
   
   // Persist state
@@ -1244,13 +1219,6 @@ function analyzeTeamChemistry() {
   const teamName = teamNameInput.value.trim();
   if (!teamName || AppState.selectedMemberIds.length === 0) return;
   
-  // CHECK IF IN NU MODE (not populated) - generate Slack code instead
-  if (!AppState.demoMode) {
-    generateSlackSurveyCode();
-    return;
-  }
-  
-  // POPULATED MODE - continue with normal assessment
   // Disable button and show processing
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = 'Assessing...';
@@ -1264,102 +1232,6 @@ function analyzeTeamChemistry() {
   
   // Run async simulation
   simulateInstantResults(teamName);
-}
-
-/**
- * Generate Slack survey code for NU mode (no assessment data yet)
- * This allows the NU user to distribute surveys to selected members
- */
-function generateSlackSurveyCode() {
-  const teamNameInput = document.getElementById('teamNameInput');
-  const teamName = teamNameInput.value.trim();
-  
-  // Get selected members
-  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
-  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
-  
-  // Generate Slack command
-  const assessmentType = AppState.currentQuizType === 'team' ? 'Team Chemistry' : 'Dyad Partnership';
-  const memberNames = selectedMembers.map(m => m.name).join(', ');
-  
-  const slackCode = `/teamsync survey send --type="${assessmentType}" --team="${teamName}" --members="${memberNames}"`;
-  
-  // Copy to clipboard
-  navigator.clipboard.writeText(slackCode).then(() => {
-    // Show success toast
-    showToast('Slack survey code copied! Paste it in Slack to send assessments to your selected members.', 'success');
-    
-    // Reset form
-    resetFormAfterSlackCode();
-  }).catch(err => {
-    showToast('Failed to copy code. Please try again.', 'error');
-    console.error('Clipboard error:', err);
-  });
-}
-
-/**
- * Reset form after Slack code generation
- */
-function resetFormAfterSlackCode() {
-  const teamNameInput = document.getElementById('teamNameInput');
-  const analyzeBtn = document.getElementById('analyzeBtn');
-  
-  // Clear selections
-  AppState.selectedMemberIds = [];
-  
-  // Clear team name
-  if (teamNameInput) {
-    teamNameInput.value = '';
-  }
-  
-  // Reset button
-  if (analyzeBtn) {
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'Generate Survey Code';
-  }
-  
-  // Repopulate pools (to clear selections)
-  populatePool('team', 'teamMemberSelection');
-  populatePool('dyad', 'dyadMemberSelection');
-  
-  // Auto-generate new team name suggestion
-  autoPopulateTeamName();
-}
-
-/**
- * Show toast notification
- */
-function showToast(message, type = 'info') {
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-  
-  // Style the toast
-  Object.assign(toast.style, {
-    position: 'fixed',
-    bottom: '24px',
-    right: '24px',
-    padding: '16px 24px',
-    background: type === 'success' ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)',
-    color: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-    zIndex: '10000',
-    fontSize: '14px',
-    fontWeight: '500',
-    backdropFilter: 'blur(10px)',
-    animation: 'slideInUp 0.3s ease-out',
-    maxWidth: '400px'
-  });
-  
-  document.body.appendChild(toast);
-  
-  // Remove after 4 seconds
-  setTimeout(() => {
-    toast.style.animation = 'slideOutDown 0.3s ease-out';
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
 }
 
 /**
@@ -2188,21 +2060,14 @@ function initializeApp() {
   // Load saved theme
   loadTheme();
   
-  // Initialize in UNPOPULATED state by default (show "No Quiz" for all)
-  AppState.demoMode = false;
+  // Load demo mode state
+  const savedDemoMode = localStorage.getItem('teamsync-demo-mode');
+  if (savedDemoMode === 'true') {
+    AppState.demoMode = true;
+    populateSampleData();
+  }
   
-  // Save original quiz dates before clearing
-  memberPools.team.forEach(member => {
-    originalQuizDates[member.id] = member.quizDate;
-    member.quizDate = null; // Start with "No Quiz"
-  });
-  
-  memberPools.dyad.forEach(member => {
-    originalQuizDates[member.id] = member.quizDate;
-    member.quizDate = null; // Start with "No Quiz"
-  });
-  
-  console.log('TeamSync AI initialized - Unpopulated state');
+  console.log('TeamSync AI initialized');
 }
 
 // ========================================

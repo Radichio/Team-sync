@@ -113,16 +113,9 @@ function navigateToModule(moduleName) {
     }
     
     // Phase 4A - Initialize Conflict view when it loads
-    if (viewName === 'conflict') {
+    if (viewName === 'conflict' && typeof populateConflictSelects === 'function') {
         setTimeout(() => {
-            // Initialize new member grids
-            if (typeof initializeConflictGrids === 'function') {
-                initializeConflictGrids();
-            }
-            // Legacy dropdown population (kept for compatibility)
-            if (typeof populateConflictSelects === 'function') {
-                populateConflictSelects();
-            }
+            populateConflictSelects();
             // Reset the view - clear selections and hide results
             if (typeof resetConflictView === 'function') {
                 resetConflictView();
@@ -515,19 +508,11 @@ function initializeDemoToggle() {
         // Simulate loading
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // CRITICAL: Call toggleDemoMode from app-functions.js to restore data
-        if (typeof toggleDemoMode === 'function') {
-            toggleDemoMode();
-        }
-        
         // Update UI
         if (isPopulated) {
             toggleLabel.textContent = 'Reset';
             demoToggle.classList.add('active');
             userAvatar.textContent = 'HH';
-            
-            // UNLOCK ALL CARDS - full functionality restored
-            unlockAllCards();
             
             // Animate badge counts
             animateBadges();
@@ -542,9 +527,6 @@ function initializeDemoToggle() {
             toggleLabel.textContent = 'Populate';
             demoToggle.classList.remove('active');
             userAvatar.textContent = 'NU';
-            
-            // LOCK 3 CARDS - only Build Team remains functional
-            lockNonBuildCards();
             
             // Reset badges
             resetBadges();
@@ -597,42 +579,6 @@ function resetBadges() {
     });
 }
 
-/**
- * Lock the 3 cards that require assessment data (Optimize, Supervisor, Conflict)
- * Only Build Team remains functional for survey distribution
- */
-function lockNonBuildCards() {
-    const cardsToLock = [
-        document.getElementById('optimizeCard'),
-        document.getElementById('supervisorCard'),
-        document.getElementById('conflictCard')
-    ];
-    
-    cardsToLock.forEach(card => {
-        if (card) {
-            card.classList.add('locked');
-            // Remove click handler by preventing event propagation
-            card.style.pointerEvents = 'none';
-        }
-    });
-    
-    console.log('Non-build cards locked - NU mode active');
-}
-
-/**
- * Unlock all cards - restore full functionality
- */
-function unlockAllCards() {
-    const allCards = document.querySelectorAll('.module-card');
-    
-    allCards.forEach(card => {
-        card.classList.remove('locked');
-        card.style.pointerEvents = '';
-    });
-    
-    console.log('All cards unlocked - populated mode active');
-}
-
 // ========================================
 // THEME TOGGLE BUTTON
 // ========================================
@@ -659,11 +605,6 @@ function initializeNavigation() {
     initializeDemoToggle();
     initializeThemeToggle();
     initializeDropdowns();
-    
-    // Lock cards initially if in NU mode (not populated)
-    if (!isPopulated) {
-        lockNonBuildCards();
-    }
     
     // Show landing view by default
     showView('landing');
