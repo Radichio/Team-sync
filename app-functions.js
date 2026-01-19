@@ -3231,55 +3231,41 @@ function displayPath1Interventions(subscales, severity) {
  * @returns {object} Level details with text, class, icon, and description
  */
 function getDisconnectLevel(score) {
-    if (score >= 76) {
+    if (score >= 85) {
         return {
-            severity: 'strong',
-            text: 'Insignificant/No Disconnect',
-            hrText: 'Insignificant/No Disconnect',
-            class: 'disconnect-strong',
-            icon: '🌟',
-            description: 'This dyad exhibits optimal mental synchrony with exceptional alignment across all dimensions. This is a model partnership that demonstrates natural rapport, mutual trust, and effortless collaboration.',
-            recommendation: 'No intervention needed. Consider leveraging for high-stakes projects or peer mentoring.'
+            severity: 'insignificant',
+            text: 'Insignificant',
+            hrText: 'Insignificant Disconnect',
+            class: 'disconnect-insignificant',
+            description: 'Your chemistry scores show strong alignment. This conflict likely stems from external factors — workload, unclear expectations, or process issues — rather than your working relationship.',
+            recommendation: 'Focus on identifying external factors contributing to the conflict.'
         };
-    } else if (score >= 66) {
+    } else if (score >= 71) {
         return {
-            severity: 'functional',
-            text: 'Mild Disconnect',
+            severity: 'mild',
+            text: 'Mild',
             hrText: 'Mild Disconnect',
-            class: 'disconnect-functional',
-            icon: '✅',
-            description: 'This dyad demonstrates a healthy working relationship with strong synchrony across most dimensions. The partnership is functional and productive.',
-            recommendation: 'Minimal intervention needed. Focus on maintaining current dynamics and recognizing effective collaboration.'
+            class: 'disconnect-mild',
+            description: 'Your chemistry scores show minor differences unlikely to be the primary source of conflict. External pressures may be contributing. A direct conversation about specific concerns may help clarify the real issue.',
+            recommendation: 'Address external factors and have an open conversation about specific concerns.'
         };
-    } else if (score >= 56) {
-        return {
-            severity: 'minor',
-            text: 'Moderate',
-            hrText: 'Moderate',
-            class: 'disconnect-minor',
-            icon: 'ℹ️',
-            description: 'This dyad shows minor disconnects in specific areas but maintains overall functional collaboration.',
-            recommendation: 'Brief coaching sessions and communication style awareness training recommended.'
-        };
-    } else if (score >= 45) {
+    } else if (score >= 55) {
         return {
             severity: 'moderate',
-            text: 'Significant Disconnect',
-            hrText: 'Significant Disconnect',
+            text: 'Moderate',
+            hrText: 'Moderate Disconnect',
             class: 'disconnect-moderate',
-            icon: '⚠️',
-            description: 'This dyad experiences moderate disconnects that would benefit from targeted support. While functional, the relationship shows friction in specific areas.',
-            recommendation: 'Facilitated dialogue sessions and subscale-specific training strongly recommended.'
+            description: 'Chemistry component sub-scores of 55% to 70% suggest moderate \'disconnects\' that are apparent between you and your co-worker, about which both of you are unaware and do not intend. Such disconnects happen spontaneously beyond anyone\'s control. They never go away. No one is to blame for them. To what extent, if any, have they contributed to your conflict? Please think of remedies that both of you might use while working together that could overcome such disconnects, as one source of future misunderstandings and mistrust, besides considering possible company issues that might be contributing as well.',
+            recommendation: 'Develop mutual awareness strategies and consider both chemistry factors and external issues.'
         };
     } else {
         return {
-            severity: 'critical',
-            text: 'Critical Disconnect',
-            hrText: 'Critical Disconnect',
-            class: 'disconnect-critical',
-            icon: '🔴',
-            description: 'This dyad shows a critical disconnect requiring immediate structured intervention. The relationship pattern indicates significant communication barriers affecting workplace performance.',
-            recommendation: 'Professional mediation and targeted skill-building strongly recommended. Consider team restructuring if patterns persist.'
+            severity: 'significant',
+            text: 'Significant',
+            hrText: 'Significant Disconnect',
+            class: 'disconnect-significant',
+            description: 'Chemistry component sub-scores of 55% or less suggest significant \'disconnects\' that are apparent between you and your co-worker, about which both of you are unaware and do not intend. Such disconnects happen spontaneously beyond anyone\'s control. They never go away. No one is to blame for them. How have they contributed to your conflict? Please think of remedies that both of you might use while working together to overcome them, so as to avoid future misunderstandings and mistrust.',
+            recommendation: 'Develop specific remedies to work around these inherent disconnects.'
         };
     }
 }
