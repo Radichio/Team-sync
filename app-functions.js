@@ -2805,12 +2805,8 @@ function calculateDyadicChemistry(personA, personB) {
  * Branches to Path 1 (action) or Path 2 (observation) based on severity
  */
 function displayConflictResults(results, personA, personB) {
-    // Display hero score in BOTH locations
-    const heroScore = document.getElementById('dyadicChemistryScore');
+    // Display hero score in top preview area only
     const heroScoreTop = document.getElementById('dyadicChemistryScoreTop');
-    if (heroScore) {
-        heroScore.textContent = results.chemistry + '%';
-    }
     if (heroScoreTop) {
         heroScoreTop.textContent = results.chemistry + '%';
     }
