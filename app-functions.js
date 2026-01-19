@@ -2516,6 +2516,19 @@ function markSurveyComplete(memberId, memberName) {
     const today = new Date();
     member.quizDate = today.toISOString().split('T')[0];
     
+    // Generate subscales if missing (for new members without assessment data)
+    if (!member.subscales) {
+        const baseScore = 60 + Math.floor(Math.random() * 20); // 60-79 range
+        member.subscales = {
+            understanding: baseScore + Math.floor(Math.random() * 10 - 5),
+            trust: baseScore + Math.floor(Math.random() * 10 - 5),
+            ease: baseScore + Math.floor(Math.random() * 10 - 5),
+            integration: baseScore + Math.floor(Math.random() * 10 - 5)
+        };
+        member.msScore = Math.round((member.subscales.understanding + member.subscales.trust + 
+                                      member.subscales.ease + member.subscales.integration) / 4);
+    }
+    
     // Show toast
     const toast = document.createElement('div');
     toast.className = 'status-toast';
