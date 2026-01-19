@@ -694,20 +694,57 @@
 
         <!-- Member Selection -->
         <div class="conflict-selection-container">
-            <div class="selection-row">
-                <div class="selection-column">
-                    <label class="selection-label">Person A</label>
-                    <select id="conflictPersonA" class="member-select" onchange="updateConflictAnalysis()">
-                        <option value="">Select team member...</option>
-                    </select>
+            <div class="conflict-member-grids">
+                <!-- Person A Grid -->
+                <div class="conflict-person-section">
+                    <h3 class="conflict-person-label">Person A</h3>
+                    <div class="conflict-member-grid" id="conflictPersonAGrid">
+                        <!-- Member cards populated by JavaScript -->
+                    </div>
                 </div>
-                <div class="selection-column">
-                    <label class="selection-label">Person B</label>
-                    <select id="conflictPersonB" class="member-select" onchange="updateConflictAnalysis()">
-                        <option value="">Select team member...</option>
-                    </select>
+                
+                <!-- Person B Grid -->
+                <div class="conflict-person-section">
+                    <h3 class="conflict-person-label">Person B</h3>
+                    <div class="conflict-member-grid" id="conflictPersonBGrid">
+                        <!-- Member cards populated by JavaScript -->
+                    </div>
                 </div>
             </div>
+            
+            <!-- Survey Deployment Alert (hidden until needed) -->
+            <div id="surveyDeploymentAlert" class="survey-alert" style="display: none;">
+                <div class="alert-icon">⚠️</div>
+                <div class="alert-content">
+                    <h4 class="alert-title">Dyad Assessment Required</h4>
+                    <p class="alert-message" id="surveyAlertMessage"></p>
+                    <div class="alert-command" id="surveyAlertCommand"></div>
+                    <button class="send-survey-btn" id="sendSurveyBtn" onclick="sendDyadSurvey()">
+                        Send Dyad Surveys
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Freshness Legend -->
+            <div class="freshness-legend">
+                <div class="legend-item">
+                    <div class="legend-dot fresh"></div>
+                    <span class="legend-label">≤7 days (Current)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot recent"></div>
+                    <span class="legend-label">8-30 days (Recent)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot stale"></div>
+                    <span class="legend-label">31-90 days (Update needed)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot old"></div>
+                    <span class="legend-label">>90 days (Outdated)</span>
+                </div>
+            </div>
+            
             <!-- Reset Button -->
             <div class="selection-actions">
                 <button class="reset-button" onclick="resetConflictView()">

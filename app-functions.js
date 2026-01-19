@@ -2161,6 +2161,192 @@ window.TeamSyncApp = {
 // PHASE 4C: RESOLVE CONFLICT MODULE
 // ============================================
 
+// State for conflict member selection (NEW GRID SYSTEM)
+const conflictState = {
+    personA: null,
+    personB: null
+};
+
+/**
+ * Initialize conflict member grids on page load
+ */
+function initializeConflictGrids() {
+    populateConflictGrid('conflictPersonAGrid', 'A');
+    populateConflictGrid('conflictPersonBGrid', 'B');
+    console.log('Conflict member grids populated');
+}
+
+/**
+ * Populate a conflict member grid
+ */
+function populateConflictGrid(gridId, person) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    
+    grid.innerHTML = memberPools.team.map(member => {
+        const freshnessClass = formatQuizDate(member.quizDate);
+        const isSelected = (person === 'A' && conflictState.personA === member.id) || 
+                          (person === 'B' && conflictState.personB === member.id);
+        
+        let badgeText = '';
+        let badgeClass = 'member-badge ';
+        
+        if (freshnessClass === 'none') {
+            badgeText = 'No Quiz';
+            badgeClass += 'badge-none';
+        } else {
+            const quizDate = new Date(member.quizDate);
+            const today = new Date();
+            const daysDiff = Math.floor((today - quizDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === 0) badgeText = 'Today';
+            else if (daysDiff === 1) badgeText = '1 day ago';
+            else if (daysDiff <= 30) badgeText = `${daysDiff} days ago`;
+            else if (daysDiff <= 60) badgeText = '1 month ago';
+            else if (daysDiff <= 90) badgeText = `${Math.floor(daysDiff / 30)} months ago`;
+            else badgeText = '3+ months ago';
+            
+            badgeClass += `badge-${freshnessClass}`;
+        }
+        
+        return `
+            <div class="member-card ${isSelected ? 'selected' : ''}" 
+                 data-member-id="${member.id}"
+                 onclick="selectConflictMember('${person}', '${member.id}')">
+                <div class="member-avatar">${member.initials}</div>
+                <div class="member-info">
+                    <div class="member-name">${member.name}</div>
+                    <span class="${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="member-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Select a member for Person A or Person B
+ */
+function selectConflictMember(person, memberId) {
+    // Update state
+    if (person === 'A') {
+        conflictState.personA = memberId;
+    } else {
+        conflictState.personB = memberId;
+    }
+    
+    // Re-render both grids
+    populateConflictGrid('conflictPersonAGrid', 'A');
+    populateConflictGrid('conflictPersonBGrid', 'B');
+    
+    // Check survey status
+    checkSurveyStatus();
+    
+    // Update analysis if both selected
+    updateConflictAnalysisFromGrid();
+}
+
+/**
+ * Check survey status and show alert if needed
+ */
+function checkSurveyStatus() {
+    const alertDiv = document.getElementById('surveyDeploymentAlert');
+    if (!alertDiv) return;
+    
+    if (!conflictState.personA || !conflictState.personB) {
+        alertDiv.style.display = 'none';
+        return;
+    }
+    
+    const personA = memberPools.team.find(m => m.id === conflictState.personA);
+    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    
+    if (!personA || !personB) return;
+    
+    const aMissing = !personA.quizDate;
+    const bMissing = !personB.quizDate;
+    
+    if (aMissing || bMissing) {
+        const messageEl = document.getElementById('surveyAlertMessage');
+        const commandEl = document.getElementById('surveyAlertCommand');
+        
+        let message = '';
+        if (aMissing && bMissing) {
+            message = `${personA.name} and ${personB.name} need to complete 2-minute dyad surveys about working with each other.`;
+        } else if (aMissing) {
+            message = `${personA.name} needs to complete a 2-minute dyad survey about working with ${personB.name}.`;
+        } else {
+            message = `${personB.name} needs to complete a 2-minute dyad survey about working with ${personA.name}.`;
+        }
+        
+        if (messageEl) messageEl.textContent = message;
+        if (commandEl) commandEl.textContent = `/teamsync dyad @${personA.name.toLowerCase().replace(' ', '.')} @${personB.name.toLowerCase().replace(' ', '.')}`;
+        
+        alertDiv.style.display = 'flex';
+    } else {
+        alertDiv.style.display = 'none';
+    }
+}
+
+/**
+ * Send dyad survey (demo function)
+ */
+function sendDyadSurvey() {
+    const personA = memberPools.team.find(m => m.id === conflictState.personA);
+    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    
+    if (!personA || !personB) return;
+    
+    showToast(`✓ Dyad surveys sent to ${personA.name} and ${personB.name}`);
+    
+    const alertDiv = document.getElementById('surveyDeploymentAlert');
+    if (alertDiv) alertDiv.style.display = 'none';
+    
+    console.log('Dyad survey sent');
+}
+
+/**
+ * Update conflict analysis from grid selections
+ */
+function updateConflictAnalysisFromGrid() {
+    const personAId = conflictState.personA;
+    const personBId = conflictState.personB;
+    const resultsContainer = document.getElementById('conflictResults');
+    
+    if (!personAId || !personBId || personAId === personBId) {
+        if (resultsContainer) resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    const personA = memberPools.team.find(m => m.id === personAId);
+    const personB = memberPools.team.find(m => m.id === personBId);
+    
+    if (!personA || !personB) return;
+    
+    if (!personA.quizDate || !personB.quizDate) {
+        if (resultsContainer) resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    // Bridge to existing analysis function
+    const oldPersonA = document.getElementById('conflictPersonA');
+    const oldPersonB = document.getElementById('conflictPersonB');
+    
+    if (oldPersonA && oldPersonB) {
+        oldPersonA.value = personAId;
+        oldPersonB.value = personBId;
+        updateConflictAnalysis();
+    }
+}
+
+// ============================================
+// LEGACY DROPDOWN FUNCTIONS (kept for compatibility)
+// ============================================
+
 /**
  * Populate conflict resolution member dropdowns with demo data
  */
@@ -2198,7 +2384,19 @@ function populateConflictSelects() {
  * Called when view loads to prevent showing stale data
  */
 function resetConflictView() {
-    // Clear dropdown selections
+    // Clear grid selections
+    conflictState.personA = null;
+    conflictState.personB = null;
+    
+    // Re-render grids
+    populateConflictGrid('conflictPersonAGrid', 'A');
+    populateConflictGrid('conflictPersonBGrid', 'B');
+    
+    // Hide survey alert
+    const alertDiv = document.getElementById('surveyDeploymentAlert');
+    if (alertDiv) alertDiv.style.display = 'none';
+    
+    // Clear legacy dropdowns (if they exist)
     const personASelect = document.getElementById('conflictPersonA');
     const personBSelect = document.getElementById('conflictPersonB');
     
@@ -2984,6 +3182,9 @@ window.populateConflictSelects = populateConflictSelects;
 window.updateConflictAnalysis = updateConflictAnalysis;
 window.exportConflictReport = exportConflictReport;
 window.deployInterventions = deployInterventions;
+window.initializeConflictGrids = initializeConflictGrids;
+window.selectConflictMember = selectConflictMember;
+window.sendDyadSurvey = sendDyadSurvey;
 
 console.log('Phase 4C: Conflict resolution functions loaded');
 

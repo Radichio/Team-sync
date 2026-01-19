@@ -113,9 +113,16 @@ function navigateToModule(moduleName) {
     }
     
     // Phase 4A - Initialize Conflict view when it loads
-    if (viewName === 'conflict' && typeof populateConflictSelects === 'function') {
+    if (viewName === 'conflict') {
         setTimeout(() => {
-            populateConflictSelects();
+            // Initialize new member grids
+            if (typeof initializeConflictGrids === 'function') {
+                initializeConflictGrids();
+            }
+            // Legacy dropdown population (kept for compatibility)
+            if (typeof populateConflictSelects === 'function') {
+                populateConflictSelects();
+            }
             // Reset the view - clear selections and hide results
             if (typeof resetConflictView === 'function') {
                 resetConflictView();

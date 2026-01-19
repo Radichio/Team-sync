@@ -3143,6 +3143,178 @@ body.dark-mode .subscale-value {
     justify-content: flex-end;
 }
 
+/* New Conflict Member Grid Styles */
+.conflict-member-grids {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.conflict-person-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.conflict-person-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #14b8a6;
+}
+
+.conflict-member-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+/* Conflict member cards - similar to Build a Team but teal accent */
+.conflict-member-grid .member-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface-secondary);
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.conflict-member-grid .member-card:hover {
+    border-color: #14b8a6;
+    background: var(--surface-primary);
+    transform: translateX(2px);
+}
+
+.conflict-member-grid .member-card.selected {
+    border-color: #14b8a6;
+    background: rgba(20, 184, 166, 0.1);
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+.conflict-member-grid .member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.conflict-member-grid .member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.conflict-member-grid .member-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.conflict-member-grid .member-check {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.conflict-member-grid .member-card.selected .member-check {
+    background: #14b8a6;
+    border-color: #14b8a6;
+}
+
+.conflict-member-grid .member-check svg {
+    width: 12px;
+    height: 12px;
+    stroke: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.conflict-member-grid .member-card.selected .member-check svg {
+    opacity: 1;
+}
+
+/* Survey Deployment Alert */
+.survey-alert {
+    background: rgba(245, 158, 11, 0.1);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: start;
+}
+
+.survey-alert .alert-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.survey-alert .alert-content {
+    flex: 1;
+}
+
+.survey-alert .alert-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.survey-alert .alert-message {
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.survey-alert .alert-command {
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #14b8a6;
+    margin-bottom: 12px;
+}
+
+.send-survey-btn {
+    background: #14b8a6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.send-survey-btn:hover {
+    background: #0d9488;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
 .reset-button {
     display: inline-flex;
     align-items: center;
