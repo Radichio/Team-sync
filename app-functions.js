@@ -2595,14 +2595,15 @@ function updateConflictAnalysisFromGrid() {
         return;
     }
     
-    // Bridge to existing analysis function
-    const oldPersonA = document.getElementById('conflictPersonA');
-    const oldPersonB = document.getElementById('conflictPersonB');
+    // Directly calculate dyadic chemistry
+    const dyadicResults = calculateDyadicChemistry(personA, personB);
     
-    if (oldPersonA && oldPersonB) {
-        oldPersonA.value = personAId;
-        oldPersonB.value = personBId;
-        updateConflictAnalysis();
+    // Display results
+    displayConflictResults(dyadicResults, personA, personB);
+    
+    // Show results container
+    if (resultsContainer) {
+        resultsContainer.style.display = 'block';
     }
 }
 
