@@ -3010,7 +3010,7 @@ function createSubscaleDetailItem(subscale, highlight = false, path = 'path1') {
             <span class="subscale-detail-name">${subscale.name}</span>
             <span class="subscale-detail-score">${subscale.score}%</span>
             <span class="subscale-detail-badge disconnect-level ${subscale.level.class}">
-                ${subscale.level.icon} ${subscale.level.text}
+                ${subscale.level.text}
             </span>
         </div>
         <div class="subscale-detail-description">
