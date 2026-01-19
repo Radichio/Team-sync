@@ -2164,7 +2164,8 @@ window.TeamSyncApp = {
 // State for conflict member selection (NEW GRID SYSTEM)
 const conflictState = {
     personA: null,
-    personB: null
+    personB: null,
+    surveySentAt: null
 };
 
 /**
@@ -2301,13 +2302,166 @@ function sendDyadSurvey() {
     
     if (!personA || !personB) return;
     
-    showToast(`✓ Dyad surveys sent to ${personA.name} and ${personB.name}`);
+    // Show toast notification
+    showToast(`✓ Survey invitations sent to ${personA.name} and ${personB.name}`);
     
-    const alertDiv = document.getElementById('surveyDeploymentAlert');
-    if (alertDiv) alertDiv.style.display = 'none';
+    // Track survey sent time
+    if (!conflictState.surveySentAt) {
+        conflictState.surveySentAt = new Date();
+    }
+    
+    // Switch alert to monitoring mode
+    showSurveyMonitoring();
     
     console.log('Dyad survey sent');
 }
+
+/**
+ * Show survey monitoring status
+ */
+function showSurveyMonitoring() {
+    const alertDiv = document.getElementById('surveyDeploymentAlert');
+    if (!alertDiv) return;
+    
+    const personA = memberPools.team.find(m => m.id === conflictState.personA);
+    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    
+    if (!personA || !personB) return;
+    
+    const aMissing = !personA.quizDate;
+    const bMissing = !personB.quizDate;
+    
+    // Calculate time since sent
+    const sentAt = conflictState.surveySentAt || new Date();
+    const now = new Date();
+    const minutesAgo = Math.floor((now - sentAt) / 60000);
+    const timeText = minutesAgo === 0 ? 'just now' : minutesAgo === 1 ? '1 minute ago' : `${minutesAgo} minutes ago`;
+    
+    let statusHTML = '<div class="survey-status-list">';
+    
+    if (aMissing) {
+        statusHTML += `
+            <div class="survey-status-item pending">
+                <span class="status-dot pending"></span>
+                <span class="status-name">${personA.name}</span>
+                <span class="status-label">Pending (Sent ${timeText})</span>
+                <button class="remind-btn" onclick="remindSurvey('${personA.id}', '${personA.name}')">Remind</button>
+            </div>
+        `;
+    } else {
+        statusHTML += `
+            <div class="survey-status-item completed">
+                <span class="status-dot completed"></span>
+                <span class="status-name">${personA.name}</span>
+                <span class="status-label">Completed ✓</span>
+            </div>
+        `;
+    }
+    
+    if (bMissing) {
+        statusHTML += `
+            <div class="survey-status-item pending">
+                <span class="status-dot pending"></span>
+                <span class="status-name">${personB.name}</span>
+                <span class="status-label">Pending (Sent ${timeText})</span>
+                <button class="remind-btn" onclick="remindSurvey('${personB.id}', '${personB.name}')">Remind</button>
+            </div>
+        `;
+    } else {
+        statusHTML += `
+            <div class="survey-status-item completed">
+                <span class="status-dot completed"></span>
+                <span class="status-name">${personB.name}</span>
+                <span class="status-label">Completed ✓</span>
+            </div>
+        `;
+    }
+    
+    statusHTML += '</div>';
+    
+    // Add demo button for pending surveys
+    if (aMissing || bMissing) {
+        const pendingPersonId = aMissing ? personA.id : personB.id;
+        const pendingPersonName = aMissing ? personA.name : personB.name;
+        statusHTML += `
+            <div class="demo-actions">
+                <button class="demo-complete-btn" onclick="markSurveyComplete('${pendingPersonId}', '${pendingPersonName}')">
+                    For Demo: Mark ${pendingPersonName}'s Survey Complete
+                </button>
+            </div>
+        `;
+    }
+    
+    alertDiv.innerHTML = `
+        <div class="alert-icon">⏳</div>
+        <div class="alert-content">
+            <h4 class="alert-title">Survey Deployment Status</h4>
+            <p class="alert-message">Survey invitations sent. Waiting for completion...</p>
+            <div class="survey-status-section">
+                <h5 class="status-section-title">Survey Status:</h5>
+                ${statusHTML}
+            </div>
+        </div>
+    `;
+    
+    alertDiv.style.display = 'flex';
+}
+
+/**
+ * Remind a member to complete survey
+ */
+function remindSurvey(memberId, memberName) {
+    showToast(`🔔 Reminder sent to ${memberName}`);
+    console.log('Reminder sent to:', memberName);
+}
+
+/**
+ * Mark survey as complete (demo function)
+ */
+function markSurveyComplete(memberId, memberName) {
+    // Find the member and update their quizDate
+    const member = memberPools.team.find(m => m.id === memberId);
+    if (!member) return;
+    
+    // Set quiz date to today
+    const today = new Date();
+    member.quizDate = today.toISOString().split('T')[0];
+    
+    // Show toast
+    showToast(`✓ ${memberName}'s survey marked complete`);
+    
+    // Re-render grids to update badges
+    populateConflictGrid('conflictPersonAGrid', 'A');
+    populateConflictGrid('conflictPersonBGrid', 'B');
+    
+    // Check if both now have surveys
+    const personA = memberPools.team.find(m => m.id === conflictState.personA);
+    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    
+    if (personA && personB && personA.quizDate && personB.quizDate) {
+        // Both complete! Hide alert and show results
+        const alertDiv = document.getElementById('surveyDeploymentAlert');
+        if (alertDiv) {
+            alertDiv.innerHTML = `
+                <div class="alert-icon">✓</div>
+                <div class="alert-content">
+                    <h4 class="alert-title">All Surveys Completed!</h4>
+                    <p class="alert-message">Analyzing relationship chemistry...</p>
+                </div>
+            `;
+            
+            // Hide after 2 seconds and show results
+            setTimeout(() => {
+                if (alertDiv) alertDiv.style.display = 'none';
+                updateConflictAnalysisFromGrid();
+            }, 2000);
+        }
+    } else {
+        // Update monitoring display
+        showSurveyMonitoring();
+    }
+}
+
 
 /**
  * Update conflict analysis from grid selections
@@ -3185,6 +3339,8 @@ window.deployInterventions = deployInterventions;
 window.initializeConflictGrids = initializeConflictGrids;
 window.selectConflictMember = selectConflictMember;
 window.sendDyadSurvey = sendDyadSurvey;
+window.remindSurvey = remindSurvey;
+window.markSurveyComplete = markSurveyComplete;
 
 console.log('Phase 4C: Conflict resolution functions loaded');
 

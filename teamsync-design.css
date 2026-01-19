@@ -3315,6 +3315,116 @@ body.dark-mode .subscale-value {
     box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
 }
 
+/* Survey Status Monitoring */
+.survey-status-section {
+    margin-top: 16px;
+}
+
+.status-section-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.survey-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.survey-status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+}
+
+.survey-status-item.pending {
+    border-left: 3px solid #f59e0b;
+}
+
+.survey-status-item.completed {
+    border-left: 3px solid #14b8a6;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.pending {
+    background: #f59e0b;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.completed {
+    background: #14b8a6;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.status-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 0 0 150px;
+}
+
+.status-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    flex: 1;
+}
+
+.remind-btn {
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remind-btn:hover {
+    background: #14b8a6;
+    color: white;
+    border-color: #14b8a6;
+}
+
+.demo-actions {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border-primary);
+}
+
+.demo-complete-btn {
+    background: var(--surface-secondary);
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-primary);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.demo-complete-btn:hover {
+    background: var(--surface-primary);
+    border-color: #14b8a6;
+    color: #14b8a6;
+}
+
 .reset-button {
     display: inline-flex;
     align-items: center;
