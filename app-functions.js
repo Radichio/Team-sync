@@ -2318,11 +2318,11 @@ function checkSurveyStatus() {
         
         let message = '';
         if (aMissing && bMissing) {
-            message = `${personA.name} and ${personB.name} need to complete 2-minute dyad surveys about working with each other.`;
+            message = `${personA.name} and ${personB.name} need to complete 2-minute dyad quizzes about working with each other.`;
         } else if (aMissing) {
-            message = `${personA.name} needs to complete a 2-minute dyad survey about working with ${personB.name}.`;
+            message = `${personA.name} needs to complete a 2-minute dyad quiz about working with ${personB.name}.`;
         } else {
-            message = `${personB.name} needs to complete a 2-minute dyad survey about working with ${personA.name}.`;
+            message = `${personB.name} needs to complete a 2-minute dyad quiz about working with ${personA.name}.`;
         }
         
         if (messageEl) messageEl.textContent = message;
