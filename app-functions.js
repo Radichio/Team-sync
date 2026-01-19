@@ -2343,8 +2343,28 @@ function sendDyadSurvey() {
     
     if (!personA || !personB) return;
     
-    // Show toast notification
-    showToast(`✓ Survey invitations sent to ${personA.name} and ${personB.name}`);
+    // Show toast notification (using working inline style method)
+    const toast = document.createElement('div');
+    toast.className = 'status-toast';
+    toast.textContent = `✓ Survey invitations sent to ${personA.name} and ${personB.name}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 24px;
+        background: #14b8a6;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
     
     // Track survey sent time
     if (!conflictState.surveySentAt) {
@@ -2452,7 +2472,28 @@ function showSurveyMonitoring() {
  * Remind a member to complete survey
  */
 function remindSurvey(memberId, memberName) {
-    showToast(`🔔 Reminder sent to ${memberName}`);
+    const toast = document.createElement('div');
+    toast.className = 'status-toast';
+    toast.textContent = `🔔 Reminder sent to ${memberName}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 24px;
+        background: #14b8a6;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+    
     console.log('Reminder sent to:', memberName);
 }
 
@@ -2469,7 +2510,27 @@ function markSurveyComplete(memberId, memberName) {
     member.quizDate = today.toISOString().split('T')[0];
     
     // Show toast
-    showToast(`✓ ${memberName}'s survey marked complete`);
+    const toast = document.createElement('div');
+    toast.className = 'status-toast';
+    toast.textContent = `✓ ${memberName}'s survey marked complete`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 24px;
+        background: #14b8a6;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
     
     // Re-render grids to update badges
     populateConflictGrid('conflictPersonAGrid', 'A');
