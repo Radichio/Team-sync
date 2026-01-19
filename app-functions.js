@@ -2348,7 +2348,7 @@ function sendDyadSurvey() {
     // Show toast notification (using working inline style method)
     const toast = document.createElement('div');
     toast.className = 'status-toast';
-    toast.textContent = `✓ Survey invitations sent to ${personA.name} and ${personB.name}`;
+    toast.textContent = `✓ Quiz invitations sent to ${personA.name} and ${personB.name}`;
     toast.style.cssText = `
         position: fixed;
         top: 100px;
@@ -2447,14 +2447,14 @@ function showSurveyMonitoring() {
     if (aMissing) {
         statusHTML += `
             <button class="demo-complete-btn" onclick="markSurveyComplete('${personA.id}', '${personA.name}')">
-                For Demo: Mark ${personA.name}'s Survey Complete
+                For Demo: Mark ${personA.name}'s Quiz Complete
             </button>
         `;
     }
     if (bMissing) {
         statusHTML += `
             <button class="demo-complete-btn" onclick="markSurveyComplete('${personB.id}', '${personB.name}')">
-                For Demo: Mark ${personB.name}'s Survey Complete
+                For Demo: Mark ${personB.name}'s Quiz Complete
             </button>
         `;
     }
@@ -2463,10 +2463,10 @@ function showSurveyMonitoring() {
     alertDiv.innerHTML = `
         <div class="alert-icon">⏳</div>
         <div class="alert-content">
-            <h4 class="alert-title">Survey Deployment Status</h4>
-            <p class="alert-message">Survey invitations sent. Waiting for completion...</p>
+            <h4 class="alert-title">Quiz Deployment Status</h4>
+            <p class="alert-message">Quiz invitations sent. Waiting for completion...</p>
             <div class="survey-status-section">
-                <h5 class="status-section-title">Survey Status:</h5>
+                <h5 class="status-section-title">Quiz Status:</h5>
                 ${statusHTML}
             </div>
         </div>
@@ -2532,7 +2532,7 @@ function markSurveyComplete(memberId, memberName) {
     // Show toast
     const toast = document.createElement('div');
     toast.className = 'status-toast';
-    toast.textContent = `✓ ${memberName}'s survey marked complete`;
+    toast.textContent = `✓ ${memberName}'s quiz marked complete`;
     toast.style.cssText = `
         position: fixed;
         top: 100px;
@@ -2567,7 +2567,7 @@ function markSurveyComplete(memberId, memberName) {
             alertDiv.innerHTML = `
                 <div class="alert-icon">✓</div>
                 <div class="alert-content">
-                    <h4 class="alert-title">All Surveys Completed!</h4>
+                    <h4 class="alert-title">All Quizzes Completed!</h4>
                     <p class="alert-message">Analyzing relationship chemistry...</p>
                 </div>
             `;
