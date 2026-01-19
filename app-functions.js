@@ -879,6 +879,7 @@ function populatePool(poolType, containerId) {
     const isSelected = AppState.selectedMemberIds.includes(member.id);
     
     let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
+    let badgeClass = member.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
     
     return `
       <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -887,7 +888,7 @@ function populatePool(poolType, containerId) {
            onclick="toggleMember('${poolType}', '${member.id}')">
         <div class="member-avatar">${member.initials}</div>
         <div class="member-info">
-          <div class="member-name">${member.name} <span class="member-badge">${badgeText}</span></div>
+          <div class="member-name">${member.name} <span class="${badgeClass}">${badgeText}</span></div>
         </div>
         <div class="member-check">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -2209,6 +2210,7 @@ function populateConflictGrid(gridId, person) {
                           (person === 'B' && conflictState.personB === member.id);
         
         let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
+        let badgeClass = member.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
         
         return `
             <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -2216,7 +2218,7 @@ function populateConflictGrid(gridId, person) {
                  onclick="selectConflictMember('${person}', '${member.id}')">
                 <div class="member-avatar">${member.initials}</div>
                 <div class="member-info">
-                    <div class="member-name">${member.name} <span class="member-badge">${badgeText}</span></div>
+                    <div class="member-name">${member.name} <span class="${badgeClass}">${badgeText}</span></div>
                 </div>
                 <div class="member-check">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">

@@ -1681,29 +1681,12 @@ body.light-mode .ripple-effect {
     display: inline-block;
 }
 
-.badge-fresh {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+.badge-quiz-done {
+    color: #059669;
 }
 
-.badge-recent {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-}
-
-.badge-stale {
-    background: rgba(245, 158, 11, 0.15);
+.badge-no-quiz {
     color: #f59e0b;
-}
-
-.badge-old {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-
-.badge-none {
-    background: var(--hover-overlay);
-    color: var(--text-muted);
 }
 
 .member-check {
