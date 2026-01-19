@@ -2440,18 +2440,23 @@ function showSurveyMonitoring() {
     
     statusHTML += '</div>';
     
-    // Add demo button for pending surveys
-    if (aMissing || bMissing) {
-        const pendingPersonId = aMissing ? personA.id : personB.id;
-        const pendingPersonName = aMissing ? personA.name : personB.name;
+    // Add demo button for EACH pending survey
+    statusHTML += '<div class="demo-actions">';
+    if (aMissing) {
         statusHTML += `
-            <div class="demo-actions">
-                <button class="demo-complete-btn" onclick="markSurveyComplete('${pendingPersonId}', '${pendingPersonName}')">
-                    For Demo: Mark ${pendingPersonName}'s Survey Complete
-                </button>
-            </div>
+            <button class="demo-complete-btn" onclick="markSurveyComplete('${personA.id}', '${personA.name}')">
+                For Demo: Mark ${personA.name}'s Survey Complete
+            </button>
         `;
     }
+    if (bMissing) {
+        statusHTML += `
+            <button class="demo-complete-btn" onclick="markSurveyComplete('${personB.id}', '${personB.name}')">
+                For Demo: Mark ${personB.name}'s Survey Complete
+            </button>
+        `;
+    }
+    statusHTML += '</div>';
     
     alertDiv.innerHTML = `
         <div class="alert-icon">⏳</div>
