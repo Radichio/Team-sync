@@ -611,44 +611,58 @@ function completeTeamCreation() {
 // DEMO MODE
 // ========================================
 
+// Store original quiz dates for demo toggle
+const originalQuizDates = {};
+
 function toggleDemoMode() {
   AppState.demoMode = !AppState.demoMode;
   
-  const button = document.querySelector('.populate-btn');
-  const badge = document.querySelector('.value-badge');
-  const welcomeMsg = document.querySelector('.welcome-message');
+  const button = document.getElementById('demoToggle');
+  const label = document.getElementById('toggleLabel');
   
   if (AppState.demoMode) {
-    // Activate demo mode
-    button.classList.add('active');
-    button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
+    // POPULATE MODE - Restore quiz dates
+    label.textContent = 'Reset';
     
-    // Animate badge counts
-    animateBadgeCounts();
+    // Restore all quiz dates
+    memberPools.team.forEach(member => {
+      if (originalQuizDates[member.id]) {
+        member.quizDate = originalQuizDates[member.id];
+      }
+    });
     
-    // Update welcome message
-    if (welcomeMsg) {
-      welcomeMsg.textContent = 'Demo mode active - Explore features with sample data';
-    }
+    memberPools.dyad.forEach(member => {
+      if (originalQuizDates[member.id]) {
+        member.quizDate = originalQuizDates[member.id];
+      }
+    });
     
-    // Populate sample data
-    populateSampleData();
+    // Repopulate pools with survey data
+    populatePool('team', 'teamMemberSelection');
+    populatePool('dyad', 'dyadMemberSelection');
     
   } else {
-    // Deactivate demo mode
-    button.classList.remove('active');
-    button.textContent = 'Populate';
+    // UNPOPULATED MODE - Remove quiz dates
+    label.textContent = 'Populate';
     
-    // Reset badge counts
-    resetBadgeCounts();
+    // Save original quiz dates and set all to null
+    memberPools.team.forEach(member => {
+      if (!originalQuizDates[member.id]) {
+        originalQuizDates[member.id] = member.quizDate;
+      }
+      member.quizDate = null;
+    });
     
-    // Reset welcome message
-    if (welcomeMsg) {
-      welcomeMsg.textContent = 'Select a module to get started';
-    }
+    memberPools.dyad.forEach(member => {
+      if (!originalQuizDates[member.id]) {
+        originalQuizDates[member.id] = member.quizDate;
+      }
+      member.quizDate = null;
+    });
     
-    // Clear sample data
-    clearSampleData();
+    // Repopulate pools with "No Quiz"
+    populatePool('team', 'teamMemberSelection');
+    populatePool('dyad', 'dyadMemberSelection');
   }
   
   // Persist state
@@ -2060,14 +2074,21 @@ function initializeApp() {
   // Load saved theme
   loadTheme();
   
-  // Load demo mode state
-  const savedDemoMode = localStorage.getItem('teamsync-demo-mode');
-  if (savedDemoMode === 'true') {
-    AppState.demoMode = true;
-    populateSampleData();
-  }
+  // Initialize in UNPOPULATED state by default (show "No Quiz" for all)
+  AppState.demoMode = false;
   
-  console.log('TeamSync AI initialized');
+  // Save original quiz dates before clearing
+  memberPools.team.forEach(member => {
+    originalQuizDates[member.id] = member.quizDate;
+    member.quizDate = null; // Start with "No Quiz"
+  });
+  
+  memberPools.dyad.forEach(member => {
+    originalQuizDates[member.id] = member.quizDate;
+    member.quizDate = null; // Start with "No Quiz"
+  });
+  
+  console.log('TeamSync AI initialized - Unpopulated state');
 }
 
 // ========================================
