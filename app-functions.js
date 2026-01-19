@@ -2836,25 +2836,25 @@ function renderPath1Analysis(results, personA, personB, overallLevel) {
     const subscaleData = [
         {
             key: 'understanding',
-            name: 'Truly understanding each other',
+            name: 'How often my coworker and I understand each other completely',
             score: results.subscales.understanding,
             level: getDisconnectLevel(results.subscales.understanding)
         },
         {
             key: 'trust',
-            name: 'Totally respecting one another',
+            name: 'How often my coworker and I fully trust each other\'s intentions',
             score: results.subscales.trust,
             level: getDisconnectLevel(results.subscales.trust)
         },
         {
             key: 'ease',
-            name: 'Instantly feeling at ease together',
+            name: 'How often my coworker and I feel instantly at ease with each other',
             score: results.subscales.ease,
             level: getDisconnectLevel(results.subscales.ease)
         },
         {
             key: 'integration',
-            name: 'Spontaneously thinking and acting alike',
+            name: 'How often my coworker and I think and act exactly alike',
             score: results.subscales.integration,
             level: getDisconnectLevel(results.subscales.integration)
         }
@@ -2927,28 +2927,28 @@ function renderPath2Analysis(results, personA, personB, overallLevel) {
     const subscaleData = [
         {
             key: 'understanding',
-            name: 'Truly understanding each other',
+            name: 'How often my coworker and I understand each other completely',
             score: results.subscales.understanding,
             level: getDisconnectLevel(results.subscales.understanding),
             belowMedian: results.subscales.understanding < median
         },
         {
             key: 'trust',
-            name: 'Totally respecting one another',
+            name: 'How often my coworker and I fully trust each other\'s intentions',
             score: results.subscales.trust,
             level: getDisconnectLevel(results.subscales.trust),
             belowMedian: results.subscales.trust < median
         },
         {
             key: 'ease',
-            name: 'Instantly feeling at ease together',
+            name: 'How often my coworker and I feel instantly at ease with each other',
             score: results.subscales.ease,
             level: getDisconnectLevel(results.subscales.ease),
             belowMedian: results.subscales.ease < median
         },
         {
             key: 'integration',
-            name: 'Spontaneously thinking and acting alike',
+            name: 'How often my coworker and I think and act exactly alike',
             score: results.subscales.integration,
             level: getDisconnectLevel(results.subscales.integration),
             belowMedian: results.subscales.integration < median
@@ -3295,10 +3295,10 @@ function displayPrimaryDisconnects(subscales) {
     
     // Client's exact terminology
     const subscaleNames = {
-        understanding: 'Truly understanding each other',
-        trust: 'Totally respecting one another',
-        ease: 'Instantly feeling at ease together',
-        integration: 'Spontaneously thinking and acting alike'
+        understanding: 'How often my coworker and I understand each other completely',
+        trust: 'How often my coworker and I fully trust each other\'s intentions',
+        ease: 'How often my coworker and I feel instantly at ease with each other',
+        integration: 'How often my coworker and I think and act exactly alike'
     };
     
     // Find subscales below 70% (moderate or significant disconnects)
