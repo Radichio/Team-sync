@@ -515,6 +515,11 @@ function initializeDemoToggle() {
         // Simulate loading
         await new Promise(resolve => setTimeout(resolve, 800));
         
+        // CRITICAL: Call toggleDemoMode from app-functions.js to restore data
+        if (typeof toggleDemoMode === 'function') {
+            toggleDemoMode();
+        }
+        
         // Update UI
         if (isPopulated) {
             toggleLabel.textContent = 'Reset';
