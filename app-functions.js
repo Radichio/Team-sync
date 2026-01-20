@@ -620,11 +620,6 @@ function toggleDemoMode() {
   const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
-    // Exit NU mode when POPULATE is clicked
-    if (AppState.isNUMode) {
-      exitNUMode();
-    }
-    
     // Activate demo mode
     button.classList.add('active');
     button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
@@ -639,6 +634,11 @@ function toggleDemoMode() {
     
     // Populate sample data
     populateSampleData();
+    
+    // Exit NU mode AFTER data is populated
+    if (AppState.isNUMode) {
+      exitNUMode();
+    }
     
   } else {
     // Deactivate demo mode
@@ -5127,10 +5127,10 @@ function getMemberWithNUOverride(member) {
 function exitNUMode() {
   AppState.isNUMode = false;
   
-  // Unlock all dashboard cards
-  updateDashboardCardsLockState();
+  // Note: Dashboard card unlocking is handled by navigation.js unlockAllCards()
+  // This just handles data refreshing
   
-  // Refresh any visible member pools
+  // Refresh any visible member pools with real data
   const teamContainer = document.getElementById('teamMemberPool');
   const dyadContainer = document.getElementById('dyadPartnershipPool');
   
