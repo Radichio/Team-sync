@@ -11,6 +11,7 @@
 // ========================================
 
 const AppState = {
+  isNUMode: true, // New User mode - starts true, becomes false when POPULATE clicked
   demoMode: false,
   currentTheme: 'dark',
   teams: [],
@@ -619,6 +620,11 @@ function toggleDemoMode() {
   const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
+    // Exit NU mode when POPULATE is clicked
+    if (AppState.isNUMode) {
+      exitNUMode();
+    }
+    
     // Activate demo mode
     button.classList.add('active');
     button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
@@ -876,10 +882,12 @@ function populatePool(poolType, containerId) {
   if (!pool) return;
   
   container.innerHTML = pool.map(member => {
+    // Apply NU mode override if active
+    const displayMember = AppState.isNUMode ? { ...member, quizDate: null } : member;
     const isSelected = AppState.selectedMemberIds.includes(member.id);
     
-    let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
-    let badgeClass = member.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
+    let badgeText = displayMember.quizDate ? 'Quiz Done' : 'No Quiz';
+    let badgeClass = displayMember.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
     
     return `
       <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -1189,6 +1197,12 @@ function initializeBuildTeamView() {
  * Main entry point - Assess Team Chemistry button click
  */
 function analyzeTeamChemistry() {
+  // NU MODE INTERCEPT: Show Slack command generation instead
+  if (AppState.isNUMode) {
+    showNUModeSlackCommand();
+    return;
+  }
+  
   const teamNameInput = document.getElementById('teamNameInput');
   const analyzeBtn = document.getElementById('analyzeBtn');
   const processingStatus = document.getElementById('processingStatus');
@@ -2046,6 +2060,11 @@ function initializeApp() {
     AppState.demoMode = true;
     populateSampleData();
   }
+  
+  // Initialize dashboard lock state for NU mode
+  setTimeout(() => {
+    updateDashboardCardsLockState();
+  }, 100); // Small delay to ensure DOM is ready
   
   console.log('TeamSync AI initialized');
 }
@@ -5060,5 +5079,137 @@ function resetToAIRecommendation() {
   }, 3000);
   
   console.log('[Team Explorer] Reset complete');
+}
+
+// ========================================
+// NU MODE (NEW USER MODE) FUNCTIONS
+// ========================================
+
+/**
+ * Update dashboard cards based on NU mode state
+ */
+function updateDashboardCardsLockState() {
+  const cards = document.querySelectorAll('.module-card');
+  
+  if (AppState.isNUMode) {
+    // Lock all cards except "Build a Team" (first card)
+    cards.forEach((card, index) => {
+      if (index === 0) {
+        // Build a Team - keep active
+        card.classList.remove('locked');
+      } else {
+        // Lock other 3 cards
+        card.classList.add('locked');
+      }
+    });
+  } else {
+    // Unlock all cards
+    cards.forEach(card => {
+      card.classList.remove('locked');
+    });
+  }
+}
+
+/**
+ * Get member data with NU mode override
+ */
+function getMemberWithNUOverride(member) {
+  if (AppState.isNUMode) {
+    // In NU mode, all members have no quiz
+    return { ...member, quizDate: null };
+  }
+  return member;
+}
+
+/**
+ * Exit NU mode and enter full demo mode
+ */
+function exitNUMode() {
+  AppState.isNUMode = false;
+  
+  // Unlock all dashboard cards
+  updateDashboardCardsLockState();
+  
+  // Refresh any visible member pools
+  const teamContainer = document.getElementById('teamMemberPool');
+  const dyadContainer = document.getElementById('dyadPartnershipPool');
+  
+  if (teamContainer) populatePool('team', 'teamMemberPool');
+  if (dyadContainer) populatePool('dyad', 'dyadPartnershipPool');
+  
+  // Refresh conflict grids if visible
+  const conflictGridA = document.getElementById('conflictPersonAGrid');
+  const conflictGridB = document.getElementById('conflictPersonBGrid');
+  
+  if (conflictGridA) populateConflictGrid('conflictPersonAGrid', 'A');
+  if (conflictGridB) populateConflictGrid('conflictPersonBGrid', 'B');
+  
+  console.log('[NU Mode] Exited - Full demo mode active');
+}
+
+/**
+ * Show Slack command generation in NU mode
+ */
+function showNUModeSlackCommand() {
+  // Get selected members
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  
+  if (selectedMembers.length === 0) return;
+  
+  // Generate Slack command
+  const memberHandles = selectedMembers.map(m => `@${m.name.toLowerCase().replace(' ', '.')}`).join(' ');
+  const slackCommand = `/teamsync team ${memberHandles}`;
+  
+  // Create modal/alert to show the command
+  const modal = document.createElement('div');
+  modal.className = 'nu-mode-modal';
+  modal.innerHTML = `
+    <div class="nu-mode-modal-content">
+      <div class="nu-mode-icon">📋</div>
+      <h3>Team Members Need to Complete Quizzes</h3>
+      <p style="color: #64748b; margin: 16px 0;">Send this Slack command to deploy quizzes to your selected team members:</p>
+      <div class="slack-command-box">
+        <code>${slackCommand}</code>
+      </div>
+      <button class="copy-command-btn" onclick="copyNUSlackCommand('${slackCommand}')">
+        Copy Command
+      </button>
+      <button class="close-modal-btn" onclick="closeNUModal()">
+        Close
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Show modal with animation
+  setTimeout(() => {
+    modal.classList.add('show');
+  }, 10);
+}
+
+/**
+ * Copy Slack command and show toast
+ */
+function copyNUSlackCommand(command) {
+  // Copy to clipboard
+  navigator.clipboard.writeText(command).then(() => {
+    showToast('✓ Slack command copied! Send to your team channel');
+    closeNUModal();
+  }).catch(() => {
+    showToast('Failed to copy command', 'error');
+  });
+}
+
+/**
+ * Close NU mode modal
+ */
+function closeNUModal() {
+  const modal = document.querySelector('.nu-mode-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+  }
 }
 
