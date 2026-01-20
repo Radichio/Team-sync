@@ -508,25 +508,26 @@ function initializeDemoToggle() {
         // Simulate loading
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Exit NU mode by setting state directly
-        console.log('[NAV] Setting AppState.isNUMode = false');
-        if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
-            window.TeamSyncApp.state.isNUMode = false;
-            console.log('[NAV] isNUMode set to false');
-        } else {
-            console.error('[NAV] window.TeamSyncApp.state not available');
-        }
-        
-        // Unlock all dashboard cards
-        console.log('[NAV] Unlocking all cards');
-        const allCards = document.querySelectorAll('.module-card');
-        allCards.forEach(card => {
-            card.classList.remove('locked');
-        });
-        console.log('[NAV] All cards unlocked');
-        
-        // Update UI
+        // Update UI based on state
         if (isPopulated) {
+            // POPULATE clicked - exit NU mode and unlock
+            console.log('[NAV] POPULATE: Exiting NU mode');
+            
+            // Exit NU mode by setting state directly
+            if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
+                window.TeamSyncApp.state.isNUMode = false;
+                console.log('[NAV] isNUMode set to false');
+            }
+            
+            // Unlock all dashboard cards
+            console.log('[NAV] Unlocking all cards');
+            const allCards = document.querySelectorAll('.module-card');
+            allCards.forEach(card => {
+                card.classList.remove('locked');
+            });
+            console.log('[NAV] All cards unlocked');
+            
+            // Update UI
             toggleLabel.textContent = 'Reset';
             demoToggle.classList.add('active');
             userAvatar.textContent = 'HH';
