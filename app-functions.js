@@ -2107,8 +2107,11 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
-// Export toast function
+// Export functions to global scope
 window.showToast = showToast;
+window.toggleDemoMode = toggleDemoMode;
+window.copyNUSlackCommand = copyNUSlackCommand;
+window.closeNUModal = closeNUModal;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
