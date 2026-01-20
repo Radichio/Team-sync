@@ -619,10 +619,6 @@ function toggleDemoMode() {
   
   console.log('[DEBUG] demoMode after toggle:', AppState.demoMode);
   
-  const button = document.querySelector('.populate-btn');
-  const badge = document.querySelector('.value-badge');
-  const welcomeMsg = document.querySelector('.welcome-message');
-  
   if (AppState.demoMode) {
     console.log('[DEBUG] Entering demo mode activation branch');
     
@@ -630,43 +626,25 @@ function toggleDemoMode() {
     AppState.isNUMode = false;
     console.log('[STEP 1] isNUMode set to FALSE at start of toggleDemoMode');
     
-    // Activate demo mode
-    button.classList.add('active');
-    button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
-    
-    // Animate badge counts
-    animateBadgeCounts();
-    
-    // Update welcome message
-    if (welcomeMsg) {
-      welcomeMsg.textContent = 'Demo mode active - Explore features with sample data';
-    }
-    
-    // Populate sample data
+    // Populate sample data (navigation.js handles UI)
+    console.log('[DEBUG] Calling populateSampleData()');
     populateSampleData();
     
-    // Call exitNUMode to refresh any visible pools (it will skip state change since already false)
+    // Call exitNUMode to refresh any visible pools
+    console.log('[DEBUG] Calling exitNUMode()');
     exitNUMode();
     
+    console.log('[DEBUG] toggleDemoMode complete - demo mode activated');
+    
   } else {
-    // Deactivate demo mode
-    button.classList.remove('active');
-    button.textContent = 'Populate';
-    
-    // Reset badge counts
-    resetBadgeCounts();
-    
-    // Reset welcome message
-    if (welcomeMsg) {
-      welcomeMsg.textContent = 'Select a module to get started';
-    }
-    
+    console.log('[DEBUG] Deactivating demo mode');
     // Clear sample data
     clearSampleData();
   }
   
   // Persist state
   localStorage.setItem('teamsync-demo-mode', AppState.demoMode);
+  console.log('[DEBUG] toggleDemoMode function complete');
 }
 
 function animateBadgeCounts() {
