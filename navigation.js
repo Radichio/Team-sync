@@ -508,12 +508,13 @@ function initializeDemoToggle() {
         // Simulate loading
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Call toggleDemoMode from app-functions.js
-        console.log('[NAV] Calling window.toggleDemoMode()');
-        if (typeof window.toggleDemoMode === 'function') {
-            window.toggleDemoMode();
+        // Exit NU mode by setting state directly
+        console.log('[NAV] Setting AppState.isNUMode = false');
+        if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
+            window.TeamSyncApp.state.isNUMode = false;
+            console.log('[NAV] isNUMode set to false');
         } else {
-            console.error('[NAV] window.toggleDemoMode is not available!');
+            console.error('[NAV] window.TeamSyncApp.state not available');
         }
         
         // Update UI
