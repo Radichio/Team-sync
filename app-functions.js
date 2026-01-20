@@ -613,13 +613,19 @@ function completeTeamCreation() {
 // ========================================
 
 function toggleDemoMode() {
+  console.log('[DEBUG] toggleDemoMode called! demoMode before toggle:', AppState.demoMode);
+  
   AppState.demoMode = !AppState.demoMode;
+  
+  console.log('[DEBUG] demoMode after toggle:', AppState.demoMode);
   
   const button = document.querySelector('.populate-btn');
   const badge = document.querySelector('.value-badge');
   const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
+    console.log('[DEBUG] Entering demo mode activation branch');
+    
     // EXIT NU MODE IMMEDIATELY - before any other operations
     AppState.isNUMode = false;
     console.log('[STEP 1] isNUMode set to FALSE at start of toggleDemoMode');
