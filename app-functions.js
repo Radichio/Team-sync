@@ -620,6 +620,10 @@ function toggleDemoMode() {
   const welcomeMsg = document.querySelector('.welcome-message');
   
   if (AppState.demoMode) {
+    // EXIT NU MODE IMMEDIATELY - before any other operations
+    AppState.isNUMode = false;
+    console.log('[STEP 1] isNUMode set to FALSE at start of toggleDemoMode');
+    
     // Activate demo mode
     button.classList.add('active');
     button.innerHTML = '<span class="demo-indicator">DEMO</span> Populated';
@@ -635,10 +639,8 @@ function toggleDemoMode() {
     // Populate sample data
     populateSampleData();
     
-    // Exit NU mode AFTER data is populated
-    if (AppState.isNUMode) {
-      exitNUMode();
-    }
+    // Call exitNUMode to refresh any visible pools (it will skip state change since already false)
+    exitNUMode();
     
   } else {
     // Deactivate demo mode
@@ -880,6 +882,8 @@ function populatePool(poolType, containerId) {
   
   const pool = memberPools[poolType];
   if (!pool) return;
+  
+  console.log(`[STEP 1] populatePool called - poolType: ${poolType}, isNUMode: ${AppState.isNUMode}`);
   
   container.innerHTML = pool.map(member => {
     // Apply NU mode override if active
@@ -5128,7 +5132,8 @@ function getMemberWithNUOverride(member) {
  * Exit NU mode and enter full demo mode
  */
 function exitNUMode() {
-  AppState.isNUMode = false;
+  // State already set to false by toggleDemoMode
+  console.log('[STEP 1] exitNUMode called - isNUMode is now:', AppState.isNUMode);
   
   // Note: Dashboard card unlocking is handled by navigation.js unlockAllCards()
   // This just handles data refreshing
@@ -5137,8 +5142,14 @@ function exitNUMode() {
   const teamContainer = document.getElementById('teamMemberPool');
   const dyadContainer = document.getElementById('dyadPartnershipPool');
   
-  if (teamContainer) populatePool('team', 'teamMemberPool');
-  if (dyadContainer) populatePool('dyad', 'dyadPartnershipPool');
+  if (teamContainer) {
+    console.log('[STEP 1] Refreshing team pool container');
+    populatePool('team', 'teamMemberPool');
+  }
+  if (dyadContainer) {
+    console.log('[STEP 1] Refreshing dyad pool container');
+    populatePool('dyad', 'dyadPartnershipPool');
+  }
   
   // Refresh conflict grids if visible
   const conflictGridA = document.getElementById('conflictPersonAGrid');
