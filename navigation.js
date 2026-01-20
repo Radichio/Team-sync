@@ -541,9 +541,33 @@ function initializeDemoToggle() {
             if (welcomeSubtitle) welcomeSubtitle.textContent = 'Your teams are performing well today';
             
         } else {
+            // RESET clicked - restore NU mode
+            console.log('[NAV] RESET: Restoring NU mode');
+            
+            // Set state back to NU mode
+            if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
+                window.TeamSyncApp.state.isNUMode = true;
+                console.log('[NAV] isNUMode set to true');
+            }
+            
+            // Update button and avatar
             toggleLabel.textContent = 'Populate';
             demoToggle.classList.remove('active');
             userAvatar.textContent = 'NU';
+            
+            // Lock 3 cards (leave Build a Team unlocked)
+            console.log('[NAV] Locking 3 cards');
+            const allCards = document.querySelectorAll('.module-card');
+            allCards.forEach((card, index) => {
+                if (index === 0) {
+                    // Build a Team - keep unlocked
+                    card.classList.remove('locked');
+                } else {
+                    // Lock other 3 cards
+                    card.classList.add('locked');
+                }
+            });
+            console.log('[NAV] Cards locked - NU mode restored');
             
             // Reset badges
             resetBadges();
