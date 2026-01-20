@@ -517,6 +517,14 @@ function initializeDemoToggle() {
             console.error('[NAV] window.TeamSyncApp.state not available');
         }
         
+        // Unlock all dashboard cards
+        console.log('[NAV] Unlocking all cards');
+        const allCards = document.querySelectorAll('.module-card');
+        allCards.forEach(card => {
+            card.classList.remove('locked');
+        });
+        console.log('[NAV] All cards unlocked');
+        
         // Update UI
         if (isPopulated) {
             toggleLabel.textContent = 'Reset';
