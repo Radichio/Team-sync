@@ -308,6 +308,12 @@ body::after {
     flex-shrink: 0;
 }
 
+/* Hide Populate/Reset button on Build a Team page */
+#buildView:not(.hidden) ~ .top-nav .demo-toggle,
+body:has(#buildView:not(.hidden)) .demo-toggle {
+    display: none !important;
+}
+
 .user-avatar {
     width: 40px;
     height: 40px;
