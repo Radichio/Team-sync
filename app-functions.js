@@ -1227,6 +1227,22 @@ function simulateInstantResults(teamName) {
   const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
   const selectedPool = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
   
+  // OPTION A: Auto-generate subscales for members without quiz data (for demo continuity)
+  selectedPool.forEach(member => {
+    if (!member.subscales) {
+      const baseScore = 60 + Math.floor(Math.random() * 20); // 60-79 range
+      member.subscales = {
+        understanding: baseScore + Math.floor(Math.random() * 10 - 5),
+        trust: baseScore + Math.floor(Math.random() * 10 - 5),
+        ease: baseScore + Math.floor(Math.random() * 10 - 5),
+        integration: baseScore + Math.floor(Math.random() * 10 - 5)
+      };
+      member.msScore = Math.round((member.subscales.understanding + member.subscales.trust + 
+                                    member.subscales.ease + member.subscales.integration) / 4);
+      console.log(`[OPTION A] Generated subscales for ${member.name}:`, member.subscales);
+    }
+  });
+  
   // Step 1: Show pool analysis (1 second delay)
   setTimeout(() => {
     if (statusText) {
