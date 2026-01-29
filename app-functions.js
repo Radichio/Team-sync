@@ -11,6 +11,8 @@
 // ========================================
 
 const AppState = {
+  isNUMode: true, // New User mode - starts true, becomes false when POPULATE clicked
+  demoMode: false,
   currentTheme: 'dark',
   teams: [],
   selectedMembers: [],
@@ -610,6 +612,40 @@ function completeTeamCreation() {
 // DEMO MODE
 // ========================================
 
+function toggleDemoMode() {
+  console.log('[DEBUG] toggleDemoMode called! demoMode before toggle:', AppState.demoMode);
+  
+  AppState.demoMode = !AppState.demoMode;
+  
+  console.log('[DEBUG] demoMode after toggle:', AppState.demoMode);
+  
+  if (AppState.demoMode) {
+    console.log('[DEBUG] Entering demo mode activation branch');
+    
+    // EXIT NU MODE IMMEDIATELY - before any other operations
+    AppState.isNUMode = false;
+    console.log('[STEP 1] isNUMode set to FALSE at start of toggleDemoMode');
+    
+    // Populate sample data (navigation.js handles UI)
+    console.log('[DEBUG] Calling populateSampleData()');
+    populateSampleData();
+    
+    // Call exitNUMode to refresh any visible pools
+    console.log('[DEBUG] Calling exitNUMode()');
+    exitNUMode();
+    
+    console.log('[DEBUG] toggleDemoMode complete - demo mode activated');
+    
+  } else {
+    console.log('[DEBUG] Deactivating demo mode');
+    // Clear sample data
+    clearSampleData();
+  }
+  
+  // Persist state
+  localStorage.setItem('teamsync-demo-mode', AppState.demoMode);
+  console.log('[DEBUG] toggleDemoMode function complete');
+}
 
 function animateBadgeCounts() {
   const badges = [
@@ -648,6 +684,21 @@ function resetBadgeCounts() {
   });
 }
 
+function populateSampleData() {
+  // Create sample teams
+  const sampleTeam = createTeam(
+    'Project Phoenix',
+    'Q4 Product Launch Initiative',
+    MEMBER_POOLS.engineering.slice(0, 5)
+  );
+  sampleTeam.status = 'completed';
+  sampleTeam.chemistryScore = 89;
+}
+
+function clearSampleData() {
+  AppState.teams = [];
+  AppState.selectedMembers = [];
+}
 
 // ========================================
 // THEME MANAGEMENT
@@ -816,11 +867,15 @@ function populatePool(poolType, containerId) {
   const pool = memberPools[poolType];
   if (!pool) return;
   
+  console.log(`[STEP 1] populatePool called - poolType: ${poolType}, isNUMode: ${AppState.isNUMode}`);
+  
   container.innerHTML = pool.map(member => {
+    // Apply NU mode override if active
+    const displayMember = AppState.isNUMode ? { ...member, quizDate: null } : member;
     const isSelected = AppState.selectedMemberIds.includes(member.id);
     
-    let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
-    let badgeClass = member.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
+    let badgeText = displayMember.quizDate ? 'Quiz Done' : 'No Quiz';
+    let badgeClass = displayMember.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
     
     return `
       <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -1130,6 +1185,12 @@ function initializeBuildTeamView() {
  * Main entry point - Assess Team Chemistry button click
  */
 function analyzeTeamChemistry() {
+  // NU MODE INTERCEPT: Show Slack command generation instead
+  if (AppState.isNUMode) {
+    showNUModeSlackCommand();
+    return;
+  }
+  
   const teamNameInput = document.getElementById('teamNameInput');
   const analyzeBtn = document.getElementById('analyzeBtn');
   const processingStatus = document.getElementById('processingStatus');
@@ -2052,14 +2113,9 @@ function showToast(message, type = 'success') {
 
 // Export functions to global scope
 window.showToast = showToast;
-window.initializeBuildTeamView = initializeBuildTeamView;
-window.populateBothPools = populateBothPools;
-window.populatePool = populatePool;
-window.initializeOptimizeDragDrop = initializeOptimizeDragDrop;
-window.loadTeamConfig = loadTeamConfig;
-window.calculateAllTeamScores = calculateAllTeamScores;
-window.resetSupervisorView = resetSupervisorView;
-window.populateConflictGrid = populateConflictGrid;
+window.toggleDemoMode = toggleDemoMode;
+window.copyNUSlackCommand = copyNUSlackCommand;
+window.closeNUModal = closeNUModal;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
@@ -2134,6 +2190,7 @@ window.TeamSyncApp = {
   getInterventions,
   createTeam,
   toggleMemberSelection,
+  toggleDemoMode,
   toggleTheme,
   startSlackSimulation,
   copySlackPrompt,
@@ -5035,6 +5092,30 @@ function resetToAIRecommendation() {
 // NU MODE (NEW USER MODE) FUNCTIONS
 // ========================================
 
+/**
+ * Update dashboard cards based on NU mode state
+ */
+function updateDashboardCardsLockState() {
+  const cards = document.querySelectorAll('.module-card');
+  
+  if (AppState.isNUMode) {
+    // Lock all cards except "Build a Team" (first card)
+    cards.forEach((card, index) => {
+      if (index === 0) {
+        // Build a Team - keep active
+        card.classList.remove('locked');
+      } else {
+        // Lock other 3 cards
+        card.classList.add('locked');
+      }
+    });
+  } else {
+    // Unlock all cards
+    cards.forEach(card => {
+      card.classList.remove('locked');
+    });
+  }
+}
 
 /**
  * Get member data with NU mode override
@@ -5045,3 +5126,104 @@ function getMemberWithNUOverride(member) {
     return { ...member, quizDate: null };
   }
   return member;
+}
+
+/**
+ * Exit NU mode and enter full demo mode
+ */
+function exitNUMode() {
+  // State already set to false by toggleDemoMode
+  console.log('[STEP 1] exitNUMode called - isNUMode is now:', AppState.isNUMode);
+  
+  // Note: Dashboard card unlocking is handled by navigation.js unlockAllCards()
+  // This just handles data refreshing
+  
+  // Refresh any visible member pools with real data
+  const teamContainer = document.getElementById('teamMemberPool');
+  const dyadContainer = document.getElementById('dyadPartnershipPool');
+  
+  if (teamContainer) {
+    console.log('[STEP 1] Refreshing team pool container');
+    populatePool('team', 'teamMemberPool');
+  }
+  if (dyadContainer) {
+    console.log('[STEP 1] Refreshing dyad pool container');
+    populatePool('dyad', 'dyadPartnershipPool');
+  }
+  
+  // Refresh conflict grids if visible
+  const conflictGridA = document.getElementById('conflictPersonAGrid');
+  const conflictGridB = document.getElementById('conflictPersonBGrid');
+  
+  if (conflictGridA) populateConflictGrid('conflictPersonAGrid', 'A');
+  if (conflictGridB) populateConflictGrid('conflictPersonBGrid', 'B');
+  
+  console.log('[NU Mode] Exited - Full demo mode active');
+}
+
+/**
+ * Show Slack command generation in NU mode
+ */
+function showNUModeSlackCommand() {
+  // Get selected members
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  
+  if (selectedMembers.length === 0) return;
+  
+  // Generate Slack command
+  const memberHandles = selectedMembers.map(m => `@${m.name.toLowerCase().replace(' ', '.')}`).join(' ');
+  const slackCommand = `/teamsync team ${memberHandles}`;
+  
+  // Create modal/alert to show the command
+  const modal = document.createElement('div');
+  modal.className = 'nu-mode-modal';
+  modal.innerHTML = `
+    <div class="nu-mode-modal-content">
+      <div class="nu-mode-icon">📋</div>
+      <h3>Team Members Need to Complete Quizzes</h3>
+      <p style="color: #64748b; margin: 16px 0;">Send this Slack command to deploy quizzes to your selected team members:</p>
+      <div class="slack-command-box">
+        <code>${slackCommand}</code>
+      </div>
+      <button class="copy-command-btn" onclick="copyNUSlackCommand('${slackCommand}')">
+        Copy Command
+      </button>
+      <button class="close-modal-btn" onclick="closeNUModal()">
+        Close
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Show modal with animation
+  setTimeout(() => {
+    modal.classList.add('show');
+  }, 10);
+}
+
+/**
+ * Copy Slack command and show toast
+ */
+function copyNUSlackCommand(command) {
+  // Copy to clipboard
+  navigator.clipboard.writeText(command).then(() => {
+    showToast('✓ Slack command copied! Send to your team channel');
+    closeNUModal();
+  }).catch(() => {
+    showToast('Failed to copy command', 'error');
+  });
+}
+
+/**
+ * Close NU mode modal
+ */
+function closeNUModal() {
+  const modal = document.querySelector('.nu-mode-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+

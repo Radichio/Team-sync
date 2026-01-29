@@ -477,9 +477,113 @@ function loadTheme() {
 }
 
 // ========================================
+// DEMO TOGGLE
 // ========================================
-// BADGE INITIALIZATION
-// ========================================
+
+let isPopulated = false;
+let isLoading = false;
+
+function initializeDemoToggle() {
+    const demoToggle = document.getElementById('demoToggle');
+    const toggleLabel = document.getElementById('toggleLabel');
+    const userAvatar = document.getElementById('userAvatar');
+    
+    if (!demoToggle) return;
+    
+    demoToggle.addEventListener('click', async function() {
+        if (isLoading) return;
+        
+        isLoading = true;
+        isPopulated = !isPopulated;
+        
+        // Show loading state
+        toggleLabel.innerHTML = '<span class="spinner"></span>';
+        demoToggle.disabled = true;
+        
+        // Add loading class to badges
+        document.querySelectorAll('.module-badge').forEach(badge => {
+            badge.classList.add('loading');
+        });
+        
+        // Simulate loading
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Update UI based on state
+        if (isPopulated) {
+            // POPULATE clicked - exit NU mode and unlock
+            console.log('[NAV] POPULATE: Exiting NU mode');
+            
+            // Exit NU mode by setting state directly
+            if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
+                window.TeamSyncApp.state.isNUMode = false;
+                console.log('[NAV] isNUMode set to false');
+            }
+            
+            // Unlock all dashboard cards
+            console.log('[NAV] Unlocking all cards');
+            const allCards = document.querySelectorAll('.module-card');
+            allCards.forEach(card => {
+                card.classList.remove('locked');
+            });
+            console.log('[NAV] All cards unlocked');
+            
+            // Update UI
+            toggleLabel.textContent = 'Reset';
+            demoToggle.classList.add('active');
+            userAvatar.textContent = 'HH';
+            
+            // Animate badge counts
+            animateBadges();
+            
+            // Update welcome message
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+            if (welcomeTitle) welcomeTitle.textContent = 'Welcome back, Hannah';
+            if (welcomeSubtitle) welcomeSubtitle.textContent = 'Your teams are performing well today';
+            
+        } else {
+            // RESET clicked - restore NU mode
+            console.log('[NAV] RESET: Restoring NU mode');
+            
+            // Set state back to NU mode
+            if (typeof window.TeamSyncApp !== 'undefined' && window.TeamSyncApp.state) {
+                window.TeamSyncApp.state.isNUMode = true;
+                console.log('[NAV] isNUMode set to true');
+            }
+            
+            // Update button and avatar
+            toggleLabel.textContent = 'Populate';
+            demoToggle.classList.remove('active');
+            userAvatar.textContent = 'NU';
+            
+            // Lock 3 cards (leave Build a Team unlocked)
+            console.log('[NAV] Locking 3 cards');
+            const allCards = document.querySelectorAll('.module-card');
+            allCards.forEach((card, index) => {
+                if (index === 0) {
+                    // Build a Team - keep unlocked
+                    card.classList.remove('locked');
+                } else {
+                    // Lock other 3 cards
+                    card.classList.add('locked');
+                }
+            });
+            console.log('[NAV] Cards locked - NU mode restored');
+            
+            // Reset badges
+            resetBadges();
+            
+            // Reset welcome message
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+            if (welcomeTitle) welcomeTitle.textContent = 'Welcome to TeamSync';
+            if (welcomeSubtitle) welcomeSubtitle.textContent = 'Select a module to begin optimizing your teams';
+        }
+        
+        demoToggle.disabled = false;
+        isLoading = false;
+    });
+}
 
 function animateBadges() {
     const badgeData = [
@@ -497,6 +601,23 @@ function animateBadges() {
                 badge.textContent = data.value;
             }
         }, index * 150);
+    });
+}
+
+function resetBadges() {
+    const badgeData = [
+        { id: 'badge-build', value: 'Start' },
+        { id: 'badge-optimize', value: 'Assess' },
+        { id: 'badge-supervisor', value: 'Explore' },
+        { id: 'badge-conflict', value: 'Diagnose' }
+    ];
+    
+    badgeData.forEach(data => {
+        const badge = document.getElementById(data.id);
+        if (badge) {
+            badge.classList.remove('loading');
+            badge.textContent = data.value;
+        }
     });
 }
 
@@ -523,22 +644,14 @@ function initializeNavigation() {
     initializeModuleCards();
     initializeBackButtons();
     initializeCommandPalette();
+    initializeDemoToggle();
     initializeThemeToggle();
     initializeDropdowns();
-    
-    // Initialize demo data - badges and user avatar
-    animateBadges();
-    
-    // Set user avatar to HH (demo user)
-    const userAvatar = document.getElementById('userAvatar');
-    if (userAvatar) {
-        userAvatar.textContent = 'HH';
-    }
     
     // Show landing view by default
     showView('landing');
     
-    console.log('Navigation system initialized - Demo mode active');
+    console.log('Navigation system initialized with 3D tilt effects');
 }
 
 // Initialize when DOM is ready
