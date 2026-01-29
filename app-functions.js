@@ -2052,6 +2052,14 @@ function showToast(message, type = 'success') {
 
 // Export functions to global scope
 window.showToast = showToast;
+window.initializeBuildTeamView = initializeBuildTeamView;
+window.populateBothPools = populateBothPools;
+window.populatePool = populatePool;
+window.initializeOptimizeDragDrop = initializeOptimizeDragDrop;
+window.loadTeamConfig = loadTeamConfig;
+window.calculateAllTeamScores = calculateAllTeamScores;
+window.resetSupervisorView = resetSupervisorView;
+window.populateConflictGrid = populateConflictGrid;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
