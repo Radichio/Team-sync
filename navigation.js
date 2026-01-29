@@ -478,6 +478,29 @@ function loadTheme() {
 
 // ========================================
 // ========================================
+// BADGE INITIALIZATION
+// ========================================
+
+function animateBadges() {
+    const badgeData = [
+        { id: 'badge-build', value: '12 Active', color: 'badge-blue' },
+        { id: 'badge-optimize', value: '7 Opportunities', color: 'badge-purple' },
+        { id: 'badge-supervisor', value: '3 Need Match', color: 'badge-pink' },
+        { id: 'badge-conflict', value: '5 Pending', color: 'badge-green' }
+    ];
+    
+    badgeData.forEach((data, index) => {
+        setTimeout(() => {
+            const badge = document.getElementById(data.id);
+            if (badge) {
+                badge.classList.remove('loading');
+                badge.textContent = data.value;
+            }
+        }, index * 150);
+    });
+}
+
+// ========================================
 // THEME TOGGLE BUTTON
 // ========================================
 
@@ -503,10 +526,19 @@ function initializeNavigation() {
     initializeThemeToggle();
     initializeDropdowns();
     
+    // Initialize demo data - badges and user avatar
+    animateBadges();
+    
+    // Set user avatar to HH (demo user)
+    const userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) {
+        userAvatar.textContent = 'HH';
+    }
+    
     // Show landing view by default
     showView('landing');
     
-    console.log('Navigation system initialized with 3D tilt effects');
+    console.log('Navigation system initialized - Demo mode active');
 }
 
 // Initialize when DOM is ready
