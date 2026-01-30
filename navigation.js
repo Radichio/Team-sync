@@ -483,10 +483,10 @@ function loadTheme() {
 
 function animateBadges() {
     const badgeData = [
-        { id: 'badge-build', value: '12 Active', color: 'badge-blue' },
-        { id: 'badge-optimize', value: '7 Opportunities', color: 'badge-purple' },
-        { id: 'badge-supervisor', value: '3 Need Match', color: 'badge-pink' },
-        { id: 'badge-conflict', value: '5 Pending', color: 'badge-green' }
+        { id: 'badge-build', value: '12 Team · 9 Dyad', color: 'badge-blue' },
+        { id: 'badge-optimize', value: '5 Saved Teams', color: 'badge-purple' },
+        { id: 'badge-supervisor', value: '5 Teams to Match', color: 'badge-pink' },
+        { id: 'badge-conflict', value: '9 in Dyad Pool', color: 'badge-green' }
     ];
     
     badgeData.forEach((data, index) => {
