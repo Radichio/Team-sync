@@ -44,39 +44,63 @@
 }
 
 body.dark-mode {
-    /* Dark mode colors */
-    --bg-primary: #050608;
-    --bg-secondary: rgba(15, 23, 42, 0.4);
-    --bg-card: rgba(25, 35, 55, 0.7);
-    --bg-nav: rgba(10, 14, 26, 0.85);
-    --bg-command: rgba(15, 23, 42, 0.95);
+    /* Dark mode colors - enhanced glassmorphism */
+    --bg-primary: #0f1219;
+    --bg-secondary: rgba(20, 28, 50, 0.5);
+    --bg-card: rgba(30, 40, 65, 0.6);
+    --bg-nav: rgba(15, 20, 35, 0.85);
+    --bg-command: rgba(20, 28, 45, 0.95);
     
     --text-primary: #ffffff;
     --text-secondary: #94a3b8;
     --text-tertiary: #cbd5e1;
     --text-muted: #64748b;
     
-    --border-primary: rgba(255, 255, 255, 0.1);
-    --border-secondary: rgba(255, 255, 255, 0.15);
+    --border-primary: rgba(255, 255, 255, 0.15);
+    --border-secondary: rgba(255, 255, 255, 0.2);
     
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.25), 0 20px 40px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1);
     
-    --gradient-bg-1: rgba(99, 102, 241, 0.06);
-    --gradient-bg-2: rgba(139, 92, 246, 0.06);
+    --gradient-bg-1: rgba(99, 102, 241, 0.08);
+    --gradient-bg-2: rgba(139, 92, 246, 0.08);
     
-    --grid-line: rgba(255, 255, 255, 0.015);
-    --shimmer-start: rgba(255, 255, 255, 0.03);
-    --shimmer-mid: rgba(255, 255, 255, 0.08);
-    --shimmer-end: rgba(255, 255, 255, 0.03);
+    --grid-line: rgba(255, 255, 255, 0.02);
+    --shimmer-start: rgba(255, 255, 255, 0.04);
+    --shimmer-mid: rgba(255, 255, 255, 0.1);
+    --shimmer-end: rgba(255, 255, 255, 0.04);
     
-    --hover-overlay: rgba(255, 255, 255, 0.08);
-    --shine-gradient: rgba(255, 255, 255, 0.05);
+    --hover-overlay: rgba(255, 255, 255, 0.12);
+    --shine-gradient: rgba(255, 255, 255, 0.08);
     
     --info: #60a5fa;
     --primary-blue: #3b82f6;
     --primary-purple: #8b5cf6;
+}
+
+/* Dark mode glassmorphism enhancements for cards */
+body.dark-mode .module-card,
+body.dark-mode .team-card,
+body.dark-mode .member-card,
+body.dark-mode .pool-section,
+body.dark-mode .results-section,
+body.dark-mode .assessment-card,
+body.dark-mode .subscale-detail-item,
+body.dark-mode .intervention-card {
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .module-card:hover,
+body.dark-mode .team-card:hover,
+body.dark-mode .member-card:hover {
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
 /* ============================================
