@@ -45,26 +45,26 @@
 
 body.dark-mode {
     /* Dark mode colors - enhanced glassmorphism */
-    --bg-primary: #0f1219;
-    --bg-secondary: rgba(20, 28, 50, 0.5);
-    --bg-card: rgba(30, 40, 65, 0.6);
-    --bg-nav: rgba(15, 20, 35, 0.85);
-    --bg-command: rgba(20, 28, 45, 0.95);
+    --bg-primary: #080a0f;
+    --bg-secondary: rgba(35, 45, 70, 0.5);
+    --bg-card: rgba(45, 55, 80, 0.65);
+    --bg-nav: rgba(15, 20, 35, 0.9);
+    --bg-command: rgba(30, 40, 60, 0.95);
     
     --text-primary: #ffffff;
     --text-secondary: #94a3b8;
     --text-tertiary: #cbd5e1;
     --text-muted: #64748b;
     
-    --border-primary: rgba(255, 255, 255, 0.15);
-    --border-secondary: rgba(255, 255, 255, 0.2);
+    --border-primary: rgba(255, 255, 255, 0.18);
+    --border-secondary: rgba(255, 255, 255, 0.22);
     
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.1);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1);
     
-    --gradient-bg-1: rgba(99, 102, 241, 0.08);
-    --gradient-bg-2: rgba(139, 92, 246, 0.08);
+    --gradient-bg-1: rgba(99, 102, 241, 0.1);
+    --gradient-bg-2: rgba(139, 92, 246, 0.1);
     
     --grid-line: rgba(255, 255, 255, 0.02);
     --shimmer-start: rgba(255, 255, 255, 0.04);
