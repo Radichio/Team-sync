@@ -1054,6 +1054,39 @@
     </div>
 
 
+    <!-- Slack Command Modal -->
+    <div id="slackCommandModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; color: var(--text-primary);">Deploy Quiz via Slack</h3>
+                <button class="modal-close" onclick="closeSlackModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">Copy this command and paste it in your Slack workspace to deploy the TeamSync Chemistry Assessment:</p>
+                <div id="slackCommandText" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; font-size: 14px; color: var(--accent-primary); margin-bottom: 16px; word-break: break-all;"></div>
+                <button onclick="copySlackCommand()" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                    📋 Copy Command
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slack Simulation Widget -->
+    <div id="slack-widget" class="slack-widget hidden">
+        <div class="slack-widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>TeamSync Bot</span>
+        </div>
+        <div id="slack-messages" class="slack-messages"></div>
+        <div class="slack-progress">
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+    </div>
+
     <script src="app-functions.js"></script>
     <script src="navigation.js"></script>
 </body>

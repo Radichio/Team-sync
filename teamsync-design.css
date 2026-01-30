@@ -4935,3 +4935,127 @@ body.light-mode .match-indicator.caution.clickable:hover {
     background: var(--hover-overlay);
     color: var(--text-primary);
 }
+
+/* ========================================
+   SLACK SIMULATION WIDGET
+   ======================================== */
+
+.slack-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 320px;
+    background: linear-gradient(135deg, rgba(30, 32, 40, 0.98), rgba(25, 27, 35, 0.98));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(99, 102, 241, 0.15);
+    z-index: 10000;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slack-widget.hidden {
+    display: none;
+}
+
+.slack-widget-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.slack-widget-header svg {
+    color: #818cf8;
+}
+
+.slack-messages {
+    padding: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.slack-message {
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    border-left: 3px solid #6366f1;
+    animation: slideInMessage 0.3s ease-out;
+}
+
+.slack-message:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes slideInMessage {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slack-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+}
+
+.progress-dot.completed {
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+/* Slack Command Modal Styles */
+#slackCommandModal .modal-content {
+    background: linear-gradient(135deg, rgba(30, 32, 40, 0.98), rgba(25, 27, 35, 0.98));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.15);
+}
+
+#slackCommandModal .modal-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#slackCommandModal .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+#slackCommandModal .modal-close:hover {
+    color: var(--text-primary);
+}

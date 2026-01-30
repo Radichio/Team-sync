@@ -1140,9 +1140,34 @@ function analyzeTeamChemistry() {
   const teamName = teamNameInput.value.trim();
   if (!teamName || AppState.selectedMemberIds.length === 0) return;
   
+  // Check if any selected members need quiz deployment
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  const membersNeedingQuiz = selectedMembers.filter(m => !m.quizDate);
+  
+  // If members need quiz, show Slack deployment modal
+  if (membersNeedingQuiz.length > 0) {
+    showSlackDeployModal(teamName, membersNeedingQuiz, selectedMembers);
+    return;
+  }
+  
+  // All members have quiz data - proceed with normal analysis
+  proceedWithTeamAnalysis(teamName);
+}
+
+/**
+ * Proceed with team chemistry analysis (called after quiz deployment or when all have quizzes)
+ */
+function proceedWithTeamAnalysis(teamName) {
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const processingStatus = document.getElementById('processingStatus');
+  const statusText = document.getElementById('statusText');
+  
   // Disable button and show processing
-  analyzeBtn.disabled = true;
-  analyzeBtn.textContent = 'Assessing...';
+  if (analyzeBtn) {
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'Assessing...';
+  }
   
   if (processingStatus) {
     processingStatus.style.display = 'block';
@@ -5030,4 +5055,247 @@ function resetToAIRecommendation() {
   
   console.log('[Team Explorer] Reset complete');
 }
+
+// ========================================
+// SLACK SIMULATION WORKFLOW
+// ========================================
+
+/**
+ * Show Slack command deployment modal for members without quiz
+ */
+function showSlackDeployModal(teamName, membersNeedingQuiz, allSelectedMembers) {
+  const modal = document.getElementById('slackCommandModal');
+  const commandText = document.getElementById('slackCommandText');
+  
+  if (!modal || !commandText) {
+    console.error('Slack modal elements not found');
+    return;
+  }
+  
+  // Store context for after simulation
+  window.pendingTeamAnalysis = {
+    teamName: teamName,
+    membersNeedingQuiz: membersNeedingQuiz,
+    allSelectedMembers: allSelectedMembers
+  };
+  
+  // Build Slack command with usernames
+  const usernames = membersNeedingQuiz.map(m => '@' + m.name.toLowerCase().replace(' ', '.'));
+  const command = `/teamsync team ${usernames.join(' ')}`;
+  
+  commandText.textContent = command;
+  modal.style.display = 'flex';
+}
+
+/**
+ * Copy Slack command to clipboard and start simulation
+ */
+function copySlackCommand() {
+  const commandText = document.getElementById('slackCommandText');
+  if (!commandText) return;
+  
+  // Copy to clipboard
+  navigator.clipboard.writeText(commandText.textContent).then(() => {
+    // Show toast
+    showToast('✓ Slack command copied!');
+    
+    // Close modal
+    closeSlackModal();
+    
+    // Start Slack simulation
+    startSlackSimulation();
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+    // Still proceed with simulation even if copy fails
+    closeSlackModal();
+    startSlackSimulation();
+  });
+}
+
+/**
+ * Close the Slack command modal
+ */
+function closeSlackModal() {
+  const modal = document.getElementById('slackCommandModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+/**
+ * Show toast notification
+ */
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'status-toast';
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    top: 100px;
+    right: 24px;
+    background: #22c55e;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10001;
+    animation: slideInRight 0.3s ease;
+  `;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
+
+/**
+ * Start the Slack simulation widget animation
+ */
+function startSlackSimulation() {
+  const widget = document.getElementById('slack-widget');
+  const messagesContainer = document.getElementById('slack-messages');
+  
+  if (!widget || !messagesContainer) {
+    console.error('Slack widget elements not found');
+    completeSlackSimulation();
+    return;
+  }
+  
+  const pending = window.pendingTeamAnalysis;
+  if (!pending) {
+    console.error('No pending team analysis');
+    return;
+  }
+  
+  const membersNeedingQuiz = pending.membersNeedingQuiz;
+  const memberCount = membersNeedingQuiz.length;
+  
+  // Build dynamic messages based on actual members
+  const SLACK_MESSAGES = [
+    { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
+    { delay: 1500, text: `📋 Survey sent to ${memberCount} team member${memberCount > 1 ? 's' : ''}` }
+  ];
+  
+  // Add completion message for each member
+  membersNeedingQuiz.forEach((member, index) => {
+    SLACK_MESSAGES.push({
+      delay: 2500 + (index * 1000),
+      text: `✓ ${member.name} completed (${index + 1}/${memberCount})`
+    });
+  });
+  
+  // Final message
+  SLACK_MESSAGES.push({
+    delay: 2500 + (memberCount * 1000) + 500,
+    text: "🎉 All responses collected! Calculating chemistry..."
+  });
+  
+  // Show widget
+  widget.classList.remove('hidden');
+  messagesContainer.innerHTML = '';
+  
+  // Reset progress dots
+  const dots = widget.querySelectorAll('.progress-dot');
+  dots.forEach(dot => dot.classList.remove('completed'));
+  
+  // Animate messages
+  SLACK_MESSAGES.forEach((msg, index) => {
+    setTimeout(() => {
+      const messageEl = document.createElement('div');
+      messageEl.className = 'slack-message';
+      messageEl.textContent = msg.text;
+      messagesContainer.appendChild(messageEl);
+      
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // Update progress dots (after the first 2 setup messages)
+      if (index >= 2 && index < 2 + memberCount) {
+        const dotIndex = index - 2;
+        if (dots[dotIndex]) {
+          dots[dotIndex].classList.add('completed');
+        }
+      }
+      
+      // Complete all dots on final message
+      if (index === SLACK_MESSAGES.length - 1) {
+        dots.forEach(dot => dot.classList.add('completed'));
+        
+        // Hide widget and complete after delay
+        setTimeout(() => {
+          widget.classList.add('hidden');
+          completeSlackSimulation();
+        }, 2000);
+      }
+    }, msg.delay);
+  });
+}
+
+/**
+ * Complete the Slack simulation - update member data and proceed with analysis
+ */
+function completeSlackSimulation() {
+  const pending = window.pendingTeamAnalysis;
+  if (!pending) return;
+  
+  const { teamName, membersNeedingQuiz, allSelectedMembers } = pending;
+  
+  // Update members who completed the quiz
+  const today = new Date().toISOString().split('T')[0];
+  
+  membersNeedingQuiz.forEach(member => {
+    // Find member in pool and update their quiz data
+    const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+    const poolMember = currentPool.find(m => m.id === member.id);
+    
+    if (poolMember) {
+      // Set quiz date
+      poolMember.quizDate = today;
+      
+      // Generate subscales if not present
+      if (!poolMember.subscales) {
+        const baseScore = 65 + Math.floor(Math.random() * 15); // 65-79 range
+        poolMember.subscales = {
+          understanding: baseScore + Math.floor(Math.random() * 10 - 5),
+          trust: baseScore + Math.floor(Math.random() * 10 - 5),
+          ease: baseScore + Math.floor(Math.random() * 10 - 5),
+          integration: baseScore + Math.floor(Math.random() * 10 - 5)
+        };
+        poolMember.msScore = Math.round(
+          (poolMember.subscales.understanding + poolMember.subscales.trust + 
+           poolMember.subscales.ease + poolMember.subscales.integration) / 4
+        );
+      }
+      
+      console.log(`[Slack Simulation] Updated ${poolMember.name} with quiz date:`, poolMember.quizDate);
+    }
+  });
+  
+  // Refresh the member pools to show updated quiz badges
+  populateBothPools();
+  
+  // Clear pending analysis
+  window.pendingTeamAnalysis = null;
+  
+  // Now proceed with the actual team analysis
+  proceedWithTeamAnalysis(teamName);
+}
+
+/**
+ * Helper to populate both member pools (if exists)
+ */
+function populateBothPools() {
+  if (typeof populatePool === 'function') {
+    populatePool('team');
+    populatePool('dyad');
+  }
+}
+
+// Export Slack simulation functions to global scope
+window.copySlackCommand = copySlackCommand;
+window.closeSlackModal = closeSlackModal;
+window.startSlackSimulation = startSlackSimulation;
+window.showSlackDeployModal = showSlackDeployModal;
+window.proceedWithTeamAnalysis = proceedWithTeamAnalysis;
 
