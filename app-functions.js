@@ -2748,6 +2748,9 @@ function calculateDyadicChemistry(personA, personB) {
  * Branches to Path 1 (action) or Path 2 (observation) based on severity
  */
 function displayConflictResults(results, personA, personB) {
+    // Store the names for use in component messages
+    window.currentConflictPair = `${personA.name} and ${personB.name}`;
+    
     // Display hero score in top preview area only
     const heroScoreTop = document.getElementById('dyadicChemistryScoreTop');
     if (heroScoreTop) {
@@ -3059,38 +3062,38 @@ function getSubscaleGuidance(key, score, severity) {
  * Emphasizes chemistry differences, not deficits
  */
 function getPath1Guidance(key, score, severity) {
-    const guidanceMap = {
+    // Get the current conflict pair names (stored when analysis runs)
+    const names = window.currentConflictPair || 'the two team members';
+    
+    // Client's exact 16 messages organized by component and severity
+    const componentMessages = {
         understanding: {
-            critical: '💬 <strong>Different communication patterns noticed.</strong> You and your colleague process information differently. Try explicit check-ins: "Let me repeat what I heard to make sure we\'re aligned." This respects both communication styles.',
-            moderate: '💬 <strong>Some communication style differences.</strong> Messages may land differently than intended. Consider asking "How does this sound to you?" to bridge the gap. Both styles are valid.',
-            minor: '💬 <strong>Slight communication variance noticed.</strong> Generally aligned, with occasional clarity needs. A simple "Can you confirm you got that?" can help. Very minor adjustment needed.',
-            functional: '✅ <strong>Compatible communication styles.</strong> You understand each other well. Continue your current approach - it\'s working.',
-            strong: '🌟 <strong>Naturally aligned communication.</strong> You read each other effortlessly. This is a strength to leverage in your collaboration.'
-        },
-        trust: {
-            critical: '🤝 <strong>Different reliability expectations.</strong> You may have different definitions of "follow-through." Try making commitments very explicit and visible. No one is wrong - just different.',
-            moderate: '🤝 <strong>Some expectation differences.</strong> What feels reliable to one might feel uncertain to another. Clarify expectations upfront. Both approaches have merit.',
-            minor: '🤝 <strong>Slight expectation variance.</strong> Generally reliable, with occasional misalignment. A quick "I\'ll do X by Y" can bridge any gaps. Easily addressed.',
-            functional: '✅ <strong>Aligned reliability expectations.</strong> You respect each other\'s follow-through. Keep doing what you\'re doing.',
-            strong: '🌟 <strong>Deep mutual confidence.</strong> You trust each other implicitly. This foundation supports complex collaboration.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect between ${names}, who simply cannot fathom what each other is talking about, which may happen whether or not they are in conflict. Messages between them may land differently than intended. To bridge the disconnect, they can ask each other, 'How does what I'm saying sound to you?' If they simply cannot clarify what they intend to communicate, getting around this severe disconnect, they may have to consider working in separate teams.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for misunderstandings between ${names}, which would happen whether or not they were in conflict. Both of them should think of remedies that they might use while working together that could overcome this type of disconnect to avoid any misunderstandings. Messages may land differently than intended. Consider asking 'How does this sound to you?' to bridge the gap. Both styles are valid.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This particular chemistry component score reveals a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest an insignificant disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score reveals an insignificant disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, apart from their relationship.`
         },
         ease: {
-            critical: '😊 <strong>Different comfort zones noticed.</strong> Interactions may feel natural to one but strained to another. Try adapting to each other\'s preferred style: some prefer direct, others prefer gradual. Neither is wrong.',
-            moderate: '😊 <strong>Some comfort style differences.</strong> What feels easy to one might feel awkward to another. Check in: "How would you prefer to handle this?" Mutual adaptation helps.',
-            minor: '😊 <strong>Slight comfort variance.</strong> Generally at ease, with occasional awkwardness. A simple awareness of each other\'s style smooths things out. Very minor.',
-            functional: '✅ <strong>Naturally comfortable together.</strong> Interactions flow well. Your styles complement each other.',
-            strong: '🌟 <strong>Effortless rapport.</strong> You\'re naturally at ease together. This comfort is an asset.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect about which ${names} are unaware and do not intend. This particular type of disconnect may account for spontaneously experiencing each other as overbearing, intrusive, unsympathetic or cold, whether or not they are in conflict. They should periodically seek feedback from each other to correct any such misperceptions that might cause friction between them, or a tendency to avoid working together. If unable to bridge such a severe disconnect, they may have to consider being assigned to separate teams, or perhaps work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} feeling ill at ease with each other, which would happen whether or not they were in conflict. Both of them should think of remedies that they might use while working together that can help to overcome this type of disconnect to prevent any kind of friction or tendency to avoid working together.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score indicates a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship. A direct conversation about specific concerns may help clarify the real issue. They should find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score indicates a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship. A direct conversation about specific concerns may help clarify the real issue. They should find ways to put each other at ease.`
+        },
+        trust: {
+            significant: `Chemistry component sub-scores of less than 55% suggest a severe disconnect between ${names}, who act more as competitors than teammates with each other. They believe that the other is striving to close the most deals, earn the highest commissions and perhaps become known as a 'super achiever,' while simultaneously undermining, sabotaging and diminishing their own standing in the company. Each feels misunderstood, regarding the other as dishonest about their true intentions. Unintentionally, they trigger intuitive, spontaneous mistrust in one another, which can lead to not just this one conflict, but conflict in general. They need to have a constructive, rational discussion about implementing possible solutions that can overcome their natural tendency for mistrust of each other. If unable to bridge over this severe disconnect, they may have to be assigned to separate teams, or else work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who feel more like competitors than teammates. They are not open and honest with each other, which interferes with sharing information and assisting each other. If something goes wrong, instead of collaborating to fix the problem, they avoid taking responsibility and automatically blame one another. To overcome this disconnect, they need to learn that their mistrust is spontaneous and intuitive, which can lead to not just this one conflict, but conflict in general. A constructive, rational discussion about implementing possible remedies to overcome their natural tendency for mutual mistrust may resolve this issue.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This mild disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation about their specific concerns may help clarify the real issue, apart from their work relationship, while at the same time find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation between them about specific concerns may help clarify the real issue, apart from their work relationship.`
         },
         integration: {
-            critical: '⚙️ <strong>Different working styles observed.</strong> You approach tasks differently - one might plan, the other might improvise. Both are valid. Try co-creating a process that honors both styles.',
-            moderate: '⚙️ <strong>Some approach differences.</strong> Work styles don\'t naturally align. Discuss "How do you like to work?" and find middle ground. Both ways work.',
-            minor: '⚙️ <strong>Slight style variance.</strong> Generally aligned, with occasional process mismatches. Quick process check-ins help. Easy to navigate.',
-            functional: '✅ <strong>Compatible work styles.</strong> Your approaches complement each other. Continue current coordination.',
-            strong: '🌟 <strong>Seamlessly synchronized.</strong> You think and act alike naturally. Perfect for complex teamwork.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect about which ${names} are unaware and do not intend. Their work styles are so unalike in how they think and act that they get in each other's way, which interferes with getting the job done. Chaotic interaction between them reduces their productivity, which can result in arguments. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way. If such discussion fails, they may need to be assigned to separate teams, or else work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who periodically stop to explain every detail about how they work to avoid slowing each other down, which reduces productivity and causes friction between them. Such a disconnect that would happen whether or not they were in conflict. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This mild disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation about their specific concerns may help clarify the real issue, apart from their relationship, while at the same time find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation between them about specific concerns may help clarify the real issue, apart from their relationship.`
         }
     };
     
-    return guidanceMap[key]?.[severity] || 'Different approaches noticed. Both are valid - find ways to work together.';
+    return componentMessages[key]?.[severity] || 'Different approaches noticed. Both are valid - find ways to work together.';
 }
 
 /**
@@ -3223,7 +3226,7 @@ function displayPath1Interventions(subscales, severity) {
  * @returns {object} Level details with text, class, icon, and description
  */
 function getDisconnectLevel(score) {
-    if (score >= 85) {
+    if (score >= 88) {
         return {
             severity: 'insignificant',
             text: 'Insignificant',
