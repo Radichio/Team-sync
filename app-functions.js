@@ -167,7 +167,7 @@ const memberPools = {
   ],
   dyad: [
     { id: 'D001', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-12-19', hasDual: true,
-      msScore: 76, subscales: { understanding: 80, trust: 72, ease: 78, integration: 74 } },
+      msScore: 87, subscales: { understanding: 90, trust: 88, ease: 86, integration: 84 } },
     { id: 'D002', name: 'Rachel Smith', initials: 'RS', quizDate: '2024-12-17',
       msScore: 71, subscales: { understanding: 70, trust: 76, ease: 68, integration: 72 } },
     { id: 'D003', name: 'Daniel Martinez', initials: 'DM', quizDate: '2024-12-12',
@@ -177,7 +177,7 @@ const memberPools = {
     { id: 'D005', name: 'Marcus Johnson', initials: 'MJ', quizDate: '2024-11-01',
       msScore: 73, subscales: { understanding: 76, trust: 78, ease: 66, integration: 74 } },
     { id: 'D006', name: 'Nina Patel', initials: 'NP', quizDate: '2024-10-01',
-      msScore: 79, subscales: { understanding: 82, trust: 84, ease: 72, integration: 78 } },
+      msScore: 89, subscales: { understanding: 92, trust: 90, ease: 86, integration: 88 } },
     { id: 'D007', name: 'Oliver Chen', initials: 'OC', quizDate: '2024-07-15',
       msScore: 60, subscales: { understanding: 58, trust: 64, ease: 62, integration: 56 } },
     { id: 'D008', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-03-20', hasDual: true,
