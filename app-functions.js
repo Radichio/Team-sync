@@ -5244,16 +5244,6 @@ function completeSlackSimulation() {
   proceedWithTeamAnalysis(teamName);
 }
 
-/**
- * Helper to populate both member pools (if exists)
- */
-function populateBothPools() {
-  if (typeof populatePool === 'function') {
-    populatePool('team');
-    populatePool('dyad');
-  }
-}
-
 // Export Slack simulation functions to global scope
 window.copySlackCommand = copySlackCommand;
 window.closeSlackModal = closeSlackModal;
