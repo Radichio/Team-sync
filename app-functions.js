@@ -1140,7 +1140,18 @@ function analyzeTeamChemistry() {
   const teamName = teamNameInput.value.trim();
   if (!teamName || AppState.selectedMemberIds.length === 0) return;
   
-  // Disable button and show processing
+  // CHECK: Do any selected members lack quiz data?
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  const membersWithoutQuiz = selectedMembers.filter(m => !m.quizDate);
+  
+  if (membersWithoutQuiz.length > 0) {
+    // Show Slack command modal for members without quizzes
+    showSlackCommandModal(membersWithoutQuiz);
+    return; // Don't proceed with analysis yet
+  }
+  
+  // All members have quizzes - proceed with normal analysis
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = 'Assessing...';
   
@@ -5031,3 +5042,253 @@ function resetToAIRecommendation() {
   console.log('[Team Explorer] Reset complete');
 }
 
+
+// ========================================
+// SLACK SIMULATION WORKFLOW
+// ========================================
+
+const SLACK_MESSAGES = [
+  { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
+  { delay: 1500, text: "📋 Survey sent to team members" },
+  { delay: 2500, text: "✓ Member completed quiz (1/3)" },
+  { delay: 3500, text: "✓ Member completed quiz (2/3)" },
+  { delay: 4500, text: "✓ All members completed (3/3)" },
+  { delay: 5500, text: "🎉 All responses collected! Calculating chemistry..." }
+];
+
+function startSlackSimulation(membersWithoutQuiz) {
+  const widget = document.getElementById('slack-widget');
+  const messagesContainer = document.getElementById('slack-messages');
+  
+  if (!widget || !messagesContainer) return;
+  
+  // Show widget
+  widget.classList.remove('hidden');
+  messagesContainer.innerHTML = '';
+  
+  // Customize messages with actual member count
+  const memberCount = membersWithoutQuiz.length;
+  const customMessages = [
+    { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
+    { delay: 1500, text: `📋 Survey sent to ${memberCount} team member${memberCount > 1 ? 's' : ''}` }
+  ];
+  
+  // Add completion messages for each member
+  membersWithoutQuiz.forEach((member, index) => {
+    customMessages.push({
+      delay: 2500 + (index * 1000),
+      text: `✓ ${member.name} completed (${index + 1}/${memberCount})`
+    });
+  });
+  
+  // Add final message
+  customMessages.push({
+    delay: 2500 + (memberCount * 1000) + 500,
+    text: "🎉 All responses collected! Calculating chemistry..."
+  });
+  
+  // Display messages progressively
+  customMessages.forEach((msg, index) => {
+    setTimeout(() => {
+      const messageEl = document.createElement('div');
+      messageEl.className = 'slack-message';
+      messageEl.textContent = msg.text;
+      messageEl.style.animation = 'slideInMessage 0.3s ease-out';
+      messagesContainer.appendChild(messageEl);
+      
+      // Update progress dots
+      if (index >= 2 && index < customMessages.length - 1) {
+        updateQuizProgress(index - 2, memberCount);
+      }
+      
+      // Complete after last message
+      if (index === customMessages.length - 1) {
+        setTimeout(() => {
+          widget.classList.add('hidden');
+          completeTeamCreationAfterSimulation(membersWithoutQuiz);
+        }, 2000);
+      }
+    }, msg.delay);
+  });
+}
+
+function updateQuizProgress(completedCount, total) {
+  const dots = document.querySelectorAll('.progress-dot');
+  const dotsToShow = Math.min(total, 3); // Show max 3 dots
+  
+  dots.forEach((dot, index) => {
+    if (index < dotsToShow) {
+      dot.style.display = 'block';
+      if (index < completedCount) {
+        dot.classList.add('completed');
+      }
+    } else {
+      dot.style.display = 'none';
+    }
+  });
+}
+
+function completeTeamCreationAfterSimulation(membersWithoutQuiz) {
+  // Generate fake quiz data for members who didn't have it
+  membersWithoutQuiz.forEach(member => {
+    // Generate random but realistic subscale scores
+    member.quizDate = new Date().toISOString().split('T')[0];
+    member.msScore = Math.floor(Math.random() * 20) + 60; // 60-80 range
+    member.subscales = {
+      understanding: Math.floor(Math.random() * 20) + 60,
+      trust: Math.floor(Math.random() * 20) + 65,
+      ease: Math.floor(Math.random() * 20) + 60,
+      integration: Math.floor(Math.random() * 20) + 60
+    };
+  });
+  
+  // Now trigger the actual team chemistry analysis
+  setTimeout(() => {
+    proceedWithTeamAnalysis();
+  }, 500);
+}
+
+function proceedWithTeamAnalysis() {
+  // Get all selected members (now they all have quiz data)
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  
+  // Run chemistry calculation
+  const chemistryScore = calculateTeamChemistry(selectedMembers);
+  
+  // Get team name
+  const teamNameInput = document.getElementById('teamNameInput');
+  const teamName = teamNameInput ? teamNameInput.value.trim() : 'New Team';
+  
+  // Create team assessment card
+  createTeamAssessment(teamName, selectedMembers, chemistryScore);
+  
+  // Show success toast
+  showToast(`✓ Team "${teamName}" created with ${Math.round(chemistryScore)}% chemistry!`);
+  
+  // Clear selections
+  AppState.selectedMemberIds = [];
+  if (teamNameInput) teamNameInput.value = '';
+  
+  // Refresh the member pools
+  populateBothPools();
+}
+
+function createTeamAssessment(teamName, members, chemistryScore) {
+  const container = document.getElementById('activeTeamsList');
+  if (!container) return;
+  
+  // Remove "no assessments" message if present
+  const noAssessmentsMsg = container.querySelector('p');
+  if (noAssessmentsMsg) {
+    noAssessmentsMsg.remove();
+  }
+  
+  // Create assessment card
+  const card = document.createElement('div');
+  card.className = 'team-assessment-card';
+  card.style.cssText = `
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  `;
+  
+  card.innerHTML = `
+    <div>
+      <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${teamName}</div>
+      <div style="font-size: 0.875rem; color: var(--text-secondary);">${members.length} members • Created just now</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+      </div>
+      <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 1rem;">
+        ${Math.round(chemistryScore)}% Chemistry
+      </div>
+    </div>
+  `;
+  
+  card.addEventListener('mouseenter', () => {
+    card.style.transform = 'translateY(-2px)';
+    card.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
+  });
+  
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'translateY(0)';
+    card.style.boxShadow = 'none';
+  });
+  
+  container.insertBefore(card, container.firstChild);
+}
+
+// Export functions
+window.startSlackSimulation = startSlackSimulation;
+
+function showSlackCommandModal(membersWithoutQuiz) {
+  // Generate Slack command
+  const memberHandles = membersWithoutQuiz.map(m => `@${m.name.toLowerCase().replace(/\s+/g, '.')}`).join(' ');
+  const slackCommand = `/teamsync team ${memberHandles}`;
+  
+  // Create modal
+  const modal = document.createElement('div');
+  modal.className = 'nu-mode-modal';
+  modal.innerHTML = `
+    <div class="nu-mode-modal-content">
+      <div class="nu-mode-icon">📋</div>
+      <h3>Team Members Need to Complete Quizzes</h3>
+      <p style="color: #64748b; margin: 16px 0;">Send this Slack command to deploy quizzes to your selected team members:</p>
+      <div class="slack-command-box">
+        <code>${slackCommand}</code>
+      </div>
+      <button class="copy-command-btn" onclick="copySlackCommand('${slackCommand}', ${JSON.stringify(membersWithoutQuiz.map(m => ({id: m.id, name: m.name})))})">
+        Copy Command
+      </button>
+      <button class="close-modal-btn" onclick="closeSlackModal()">
+        Close
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Show modal with animation
+  setTimeout(() => {
+    modal.classList.add('show');
+  }, 10);
+}
+
+function copySlackCommand(command, membersWithoutQuiz) {
+  // Copy to clipboard
+  navigator.clipboard.writeText(command).then(() => {
+    showToast('✓ Slack command copied! Send to your team channel');
+    closeSlackModal();
+    
+    // Start the simulation
+    setTimeout(() => {
+      startSlackSimulation(membersWithoutQuiz);
+    }, 500);
+  }).catch(() => {
+    showToast('Failed to copy command', 'error');
+  });
+}
+
+function closeSlackModal() {
+  const modal = document.querySelector('.nu-mode-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+// Export functions
+window.copySlackCommand = copySlackCommand;
+window.closeSlackModal = closeSlackModal;
