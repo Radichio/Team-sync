@@ -2247,8 +2247,8 @@ function checkSurveyStatus() {
         return;
     }
     
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2283,8 +2283,8 @@ function checkSurveyStatus() {
  * Send dyad survey (demo function)
  */
 function sendDyadSurvey() {
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2329,8 +2329,8 @@ function showSurveyMonitoring() {
     const alertDiv = document.getElementById('surveyDeploymentAlert');
     if (!alertDiv) return;
     
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2452,7 +2452,7 @@ function remindSurvey(memberId, memberName) {
  */
 function markSurveyComplete(memberId, memberName) {
     // Find the member and update their quizDate
-    const member = memberPools.team.find(m => m.id === memberId);
+    const member = memberPools.dyad.find(m => m.id === memberId);
     if (!member) return;
     
     // Set quiz date to today
@@ -2500,8 +2500,8 @@ function markSurveyComplete(memberId, memberName) {
     populateConflictGrid('conflictPersonBGrid', 'B');
     
     // Check if both now have surveys
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (personA && personB && personA.quizDate && personB.quizDate) {
         // Both complete! Hide alert and show results
@@ -2544,8 +2544,8 @@ function updateConflictAnalysisFromGrid() {
         return;
     }
     
-    const personA = memberPools.team.find(m => m.id === personAId);
-    const personB = memberPools.team.find(m => m.id === personBId);
+    const personA = memberPools.dyad.find(m => m.id === personAId);
+    const personB = memberPools.dyad.find(m => m.id === personBId);
     
     console.log('Found persons:', personA?.name, personB?.name);
     
@@ -2600,7 +2600,7 @@ function populateConflictSelects() {
     personBSelect.innerHTML = '<option value="">Select team member...</option>';
     
     // Use demo members with quiz data
-    memberPools.team.forEach(member => {
+    memberPools.dyad.forEach(member => {
         const optionA = document.createElement('option');
         optionA.value = member.id;
         optionA.textContent = member.name;
@@ -2612,7 +2612,7 @@ function populateConflictSelects() {
         personBSelect.appendChild(optionB);
     });
     
-    console.log('Conflict selects populated with', memberPools.team.length, 'members');
+    console.log('Conflict selects populated with', memberPools.dyad.length, 'members');
 }
 
 /**
@@ -2676,8 +2676,8 @@ function updateConflictAnalysis() {
     }
     
     // Get member data
-    const personA = memberPools.team.find(m => m.id === personAId);
-    const personB = memberPools.team.find(m => m.id === personBId);
+    const personA = memberPools.dyad.find(m => m.id === personAId);
+    const personB = memberPools.dyad.find(m => m.id === personBId);
     
     if (!personA || !personB) {
         console.error('Could not find member data');
