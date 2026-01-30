@@ -159,7 +159,7 @@ const memberPools = {
     { id: 'T009', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-06-15', hasDual: true,
       msScore: 58, subscales: { understanding: 54, trust: 66, ease: 56, integration: 58 } },
     { id: 'T010', name: 'Kevin Brown', initials: 'KB', quizDate: null,
-      msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } },
+      msScore: null, subscales: null },
     { id: 'T011', name: 'Marcus Rivera', initials: 'MR', quizDate: null,
       msScore: null, subscales: null }, // New candidate - no assessment yet
     { id: 'T012', name: 'James Norton', initials: 'JN', quizDate: '2024-05-10',
@@ -2188,7 +2188,7 @@ function populateConflictGrid(gridId, person) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     
-    grid.innerHTML = memberPools.team.map(member => {
+    grid.innerHTML = memberPools.dyad.map(member => {
         const isSelected = (person === 'A' && conflictState.personA === member.id) || 
                           (person === 'B' && conflictState.personB === member.id);
         
