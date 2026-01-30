@@ -11,6 +11,8 @@
 // ========================================
 
 const AppState = {
+  isNUMode: true, // New User mode - starts true, becomes false when POPULATE clicked
+  demoMode: false,
   currentTheme: 'dark',
   teams: [],
   selectedMembers: [],
@@ -610,6 +612,40 @@ function completeTeamCreation() {
 // DEMO MODE
 // ========================================
 
+function toggleDemoMode() {
+  console.log('[DEBUG] toggleDemoMode called! demoMode before toggle:', AppState.demoMode);
+  
+  AppState.demoMode = !AppState.demoMode;
+  
+  console.log('[DEBUG] demoMode after toggle:', AppState.demoMode);
+  
+  if (AppState.demoMode) {
+    console.log('[DEBUG] Entering demo mode activation branch');
+    
+    // EXIT NU MODE IMMEDIATELY - before any other operations
+    AppState.isNUMode = false;
+    console.log('[STEP 1] isNUMode set to FALSE at start of toggleDemoMode');
+    
+    // Populate sample data (navigation.js handles UI)
+    console.log('[DEBUG] Calling populateSampleData()');
+    populateSampleData();
+    
+    // Call exitNUMode to refresh any visible pools
+    console.log('[DEBUG] Calling exitNUMode()');
+    exitNUMode();
+    
+    console.log('[DEBUG] toggleDemoMode complete - demo mode activated');
+    
+  } else {
+    console.log('[DEBUG] Deactivating demo mode');
+    // Clear sample data
+    clearSampleData();
+  }
+  
+  // Persist state
+  localStorage.setItem('teamsync-demo-mode', AppState.demoMode);
+  console.log('[DEBUG] toggleDemoMode function complete');
+}
 
 function animateBadgeCounts() {
   const badges = [
@@ -648,6 +684,21 @@ function resetBadgeCounts() {
   });
 }
 
+function populateSampleData() {
+  // Create sample teams
+  const sampleTeam = createTeam(
+    'Project Phoenix',
+    'Q4 Product Launch Initiative',
+    MEMBER_POOLS.engineering.slice(0, 5)
+  );
+  sampleTeam.status = 'completed';
+  sampleTeam.chemistryScore = 89;
+}
+
+function clearSampleData() {
+  AppState.teams = [];
+  AppState.selectedMembers = [];
+}
 
 // ========================================
 // THEME MANAGEMENT
@@ -816,11 +867,15 @@ function populatePool(poolType, containerId) {
   const pool = memberPools[poolType];
   if (!pool) return;
   
+  console.log(`[STEP 1] populatePool called - poolType: ${poolType}, isNUMode: ${AppState.isNUMode}`);
+  
   container.innerHTML = pool.map(member => {
+    // Apply NU mode override if active
+    const displayMember = AppState.isNUMode ? { ...member, quizDate: null } : member;
     const isSelected = AppState.selectedMemberIds.includes(member.id);
     
-    let badgeText = member.quizDate ? 'Quiz Done' : 'No Quiz';
-    let badgeClass = member.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
+    let badgeText = displayMember.quizDate ? 'Quiz Done' : 'No Quiz';
+    let badgeClass = displayMember.quizDate ? 'member-badge badge-quiz-done' : 'member-badge badge-no-quiz';
     
     return `
       <div class="member-card ${isSelected ? 'selected' : ''}" 
@@ -1130,6 +1185,12 @@ function initializeBuildTeamView() {
  * Main entry point - Assess Team Chemistry button click
  */
 function analyzeTeamChemistry() {
+  // NU MODE INTERCEPT: Show Slack command generation instead
+  if (AppState.isNUMode) {
+    showNUModeSlackCommand();
+    return;
+  }
+  
   const teamNameInput = document.getElementById('teamNameInput');
   const analyzeBtn = document.getElementById('analyzeBtn');
   const processingStatus = document.getElementById('processingStatus');
@@ -1140,18 +1201,7 @@ function analyzeTeamChemistry() {
   const teamName = teamNameInput.value.trim();
   if (!teamName || AppState.selectedMemberIds.length === 0) return;
   
-  // CHECK: Do any selected members lack quiz data?
-  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
-  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
-  const membersWithoutQuiz = selectedMembers.filter(m => !m.quizDate);
-  
-  if (membersWithoutQuiz.length > 0) {
-    // Show Slack command modal for members without quizzes
-    showSlackCommandModal(membersWithoutQuiz);
-    return; // Don't proceed with analysis yet
-  }
-  
-  // All members have quizzes - proceed with normal analysis
+  // Disable button and show processing
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = 'Assessing...';
   
@@ -2063,14 +2113,9 @@ function showToast(message, type = 'success') {
 
 // Export functions to global scope
 window.showToast = showToast;
-window.initializeBuildTeamView = initializeBuildTeamView;
-window.populateBothPools = populateBothPools;
-window.populatePool = populatePool;
-window.initializeOptimizeDragDrop = initializeOptimizeDragDrop;
-window.loadTeamConfig = loadTeamConfig;
-window.calculateAllTeamScores = calculateAllTeamScores;
-window.resetSupervisorView = resetSupervisorView;
-window.populateConflictGrid = populateConflictGrid;
+window.toggleDemoMode = toggleDemoMode;
+window.copyNUSlackCommand = copyNUSlackCommand;
+window.closeNUModal = closeNUModal;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
@@ -2145,6 +2190,7 @@ window.TeamSyncApp = {
   getInterventions,
   createTeam,
   toggleMemberSelection,
+  toggleDemoMode,
   toggleTheme,
   startSlackSimulation,
   copySlackPrompt,
@@ -5042,203 +5088,94 @@ function resetToAIRecommendation() {
   console.log('[Team Explorer] Reset complete');
 }
 
-
 // ========================================
-// SLACK SIMULATION WORKFLOW
+// NU MODE (NEW USER MODE) FUNCTIONS
 // ========================================
 
-const SLACK_MESSAGES = [
-  { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
-  { delay: 1500, text: "📋 Survey sent to team members" },
-  { delay: 2500, text: "✓ Member completed quiz (1/3)" },
-  { delay: 3500, text: "✓ Member completed quiz (2/3)" },
-  { delay: 4500, text: "✓ All members completed (3/3)" },
-  { delay: 5500, text: "🎉 All responses collected! Calculating chemistry..." }
-];
-
-function startSlackSimulation(membersWithoutQuiz) {
-  const widget = document.getElementById('slack-widget');
-  const messagesContainer = document.getElementById('slack-messages');
+/**
+ * Update dashboard cards based on NU mode state
+ */
+function updateDashboardCardsLockState() {
+  const cards = document.querySelectorAll('.module-card');
   
-  if (!widget || !messagesContainer) return;
-  
-  // Show widget
-  widget.classList.remove('hidden');
-  messagesContainer.innerHTML = '';
-  
-  // Customize messages with actual member count
-  const memberCount = membersWithoutQuiz.length;
-  const customMessages = [
-    { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
-    { delay: 1500, text: `📋 Survey sent to ${memberCount} team member${memberCount > 1 ? 's' : ''}` }
-  ];
-  
-  // Add completion messages for each member
-  membersWithoutQuiz.forEach((member, index) => {
-    customMessages.push({
-      delay: 2500 + (index * 1000),
-      text: `✓ ${member.name} completed (${index + 1}/${memberCount})`
+  if (AppState.isNUMode) {
+    // Lock all cards except "Build a Team" (first card)
+    cards.forEach((card, index) => {
+      if (index === 0) {
+        // Build a Team - keep active
+        card.classList.remove('locked');
+      } else {
+        // Lock other 3 cards
+        card.classList.add('locked');
+      }
     });
-  });
-  
-  // Add final message
-  customMessages.push({
-    delay: 2500 + (memberCount * 1000) + 500,
-    text: "🎉 All responses collected! Calculating chemistry..."
-  });
-  
-  // Display messages progressively
-  customMessages.forEach((msg, index) => {
-    setTimeout(() => {
-      const messageEl = document.createElement('div');
-      messageEl.className = 'slack-message';
-      messageEl.textContent = msg.text;
-      messageEl.style.animation = 'slideInMessage 0.3s ease-out';
-      messagesContainer.appendChild(messageEl);
-      
-      // Update progress dots
-      if (index >= 2 && index < customMessages.length - 1) {
-        updateQuizProgress(index - 2, memberCount);
-      }
-      
-      // Complete after last message
-      if (index === customMessages.length - 1) {
-        setTimeout(() => {
-          widget.classList.add('hidden');
-          completeTeamCreationAfterSimulation(membersWithoutQuiz);
-        }, 2000);
-      }
-    }, msg.delay);
-  });
+  } else {
+    // Unlock all cards
+    cards.forEach(card => {
+      card.classList.remove('locked');
+    });
+  }
 }
 
-function updateQuizProgress(completedCount, total) {
-  const dots = document.querySelectorAll('.progress-dot');
-  const dotsToShow = Math.min(total, 3); // Show max 3 dots
-  
-  dots.forEach((dot, index) => {
-    if (index < dotsToShow) {
-      dot.style.display = 'block';
-      if (index < completedCount) {
-        dot.classList.add('completed');
-      }
-    } else {
-      dot.style.display = 'none';
-    }
-  });
+/**
+ * Get member data with NU mode override
+ */
+function getMemberWithNUOverride(member) {
+  if (AppState.isNUMode) {
+    // In NU mode, all members have no quiz
+    return { ...member, quizDate: null };
+  }
+  return member;
 }
 
-function completeTeamCreationAfterSimulation(membersWithoutQuiz) {
-  // Generate fake quiz data for members who didn't have it
-  membersWithoutQuiz.forEach(member => {
-    // Generate random but realistic subscale scores
-    member.quizDate = new Date().toISOString().split('T')[0];
-    member.msScore = Math.floor(Math.random() * 20) + 60; // 60-80 range
-    member.subscales = {
-      understanding: Math.floor(Math.random() * 20) + 60,
-      trust: Math.floor(Math.random() * 20) + 65,
-      ease: Math.floor(Math.random() * 20) + 60,
-      integration: Math.floor(Math.random() * 20) + 60
-    };
-  });
+/**
+ * Exit NU mode and enter full demo mode
+ */
+function exitNUMode() {
+  // State already set to false by toggleDemoMode
+  console.log('[STEP 1] exitNUMode called - isNUMode is now:', AppState.isNUMode);
   
-  // Now trigger the actual team chemistry analysis
-  setTimeout(() => {
-    proceedWithTeamAnalysis();
-  }, 500);
+  // Note: Dashboard card unlocking is handled by navigation.js unlockAllCards()
+  // This just handles data refreshing
+  
+  // Refresh any visible member pools with real data
+  const teamContainer = document.getElementById('teamMemberPool');
+  const dyadContainer = document.getElementById('dyadPartnershipPool');
+  
+  if (teamContainer) {
+    console.log('[STEP 1] Refreshing team pool container');
+    populatePool('team', 'teamMemberPool');
+  }
+  if (dyadContainer) {
+    console.log('[STEP 1] Refreshing dyad pool container');
+    populatePool('dyad', 'dyadPartnershipPool');
+  }
+  
+  // Refresh conflict grids if visible
+  const conflictGridA = document.getElementById('conflictPersonAGrid');
+  const conflictGridB = document.getElementById('conflictPersonBGrid');
+  
+  if (conflictGridA) populateConflictGrid('conflictPersonAGrid', 'A');
+  if (conflictGridB) populateConflictGrid('conflictPersonBGrid', 'B');
+  
+  console.log('[NU Mode] Exited - Full demo mode active');
 }
 
-function proceedWithTeamAnalysis() {
-  // Get all selected members (now they all have quiz data)
+/**
+ * Show Slack command generation in NU mode
+ */
+function showNUModeSlackCommand() {
+  // Get selected members
   const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
   const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
   
-  // Run chemistry calculation
-  const chemistryScore = calculateTeamChemistry(selectedMembers);
+  if (selectedMembers.length === 0) return;
   
-  // Get team name
-  const teamNameInput = document.getElementById('teamNameInput');
-  const teamName = teamNameInput ? teamNameInput.value.trim() : 'New Team';
-  
-  // Create team assessment card
-  createTeamAssessment(teamName, selectedMembers, chemistryScore);
-  
-  // Show success toast
-  showToast(`✓ Team "${teamName}" created with ${Math.round(chemistryScore)}% chemistry!`);
-  
-  // Clear selections
-  AppState.selectedMemberIds = [];
-  if (teamNameInput) teamNameInput.value = '';
-  
-  // Refresh the member pools
-  populateBothPools();
-}
-
-function createTeamAssessment(teamName, members, chemistryScore) {
-  const container = document.getElementById('activeTeamsList');
-  if (!container) return;
-  
-  // Remove "no assessments" message if present
-  const noAssessmentsMsg = container.querySelector('p');
-  if (noAssessmentsMsg) {
-    noAssessmentsMsg.remove();
-  }
-  
-  // Create assessment card
-  const card = document.createElement('div');
-  card.className = 'team-assessment-card';
-  card.style.cssText = `
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  `;
-  
-  card.innerHTML = `
-    <div>
-      <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">${teamName}</div>
-      <div style="font-size: 0.875rem; color: var(--text-secondary);">${members.length} members • Created just now</div>
-    </div>
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="display: flex; align-items: center; gap: 4px;">
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
-      </div>
-      <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 1rem;">
-        ${Math.round(chemistryScore)}% Chemistry
-      </div>
-    </div>
-  `;
-  
-  card.addEventListener('mouseenter', () => {
-    card.style.transform = 'translateY(-2px)';
-    card.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
-  });
-  
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'translateY(0)';
-    card.style.boxShadow = 'none';
-  });
-  
-  container.insertBefore(card, container.firstChild);
-}
-
-// Export functions
-window.startSlackSimulation = startSlackSimulation;
-
-function showSlackCommandModal(membersWithoutQuiz) {
   // Generate Slack command
-  const memberHandles = membersWithoutQuiz.map(m => `@${m.name.toLowerCase().replace(/\s+/g, '.')}`).join(' ');
+  const memberHandles = selectedMembers.map(m => `@${m.name.toLowerCase().replace(' ', '.')}`).join(' ');
   const slackCommand = `/teamsync team ${memberHandles}`;
   
-  // Create modal
+  // Create modal/alert to show the command
   const modal = document.createElement('div');
   modal.className = 'nu-mode-modal';
   modal.innerHTML = `
@@ -5249,10 +5186,10 @@ function showSlackCommandModal(membersWithoutQuiz) {
       <div class="slack-command-box">
         <code>${slackCommand}</code>
       </div>
-      <button class="copy-command-btn" onclick="copySlackCommand('${slackCommand}', ${JSON.stringify(membersWithoutQuiz.map(m => ({id: m.id, name: m.name})))})">
+      <button class="copy-command-btn" onclick="copyNUSlackCommand('${slackCommand}')">
         Copy Command
       </button>
-      <button class="close-modal-btn" onclick="closeSlackModal()">
+      <button class="close-modal-btn" onclick="closeNUModal()">
         Close
       </button>
     </div>
@@ -5266,22 +5203,23 @@ function showSlackCommandModal(membersWithoutQuiz) {
   }, 10);
 }
 
-function copySlackCommand(command, membersWithoutQuiz) {
+/**
+ * Copy Slack command and show toast
+ */
+function copyNUSlackCommand(command) {
   // Copy to clipboard
   navigator.clipboard.writeText(command).then(() => {
     showToast('✓ Slack command copied! Send to your team channel');
-    closeSlackModal();
-    
-    // Start the simulation
-    setTimeout(() => {
-      startSlackSimulation(membersWithoutQuiz);
-    }, 500);
+    closeNUModal();
   }).catch(() => {
     showToast('Failed to copy command', 'error');
   });
 }
 
-function closeSlackModal() {
+/**
+ * Close NU mode modal
+ */
+function closeNUModal() {
   const modal = document.querySelector('.nu-mode-modal');
   if (modal) {
     modal.classList.remove('show');
@@ -5289,6 +5227,3 @@ function closeSlackModal() {
   }
 }
 
-// Export functions
-window.copySlackCommand = copySlackCommand;
-window.closeSlackModal = closeSlackModal;

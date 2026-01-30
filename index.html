@@ -60,6 +60,14 @@
             </div>
         </div>
         <div class="user-section">
+            <button class="demo-toggle" id="demoToggle" title="Toggle between new user and populated views">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span id="toggleLabel">Populate</span>
+            </button>
+            
             <!-- Settings Dropdown -->
             <div class="dropdown-container">
                 <svg class="settings-icon" id="settingsIcon" onclick="toggleSettingsMenu()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -161,7 +169,7 @@
     <div class="dashboard-container" id="landingView">
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1 class="welcome-title" id="welcomeTitle">Welcome to TeamSync AI</h1>
+            <h1 class="welcome-title" id="welcomeTitle">Welcome to TeamSync</h1>
             <p class="welcome-subtitle" id="welcomeSubtitle">Select a module to begin optimizing your teams</p>
             <div class="value-prop" id="valueProp">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
@@ -1053,22 +1061,6 @@
         </div>
     </div>
 
-
-    <!-- Slack Simulation Widget -->
-    <div id="slack-widget" class="slack-widget hidden">
-        <div class="slack-widget-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            <span>TeamSync Bot</span>
-        </div>
-        <div id="slack-messages" class="slack-messages"></div>
-        <div class="slack-progress">
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
-            <div class="progress-dot"></div>
-        </div>
-    </div>
 
     <script src="app-functions.js"></script>
     <script src="navigation.js"></script>
