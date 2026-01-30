@@ -2022,18 +2022,7 @@ function initializeApp() {
   // Load saved theme
   loadTheme();
   
-  // Load demo mode state
-  const savedDemoMode = localStorage.getItem('teamsync-demo-mode');
-  if (savedDemoMode === 'true') {
-    AppState.demoMode = true;
-    populateSampleData();
-  }
-  
-  // Initialize dashboard lock state for NU mode
-  setTimeout(() => {
-    updateDashboardCardsLockState();
-  }, 100); // Small delay to ensure DOM is ready
-  
+  // Demo is always populated - no toggle needed
   console.log('TeamSync AI initialized');
 }
 
@@ -5120,33 +5109,6 @@ function closeSlackModal() {
   if (modal) {
     modal.style.display = 'none';
   }
-}
-
-/**
- * Show toast notification
- */
-function showToast(message) {
-  const toast = document.createElement('div');
-  toast.className = 'status-toast';
-  toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    top: 100px;
-    right: 24px;
-    background: #22c55e;
-    color: white;
-    padding: 16px 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10001;
-    animation: slideInRight 0.3s ease;
-  `;
-  document.body.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.style.animation = 'slideOutRight 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
 }
 
 /**
