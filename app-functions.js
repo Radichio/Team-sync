@@ -3008,9 +3008,6 @@ function createSubscaleDetailItem(subscale, highlight = false, path = 'path1') {
                 ${subscale.level.text}
             </span>
         </div>
-        <div class="subscale-detail-description">
-            ${subscale.level.description}
-        </div>
         <div class="subscale-detail-guidance ${guidanceClass}">
             ${guidance}
         </div>
