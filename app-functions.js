@@ -159,7 +159,7 @@ const memberPools = {
     { id: 'T009', name: 'Sophie Lee', initials: 'SL', quizDate: '2024-06-15', hasDual: true,
       msScore: 58, subscales: { understanding: 54, trust: 66, ease: 56, integration: 58 } },
     { id: 'T010', name: 'Kevin Brown', initials: 'KB', quizDate: null,
-      msScore: 52, subscales: { understanding: 48, trust: 58, ease: 50, integration: 52 } },
+      msScore: null, subscales: null },
     { id: 'T011', name: 'Marcus Rivera', initials: 'MR', quizDate: null,
       msScore: null, subscales: null }, // New candidate - no assessment yet
     { id: 'T012', name: 'James Norton', initials: 'JN', quizDate: '2024-05-10',
@@ -167,7 +167,7 @@ const memberPools = {
   ],
   dyad: [
     { id: 'D001', name: 'Alex Thompson', initials: 'AT', quizDate: '2024-12-19', hasDual: true,
-      msScore: 76, subscales: { understanding: 80, trust: 72, ease: 78, integration: 74 } },
+      msScore: 87, subscales: { understanding: 90, trust: 88, ease: 86, integration: 84 } },
     { id: 'D002', name: 'Rachel Smith', initials: 'RS', quizDate: '2024-12-17',
       msScore: 71, subscales: { understanding: 70, trust: 76, ease: 68, integration: 72 } },
     { id: 'D003', name: 'Daniel Martinez', initials: 'DM', quizDate: '2024-12-12',
@@ -177,7 +177,7 @@ const memberPools = {
     { id: 'D005', name: 'Marcus Johnson', initials: 'MJ', quizDate: '2024-11-01',
       msScore: 73, subscales: { understanding: 76, trust: 78, ease: 66, integration: 74 } },
     { id: 'D006', name: 'Nina Patel', initials: 'NP', quizDate: '2024-10-01',
-      msScore: 79, subscales: { understanding: 82, trust: 84, ease: 72, integration: 78 } },
+      msScore: 89, subscales: { understanding: 92, trust: 90, ease: 86, integration: 88 } },
     { id: 'D007', name: 'Oliver Chen', initials: 'OC', quizDate: '2024-07-15',
       msScore: 60, subscales: { understanding: 58, trust: 64, ease: 62, integration: 56 } },
     { id: 'D008', name: 'Sarah Johnson', initials: 'SJ', quizDate: '2024-03-20', hasDual: true,
@@ -1140,9 +1140,34 @@ function analyzeTeamChemistry() {
   const teamName = teamNameInput.value.trim();
   if (!teamName || AppState.selectedMemberIds.length === 0) return;
   
+  // Check if any selected members need quiz deployment
+  const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+  const selectedMembers = currentPool.filter(m => AppState.selectedMemberIds.includes(m.id));
+  const membersNeedingQuiz = selectedMembers.filter(m => !m.quizDate);
+  
+  // If members need quiz, show Slack deployment modal
+  if (membersNeedingQuiz.length > 0) {
+    showSlackDeployModal(teamName, membersNeedingQuiz, selectedMembers);
+    return;
+  }
+  
+  // All members have quiz data - proceed with normal analysis
+  proceedWithTeamAnalysis(teamName);
+}
+
+/**
+ * Proceed with team chemistry analysis (called after quiz deployment or when all have quizzes)
+ */
+function proceedWithTeamAnalysis(teamName) {
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const processingStatus = document.getElementById('processingStatus');
+  const statusText = document.getElementById('statusText');
+  
   // Disable button and show processing
-  analyzeBtn.disabled = true;
-  analyzeBtn.textContent = 'Assessing...';
+  if (analyzeBtn) {
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'Assessing...';
+  }
   
   if (processingStatus) {
     processingStatus.style.display = 'block';
@@ -1997,18 +2022,7 @@ function initializeApp() {
   // Load saved theme
   loadTheme();
   
-  // Load demo mode state
-  const savedDemoMode = localStorage.getItem('teamsync-demo-mode');
-  if (savedDemoMode === 'true') {
-    AppState.demoMode = true;
-    populateSampleData();
-  }
-  
-  // Initialize dashboard lock state for NU mode
-  setTimeout(() => {
-    updateDashboardCardsLockState();
-  }, 100); // Small delay to ensure DOM is ready
-  
+  // Demo is always populated - no toggle needed
   console.log('TeamSync AI initialized');
 }
 
@@ -2174,7 +2188,7 @@ function populateConflictGrid(gridId, person) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
     
-    grid.innerHTML = memberPools.team.map(member => {
+    grid.innerHTML = memberPools.dyad.map(member => {
         const isSelected = (person === 'A' && conflictState.personA === member.id) || 
                           (person === 'B' && conflictState.personB === member.id);
         
@@ -2233,8 +2247,8 @@ function checkSurveyStatus() {
         return;
     }
     
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2269,8 +2283,8 @@ function checkSurveyStatus() {
  * Send dyad survey (demo function)
  */
 function sendDyadSurvey() {
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2315,8 +2329,8 @@ function showSurveyMonitoring() {
     const alertDiv = document.getElementById('surveyDeploymentAlert');
     if (!alertDiv) return;
     
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (!personA || !personB) return;
     
@@ -2438,7 +2452,7 @@ function remindSurvey(memberId, memberName) {
  */
 function markSurveyComplete(memberId, memberName) {
     // Find the member and update their quizDate
-    const member = memberPools.team.find(m => m.id === memberId);
+    const member = memberPools.dyad.find(m => m.id === memberId);
     if (!member) return;
     
     // Set quiz date to today
@@ -2486,8 +2500,8 @@ function markSurveyComplete(memberId, memberName) {
     populateConflictGrid('conflictPersonBGrid', 'B');
     
     // Check if both now have surveys
-    const personA = memberPools.team.find(m => m.id === conflictState.personA);
-    const personB = memberPools.team.find(m => m.id === conflictState.personB);
+    const personA = memberPools.dyad.find(m => m.id === conflictState.personA);
+    const personB = memberPools.dyad.find(m => m.id === conflictState.personB);
     
     if (personA && personB && personA.quizDate && personB.quizDate) {
         // Both complete! Hide alert and show results
@@ -2530,8 +2544,8 @@ function updateConflictAnalysisFromGrid() {
         return;
     }
     
-    const personA = memberPools.team.find(m => m.id === personAId);
-    const personB = memberPools.team.find(m => m.id === personBId);
+    const personA = memberPools.dyad.find(m => m.id === personAId);
+    const personB = memberPools.dyad.find(m => m.id === personBId);
     
     console.log('Found persons:', personA?.name, personB?.name);
     
@@ -2586,7 +2600,7 @@ function populateConflictSelects() {
     personBSelect.innerHTML = '<option value="">Select team member...</option>';
     
     // Use demo members with quiz data
-    memberPools.team.forEach(member => {
+    memberPools.dyad.forEach(member => {
         const optionA = document.createElement('option');
         optionA.value = member.id;
         optionA.textContent = member.name;
@@ -2598,7 +2612,7 @@ function populateConflictSelects() {
         personBSelect.appendChild(optionB);
     });
     
-    console.log('Conflict selects populated with', memberPools.team.length, 'members');
+    console.log('Conflict selects populated with', memberPools.dyad.length, 'members');
 }
 
 /**
@@ -2662,8 +2676,8 @@ function updateConflictAnalysis() {
     }
     
     // Get member data
-    const personA = memberPools.team.find(m => m.id === personAId);
-    const personB = memberPools.team.find(m => m.id === personBId);
+    const personA = memberPools.dyad.find(m => m.id === personAId);
+    const personB = memberPools.dyad.find(m => m.id === personBId);
     
     if (!personA || !personB) {
         console.error('Could not find member data');
@@ -2734,6 +2748,9 @@ function calculateDyadicChemistry(personA, personB) {
  * Branches to Path 1 (action) or Path 2 (observation) based on severity
  */
 function displayConflictResults(results, personA, personB) {
+    // Store the names for use in component messages
+    window.currentConflictPair = `${personA.name} and ${personB.name}`;
+    
     // Display hero score in top preview area only
     const heroScoreTop = document.getElementById('dyadicChemistryScoreTop');
     if (heroScoreTop) {
@@ -2991,6 +3008,9 @@ function createSubscaleDetailItem(subscale, highlight = false, path = 'path1') {
                 ${subscale.level.text}
             </span>
         </div>
+        <div class="subscale-detail-description">
+            ${subscale.level.description}
+        </div>
         <div class="subscale-detail-guidance ${guidanceClass}">
             ${guidance}
         </div>
@@ -3042,38 +3062,38 @@ function getSubscaleGuidance(key, score, severity) {
  * Emphasizes chemistry differences, not deficits
  */
 function getPath1Guidance(key, score, severity) {
-    const guidanceMap = {
+    // Get the current conflict pair names (stored when analysis runs)
+    const names = window.currentConflictPair || 'the two team members';
+    
+    // Client's exact 16 messages organized by component and severity
+    const componentMessages = {
         understanding: {
-            critical: '💬 <strong>Different communication patterns noticed.</strong> You and your colleague process information differently. Try explicit check-ins: "Let me repeat what I heard to make sure we\'re aligned." This respects both communication styles.',
-            moderate: '💬 <strong>Some communication style differences.</strong> Messages may land differently than intended. Consider asking "How does this sound to you?" to bridge the gap. Both styles are valid.',
-            minor: '💬 <strong>Slight communication variance noticed.</strong> Generally aligned, with occasional clarity needs. A simple "Can you confirm you got that?" can help. Very minor adjustment needed.',
-            functional: '✅ <strong>Compatible communication styles.</strong> You understand each other well. Continue your current approach - it\'s working.',
-            strong: '🌟 <strong>Naturally aligned communication.</strong> You read each other effortlessly. This is a strength to leverage in your collaboration.'
-        },
-        trust: {
-            critical: '🤝 <strong>Different reliability expectations.</strong> You may have different definitions of "follow-through." Try making commitments very explicit and visible. No one is wrong - just different.',
-            moderate: '🤝 <strong>Some expectation differences.</strong> What feels reliable to one might feel uncertain to another. Clarify expectations upfront. Both approaches have merit.',
-            minor: '🤝 <strong>Slight expectation variance.</strong> Generally reliable, with occasional misalignment. A quick "I\'ll do X by Y" can bridge any gaps. Easily addressed.',
-            functional: '✅ <strong>Aligned reliability expectations.</strong> You respect each other\'s follow-through. Keep doing what you\'re doing.',
-            strong: '🌟 <strong>Deep mutual confidence.</strong> You trust each other implicitly. This foundation supports complex collaboration.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect between ${names}, who simply cannot fathom what each other is talking about, which may happen whether or not they are in conflict. Messages between them may land differently than intended. To bridge the disconnect, they can ask each other, 'How does what I'm saying sound to you?' If they simply cannot clarify what they intend to communicate, getting around this severe disconnect, they may have to consider working in separate teams.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for misunderstandings between ${names}, which would happen whether or not they were in conflict. Both of them should think of remedies that they might use while working together that could overcome this type of disconnect to avoid any misunderstandings. Messages may land differently than intended. Consider asking 'How does this sound to you?' to bridge the gap. Both styles are valid.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This particular chemistry component score reveals a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest an insignificant disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score reveals an insignificant disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, apart from their relationship.`
         },
         ease: {
-            critical: '😊 <strong>Different comfort zones noticed.</strong> Interactions may feel natural to one but strained to another. Try adapting to each other\'s preferred style: some prefer direct, others prefer gradual. Neither is wrong.',
-            moderate: '😊 <strong>Some comfort style differences.</strong> What feels easy to one might feel awkward to another. Check in: "How would you prefer to handle this?" Mutual adaptation helps.',
-            minor: '😊 <strong>Slight comfort variance.</strong> Generally at ease, with occasional awkwardness. A simple awareness of each other\'s style smooths things out. Very minor.',
-            functional: '✅ <strong>Naturally comfortable together.</strong> Interactions flow well. Your styles complement each other.',
-            strong: '🌟 <strong>Effortless rapport.</strong> You\'re naturally at ease together. This comfort is an asset.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect about which ${names} are unaware and do not intend. This particular type of disconnect may account for spontaneously experiencing each other as overbearing, intrusive, unsympathetic or cold, whether or not they are in conflict. They should periodically seek feedback from each other to correct any such misperceptions that might cause friction between them, or a tendency to avoid working together. If unable to bridge such a severe disconnect, they may have to consider being assigned to separate teams, or perhaps work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} feeling ill at ease with each other, which would happen whether or not they were in conflict. Both of them should think of remedies that they might use while working together that can help to overcome this type of disconnect to prevent any kind of friction or tendency to avoid working together.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score indicates a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship. A direct conversation about specific concerns may help clarify the real issue. They should find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular chemistry component score indicates a minor disconnect that is unlikely to be the primary source of their conflict. External pressures may be contributing. A direct conversation between them about specific concerns may help clarify the real issue, which is apart from their relationship. A direct conversation about specific concerns may help clarify the real issue. They should find ways to put each other at ease.`
+        },
+        trust: {
+            significant: `Chemistry component sub-scores of less than 55% suggest a severe disconnect between ${names}, who act more as competitors than teammates with each other. They believe that the other is striving to close the most deals, earn the highest commissions and perhaps become known as a 'super achiever,' while simultaneously undermining, sabotaging and diminishing their own standing in the company. Each feels misunderstood, regarding the other as dishonest about their true intentions. Unintentionally, they trigger intuitive, spontaneous mistrust in one another, which can lead to not just this one conflict, but conflict in general. They need to have a constructive, rational discussion about implementing possible solutions that can overcome their natural tendency for mistrust of each other. If unable to bridge over this severe disconnect, they may have to be assigned to separate teams, or else work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who feel more like competitors than teammates. They are not open and honest with each other, which interferes with sharing information and assisting each other. If something goes wrong, instead of collaborating to fix the problem, they avoid taking responsibility and automatically blame one another. To overcome this disconnect, they need to learn that their mistrust is spontaneous and intuitive, which can lead to not just this one conflict, but conflict in general. A constructive, rational discussion about implementing possible remedies to overcome their natural tendency for mutual mistrust may resolve this issue.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This mild disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation about their specific concerns may help clarify the real issue, apart from their work relationship, while at the same time find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation between them about specific concerns may help clarify the real issue, apart from their work relationship.`
         },
         integration: {
-            critical: '⚙️ <strong>Different working styles observed.</strong> You approach tasks differently - one might plan, the other might improvise. Both are valid. Try co-creating a process that honors both styles.',
-            moderate: '⚙️ <strong>Some approach differences.</strong> Work styles don\'t naturally align. Discuss "How do you like to work?" and find middle ground. Both ways work.',
-            minor: '⚙️ <strong>Slight style variance.</strong> Generally aligned, with occasional process mismatches. Quick process check-ins help. Easy to navigate.',
-            functional: '✅ <strong>Compatible work styles.</strong> Your approaches complement each other. Continue current coordination.',
-            strong: '🌟 <strong>Seamlessly synchronized.</strong> You think and act alike naturally. Perfect for complex teamwork.'
+            significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect about which ${names} are unaware and do not intend. Their work styles are so unalike in how they think and act that they get in each other's way, which interferes with getting the job done. Chaotic interaction between them reduces their productivity, which can result in arguments. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way. If such discussion fails, they may need to be assigned to separate teams, or else work independently.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who periodically stop to explain every detail about how they work to avoid slowing each other down, which reduces productivity and causes friction between them. Such a disconnect that would happen whether or not they were in conflict. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way.`,
+            mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect between ${names}. This mild disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation about their specific concerns may help clarify the real issue, apart from their relationship, while at the same time find ways to put each other at ease.`,
+            insignificant: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect between ${names} about which both of them are unaware and do not intend. This particular disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation between them about specific concerns may help clarify the real issue, apart from their relationship.`
         }
     };
     
-    return guidanceMap[key]?.[severity] || 'Different approaches noticed. Both are valid - find ways to work together.';
+    return componentMessages[key]?.[severity] || 'Different approaches noticed. Both are valid - find ways to work together.';
 }
 
 /**
@@ -3206,7 +3226,7 @@ function displayPath1Interventions(subscales, severity) {
  * @returns {object} Level details with text, class, icon, and description
  */
 function getDisconnectLevel(score) {
-    if (score >= 85) {
+    if (score >= 88) {
         return {
             severity: 'insignificant',
             text: 'Insignificant',
@@ -5027,4 +5047,210 @@ function resetToAIRecommendation() {
   
   console.log('[Team Explorer] Reset complete');
 }
+
+// ========================================
+// SLACK SIMULATION WORKFLOW
+// ========================================
+
+/**
+ * Show Slack command deployment modal for members without quiz
+ */
+function showSlackDeployModal(teamName, membersNeedingQuiz, allSelectedMembers) {
+  const modal = document.getElementById('slackCommandModal');
+  const commandText = document.getElementById('slackCommandText');
+  
+  if (!modal || !commandText) {
+    console.error('Slack modal elements not found');
+    return;
+  }
+  
+  // Store context for after simulation
+  window.pendingTeamAnalysis = {
+    teamName: teamName,
+    membersNeedingQuiz: membersNeedingQuiz,
+    allSelectedMembers: allSelectedMembers
+  };
+  
+  // Build Slack command with usernames
+  const usernames = membersNeedingQuiz.map(m => '@' + m.name.toLowerCase().replace(' ', '.'));
+  const command = `/teamsync team ${usernames.join(' ')}`;
+  
+  commandText.textContent = command;
+  modal.style.display = 'flex';
+}
+
+/**
+ * Copy Slack command to clipboard and start simulation
+ */
+function copySlackCommand() {
+  const commandText = document.getElementById('slackCommandText');
+  if (!commandText) return;
+  
+  // Copy to clipboard
+  navigator.clipboard.writeText(commandText.textContent).then(() => {
+    // Show toast
+    showToast('✓ Slack command copied!');
+    
+    // Close modal
+    closeSlackModal();
+    
+    // Start Slack simulation
+    startSlackSimulation();
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+    // Still proceed with simulation even if copy fails
+    closeSlackModal();
+    startSlackSimulation();
+  });
+}
+
+/**
+ * Close the Slack command modal
+ */
+function closeSlackModal() {
+  const modal = document.getElementById('slackCommandModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+/**
+ * Start the Slack simulation widget animation
+ */
+function startSlackSimulation() {
+  const widget = document.getElementById('slack-widget');
+  const messagesContainer = document.getElementById('slack-messages');
+  
+  if (!widget || !messagesContainer) {
+    console.error('Slack widget elements not found');
+    completeSlackSimulation();
+    return;
+  }
+  
+  const pending = window.pendingTeamAnalysis;
+  if (!pending) {
+    console.error('No pending team analysis');
+    return;
+  }
+  
+  const membersNeedingQuiz = pending.membersNeedingQuiz;
+  const memberCount = membersNeedingQuiz.length;
+  
+  // Build dynamic messages based on actual members
+  const SLACK_MESSAGES = [
+    { delay: 500, text: "🤖 Deploying TeamSync Chemistry Assessment..." },
+    { delay: 1500, text: `📋 Survey sent to ${memberCount} team member${memberCount > 1 ? 's' : ''}` }
+  ];
+  
+  // Add completion message for each member
+  membersNeedingQuiz.forEach((member, index) => {
+    SLACK_MESSAGES.push({
+      delay: 2500 + (index * 1000),
+      text: `✓ ${member.name} completed (${index + 1}/${memberCount})`
+    });
+  });
+  
+  // Final message
+  SLACK_MESSAGES.push({
+    delay: 2500 + (memberCount * 1000) + 500,
+    text: "🎉 All responses collected! Calculating chemistry..."
+  });
+  
+  // Show widget
+  widget.classList.remove('hidden');
+  messagesContainer.innerHTML = '';
+  
+  // Reset progress dots
+  const dots = widget.querySelectorAll('.progress-dot');
+  dots.forEach(dot => dot.classList.remove('completed'));
+  
+  // Animate messages
+  SLACK_MESSAGES.forEach((msg, index) => {
+    setTimeout(() => {
+      const messageEl = document.createElement('div');
+      messageEl.className = 'slack-message';
+      messageEl.textContent = msg.text;
+      messagesContainer.appendChild(messageEl);
+      
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // Update progress dots (after the first 2 setup messages)
+      if (index >= 2 && index < 2 + memberCount) {
+        const dotIndex = index - 2;
+        if (dots[dotIndex]) {
+          dots[dotIndex].classList.add('completed');
+        }
+      }
+      
+      // Complete all dots on final message
+      if (index === SLACK_MESSAGES.length - 1) {
+        dots.forEach(dot => dot.classList.add('completed'));
+        
+        // Hide widget and complete after delay
+        setTimeout(() => {
+          widget.classList.add('hidden');
+          completeSlackSimulation();
+        }, 2000);
+      }
+    }, msg.delay);
+  });
+}
+
+/**
+ * Complete the Slack simulation - update member data and proceed with analysis
+ */
+function completeSlackSimulation() {
+  const pending = window.pendingTeamAnalysis;
+  if (!pending) return;
+  
+  const { teamName, membersNeedingQuiz, allSelectedMembers } = pending;
+  
+  // Update members who completed the quiz
+  const today = new Date().toISOString().split('T')[0];
+  
+  membersNeedingQuiz.forEach(member => {
+    // Find member in pool and update their quiz data
+    const currentPool = AppState.currentQuizType === 'team' ? memberPools.team : memberPools.dyad;
+    const poolMember = currentPool.find(m => m.id === member.id);
+    
+    if (poolMember) {
+      // Set quiz date
+      poolMember.quizDate = today;
+      
+      // Generate subscales if not present
+      if (!poolMember.subscales) {
+        const baseScore = 65 + Math.floor(Math.random() * 15); // 65-79 range
+        poolMember.subscales = {
+          understanding: baseScore + Math.floor(Math.random() * 10 - 5),
+          trust: baseScore + Math.floor(Math.random() * 10 - 5),
+          ease: baseScore + Math.floor(Math.random() * 10 - 5),
+          integration: baseScore + Math.floor(Math.random() * 10 - 5)
+        };
+        poolMember.msScore = Math.round(
+          (poolMember.subscales.understanding + poolMember.subscales.trust + 
+           poolMember.subscales.ease + poolMember.subscales.integration) / 4
+        );
+      }
+      
+      console.log(`[Slack Simulation] Updated ${poolMember.name} with quiz date:`, poolMember.quizDate);
+    }
+  });
+  
+  // Refresh the member pools to show updated quiz badges
+  populateBothPools();
+  
+  // Clear pending analysis
+  window.pendingTeamAnalysis = null;
+  
+  // Now proceed with the actual team analysis
+  proceedWithTeamAnalysis(teamName);
+}
+
+// Export Slack simulation functions to global scope
+window.copySlackCommand = copySlackCommand;
+window.closeSlackModal = closeSlackModal;
+window.startSlackSimulation = startSlackSimulation;
+window.showSlackDeployModal = showSlackDeployModal;
+window.proceedWithTeamAnalysis = proceedWithTeamAnalysis;
 
