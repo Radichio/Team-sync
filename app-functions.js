@@ -3596,8 +3596,10 @@ function getSupervisorChemistry(supervisorId) {
  * @returns {object} Match result with score, quality, and analysis
  */
 function calculateMatchScore(teamScore, supervisorScore) {
-    // Core algorithm: Match score is the MINIMUM of the two scores
-    const matchScore = Math.min(teamScore, supervisorScore);
+    // Core algorithm: Calculate new team chemistry with supervisor added
+    // Assumes typical team of 4 members, supervisor is 5th person
+    // New chemistry = weighted average of team and supervisor scores
+    const matchScore = Math.round(((teamScore * 4) + supervisorScore) / 5);
     
     // Determine match quality based on relationship between scores
     const matchQuality = getMatchQuality(matchScore, teamScore, supervisorScore);
