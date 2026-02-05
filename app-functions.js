@@ -3392,10 +3392,42 @@ function exportConflictReport() {
     const personBName = document.getElementById('conflictPersonB').selectedOptions[0]?.text;
     const chemistry = document.getElementById('dyadicChemistryScore').textContent;
     
-    console.log('Export conflict report:', { personAName, personBName, chemistry });
+    console.log('Archive conflict report:', { personAName, personBName, chemistry });
     
-    // TODO: Implement actual export functionality (PDF generation)
-    alert('Export functionality will generate a comprehensive PDF report with:\n\n• Dyadic chemistry analysis\n• Subscale breakdowns\n• Primary disconnect areas\n• Evidence-based intervention recommendations\n• Implementation timeline\n\nThis feature will be available in the production version.');
+    // Show archive confirmation modal
+    const modal = document.getElementById('archiveReportModal');
+    const pairNames = document.getElementById('archivedPairNames');
+    const timestamp = document.getElementById('archivedTimestamp');
+    
+    if (modal && pairNames && timestamp) {
+        pairNames.textContent = `${personAName} & ${personBName}`;
+        
+        // Format timestamp
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        const timeStr = now.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        timestamp.textContent = `Archived ${dateStr} at ${timeStr}`;
+        
+        modal.style.display = 'flex';
+    }
+}
+
+/**
+ * Close archive report confirmation modal
+ */
+function closeArchiveModal() {
+    const modal = document.getElementById('archiveReportModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 /**
@@ -3415,6 +3447,7 @@ function deployInterventions() {
 window.populateConflictSelects = populateConflictSelects;
 window.updateConflictAnalysis = updateConflictAnalysis;
 window.exportConflictReport = exportConflictReport;
+window.closeArchiveModal = closeArchiveModal;
 window.deployInterventions = deployInterventions;
 window.initializeConflictGrids = initializeConflictGrids;
 window.selectConflictMember = selectConflictMember;

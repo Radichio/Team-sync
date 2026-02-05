@@ -1046,6 +1046,33 @@
 
 
     <!-- Slack Command Modal -->
+    <!-- Archive Report Confirmation Modal -->
+    <div id="archiveReportModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; color: var(--text-primary);">✓ Report Archived</h3>
+                <button class="modal-close" onclick="closeArchiveModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                    This conflict assessment has been archived and saved to your TeamSync records.
+                </p>
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <span style="font-size: 1.5rem;">📁</span>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="archivedPairNames">Assessment Report</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);" id="archivedTimestamp"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeArchiveModal()" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="slackCommandModal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
