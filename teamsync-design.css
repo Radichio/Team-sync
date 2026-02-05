@@ -5164,6 +5164,65 @@ body.light-mode .match-indicator.caution.clickable:hover {
     color: #475569;
 }
 
+/* Archive Report Modal Styles */
+#archiveReportModal .modal-content {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+#archiveReportModal .modal-header {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px 16px 0 0;
+}
+
+#archiveReportModal .modal-header h3 {
+    color: #ffffff !important;
+}
+
+#archiveReportModal .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+#archiveReportModal .modal-close:hover {
+    color: #ffffff;
+}
+
+#archiveReportModal .modal-body {
+    background: var(--bg-primary);
+    border-radius: 0 0 16px 16px;
+}
+
+#archiveReportModal .modal-body p {
+    color: var(--text-secondary);
+}
+
+#archiveReportModal .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#archiveReportModal .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
 #slackCommandModal #slackCommandText {
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
