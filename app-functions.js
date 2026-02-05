@@ -3755,7 +3755,7 @@ function displayNoAssessmentState(teamChemistry, supervisorId) {
 function displaySupervisorMatch(matchResult, teamId, supervisorId) {
     // Update score displays
     document.getElementById('teamChemistryScore').textContent = matchResult.teamScore + '%';
-    document.getElementById('supervisorReadinessScore').textContent = matchResult.supervisorScore + '%';
+    document.getElementById('supervisorReadinessScore').textContent = matchResult.matchScore + '%';
     
     // Update match indicator
     const indicator = document.getElementById('matchQualityIndicator');
