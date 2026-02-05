@@ -3622,57 +3622,36 @@ function calculateMatchScore(teamScore, supervisorScore) {
  * @returns {object} Quality level with emoji and description
  */
 function getMatchQuality(matchScore, teamScore, supervisorScore) {
-    // Mental Synchrony Principle: Smaller gaps = better synchrony
-    // Calculate gap (positive = supervisor above team, negative = supervisor below team)
-    const gap = supervisorScore - teamScore;
-    const absoluteGap = Math.abs(gap);
+    // Calculate actual change in team chemistry
+    const change = matchScore - teamScore;
+    const absoluteChange = Math.abs(change);
     
-    // CRITICAL: Never allow supervisor below team (would lower team chemistry)
-    if (gap < 0) {
+    // DEGRADES: Match score is lower than original team score (RED)
+    if (change < 0) {
         return {
             level: 'poor',
             emoji: '🔴',
-            text: 'Poor Match - Would Lower Team Chemistry',
-            description: `This supervisor scores ${Math.abs(gap)} points below the team, which would reduce overall team chemistry. Not recommended.`
+            text: `Degrades team chemistry by ${absoluteChange} point${absoluteChange !== 1 ? 's' : ''}`,
+            description: `Adding this supervisor would reduce overall team chemistry from ${teamScore}% to ${matchScore}%. Not recommended.`
         };
     }
     
-    // EXCELLENT: 0-3 point gap = optimal synchrony (perfect alignment)
-    if (absoluteGap <= 3) {
+    // IMPROVES: Match score is higher than original team score (GREEN)
+    if (change > 0) {
         return {
             level: 'excellent',
-            emoji: '🌟',
-            text: 'Excellent Match - Optimal Synchrony',
-            description: 'Supervisor chemistry perfectly aligns with team. This is the ideal match for natural connection and effective leadership.'
-        };
-    }
-    
-    // GOOD: 4-8 point gap = strong connection (still well-aligned)
-    if (absoluteGap <= 8) {
-        return {
-            level: 'good',
             emoji: '✅',
-            text: 'Good Match - Strong Connection',
-            description: 'Supervisor chemistry aligns well with team dynamics. Expected to lead effectively with natural rapport.'
+            text: `Improves team chemistry by ${absoluteChange} point${absoluteChange !== 1 ? 's' : ''}`,
+            description: `Adding this supervisor would increase overall team chemistry from ${teamScore}% to ${matchScore}%.`
         };
     }
     
-    // CAUTION: 9-15 point gap = getting disconnected (needs mitigation)
-    if (absoluteGap <= 15) {
-        return {
-            level: 'caution',
-            emoji: '⚠️',
-            text: 'Needs Review - Large Disparity',
-            description: `${absoluteGap}-point chemistry gap may affect natural connection. Enhanced onboarding and communication strategies recommended.`
-        };
-    }
-    
-    // POOR: 16+ point gap = too far apart (can't connect effectively)
+    // MAINTAINS: No change in score (NEUTRAL)
     return {
-        level: 'poor',
-        emoji: '🔴',
-        text: 'Poor Match - Chemistry Gap Too Large',
-        description: `${absoluteGap}-point gap is too large for effective synchrony. Supervisor may struggle to connect naturally with team members.`
+        level: 'good',
+        emoji: '⚖️',
+        text: `Maintains team chemistry at ${teamScore}%`,
+        description: 'Adding this supervisor would maintain the current team chemistry level without improvement or degradation.'
     };
 }
 
