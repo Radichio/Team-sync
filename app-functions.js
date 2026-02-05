@@ -3533,9 +3533,6 @@ function updateSupervisorMatch() {
         // Show "no assessment" state
         displayNoAssessmentState(teamChemistry, supervisorId);
         resultsContainer.style.display = 'block';
-        setTimeout(() => {
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
         return;
     }
 
@@ -3545,11 +3542,8 @@ function updateSupervisorMatch() {
     // Display results
     displaySupervisorMatch(matchResult, teamId, supervisorId);
 
-    // Show results container with smooth scroll
+    // Show results container
     resultsContainer.style.display = 'block';
-    setTimeout(() => {
-        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
 
     console.log('Match updated:', matchResult);
 }
@@ -3965,12 +3959,6 @@ function tryAnotherSupervisor() {
     document.getElementById('supervisorTeam').value = '';
     document.getElementById('supervisorCandidate').value = '';
     document.getElementById('supervisorResults').style.display = 'none';
-    
-    // Scroll back to selection area
-    document.querySelector('.supervisor-selection-container').scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-    });
     
     console.log('Supervisor selection reset');
 }
