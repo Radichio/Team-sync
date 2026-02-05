@@ -3388,9 +3388,11 @@ function displayInterventionRecommendations(subscales) {
  * Export conflict report (placeholder for future functionality)
  */
 function exportConflictReport() {
-    const personAName = document.getElementById('conflictPersonA').selectedOptions[0]?.text;
-    const personBName = document.getElementById('conflictPersonB').selectedOptions[0]?.text;
-    const chemistry = document.getElementById('dyadicChemistryScore').textContent;
+    console.log('Archive button clicked!');
+    
+    const personAName = document.getElementById('conflictPersonA')?.selectedOptions[0]?.text || 'Person A';
+    const personBName = document.getElementById('conflictPersonB')?.selectedOptions[0]?.text || 'Person B';
+    const chemistry = document.getElementById('dyadicChemistryScore')?.textContent || '--';
     
     console.log('Archive conflict report:', { personAName, personBName, chemistry });
     
@@ -3399,9 +3401,19 @@ function exportConflictReport() {
     const pairNames = document.getElementById('archivedPairNames');
     const timestamp = document.getElementById('archivedTimestamp');
     
-    if (modal && pairNames && timestamp) {
+    console.log('Modal elements found:', { modal: !!modal, pairNames: !!pairNames, timestamp: !!timestamp });
+    
+    if (!modal) {
+        console.error('Archive modal not found!');
+        alert('Archive confirmation modal not found. Report has been logged.');
+        return;
+    }
+    
+    if (pairNames) {
         pairNames.textContent = `${personAName} & ${personBName}`;
-        
+    }
+    
+    if (timestamp) {
         // Format timestamp
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-US', { 
@@ -3415,9 +3427,11 @@ function exportConflictReport() {
             hour12: true 
         });
         timestamp.textContent = `Archived ${dateStr} at ${timeStr}`;
-        
-        modal.style.display = 'flex';
     }
+    
+    // Force display
+    modal.style.display = 'flex';
+    console.log('Modal display set to flex');
 }
 
 /**
