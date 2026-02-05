@@ -3868,13 +3868,6 @@ function displayImpactAssessment(matchResult) {
                     <div class="impact-description">Consider selecting a different supervisor with higher chemistry alignment.</div>
                 </div>
             </div>
-            <div class="impact-item">
-                <div class="impact-icon">🎯</div>
-                <div class="impact-content">
-                    <div class="impact-title">If Proceeding</div>
-                    <div class="impact-description">Requires comprehensive onboarding plan and intensive support for first 6 months.</div>
-                </div>
-            </div>
         `;
     }
     
