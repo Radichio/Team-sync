@@ -519,7 +519,7 @@
                         <div class="subscale-value" id="subscaleUnderstanding">87%</div>
                     </div>
                     <div class="subscale-item">
-                        <div class="subscale-label">Totally respecting one another:</div>
+                        <div class="subscale-label">Intuitively trusting one another:</div>
                         <div class="subscale-value" id="subscaleTrust">91%</div>
                     </div>
                     <div class="subscale-item">
@@ -1054,16 +1054,16 @@
                 <button class="modal-close" onclick="closeArchiveModal()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 24px;">
-                <p style="color: var(--text-secondary); margin-bottom: 16px;">
-                    This conflict assessment has been archived and saved to your TeamSync records.
+                <p style="color: var(--text-secondary); margin-bottom: 20px; text-align: center;">
+                    Conflict assessment archived successfully
                 </p>
-                <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <span style="font-size: 1.5rem;">📁</span>
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="archivedPairNames">Assessment Report</div>
-                            <div style="font-size: 0.875rem; color: var(--text-secondary);" id="archivedTimestamp"></div>
-                        </div>
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">Assessment Between</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1.4;" id="archivedPairNames">Loading names...</div>
+                    </div>
+                    <div style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); text-align: center;" id="archivedTimestamp"></div>
                     </div>
                 </div>
                 <button onclick="closeArchiveModal()" class="btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
