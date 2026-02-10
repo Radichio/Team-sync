@@ -3084,7 +3084,7 @@ function getPath1Guidance(key, score, severity) {
         },
         integration: {
             significant: `Chemistry component sub-scores that are below 55% suggest a severe disconnect about which ${names} are unaware and do not intend. Their work styles are so unalike in how they think and act that they get in each other's way, which interferes with getting the job done. Chaotic interaction between them reduces their productivity, which can result in arguments. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way. If such discussion fails, they may need to be assigned to separate teams, or else work independently.`,
-            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who would need to periodically explain every detail to avoid slowing each other down, which reduces productivity and causes friction between them. Such a disconnect that would happen whether or not they were in conflict. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way.`,
+            moderate: `Chemistry component sub-scores of 55% to 70% suggest a moderate 'disconnect' that may account for ${names} who probably need to explain almost every little detail to avoid slowing each other down, which reduces productivity and causes friction between them. Such a disconnect that would happen whether or not they were in conflict. They need to discuss and understand differences in their equally valid work styles and then consider how both styles might be combined, without getting in each other's way.`,
             mild: `Chemistry component sub-scores of 71 to 87% suggest a mild 'disconnect' between ${names}. This mild disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation about their specific concerns may help clarify the real issue, apart from their relationship, while at the same time find ways to put each other at ease.`,
             negligible: `Chemistry component sub-scores of 88 to 100% suggest a negligible 'disconnect' between ${names} about which both of them are unaware and do not intend. This particular disconnect is unlikely to be the primary source of their conflict. External pressures may be contributing. An open conversation between them about specific concerns may help clarify the real issue, apart from their relationship.`
         }
@@ -3947,7 +3947,7 @@ function displaySubscaleComparison(supervisorId) {
     
     const subscaleLabels = {
         understanding: 'Truly understanding each other',
-        trust: 'Totally respecting one another',
+        trust: 'Intuitively trusting one another',
         ease: 'Instantly feeling at ease together',
         integration: 'Spontaneously thinking and acting alike'
     };
