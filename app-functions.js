@@ -3390,8 +3390,11 @@ function displayInterventionRecommendations(subscales) {
 function exportConflictReport() {
     console.log('Archive button clicked!');
     
-    const personAName = document.getElementById('conflictPersonA')?.selectedOptions[0]?.text || 'Person A';
-    const personBName = document.getElementById('conflictPersonB')?.selectedOptions[0]?.text || 'Person B';
+    // Get names from window.currentConflictPair (set dynamically during analysis)
+    const pairString = window.currentConflictPair || 'Person A and Person B';
+    const names = pairString.split(' and ');
+    const personAName = names[0] || 'Person A';
+    const personBName = names[1] || 'Person B';
     const chemistry = document.getElementById('dyadicChemistryScore')?.textContent || '--';
     
     console.log('Archive conflict report:', { personAName, personBName, chemistry });
