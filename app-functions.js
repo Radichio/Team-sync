@@ -1842,7 +1842,20 @@ function recalculateExplorerChemistry() {
   // Update main chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
-  // Update subscale scores
+  // Hide/show subscale section based on team size
+  // Component subscales only apply to dyadic (2-person) relationships
+  const subscaleSection = document.querySelector('.subscale-section');
+  if (subscaleSection) {
+    if (teamMembers.length >= 3) {
+      subscaleSection.style.display = 'none';
+      console.log('[Team Explorer] Subscales hidden - team size >= 3 (subscales apply to dyads only)');
+    } else {
+      subscaleSection.style.display = 'block';
+      console.log('[Team Explorer] Subscales shown - team is dyadic');
+    }
+  }
+  
+  // Update subscale scores (only relevant if team size is 2)
   const understandingEl = document.getElementById('subscaleUnderstanding');
   const trustEl = document.getElementById('subscaleTrust');
   const easeEl = document.getElementById('subscaleEase');
@@ -3503,30 +3516,35 @@ function populateSupervisorSelects() {
             id: 'team-1', 
             name: 'Engineering Team Alpha', 
             chemistry: 82,
+            memberCount: 5,
             subscales: { understanding: 80, trust: 85, ease: 82, integration: 81 }
         },
         { 
             id: 'team-2', 
             name: 'Marketing Core Team', 
             chemistry: 76,
+            memberCount: 4,
             subscales: { understanding: 74, trust: 78, ease: 76, integration: 76 }
         },
         { 
             id: 'team-3', 
             name: 'Sales Division Beta', 
             chemistry: 71,
+            memberCount: 6,
             subscales: { understanding: 68, trust: 74, ease: 72, integration: 70 }
         },
         { 
             id: 'team-4', 
             name: 'Product Design Squad', 
             chemistry: 88,
+            memberCount: 3,
             subscales: { understanding: 86, trust: 90, ease: 88, integration: 88 }
         },
         { 
             id: 'team-5', 
             name: 'Customer Success Team', 
             chemistry: 79,
+            memberCount: 4,
             subscales: { understanding: 77, trust: 81, ease: 79, integration: 79 }
         }
     ];
@@ -3823,7 +3841,7 @@ function displaySupervisorMatch(matchResult, teamId, supervisorId) {
     displayImpactAssessment(matchResult);
     
     // Display subscale comparison
-    displaySubscaleComparison(supervisorId);
+    displaySubscaleComparison(supervisorId, teamId);
     
     // Update Assign Supervisor button state based on match quality
     const assignBtn = document.getElementById('assignSupervisorBtn');
@@ -3926,10 +3944,27 @@ function displayImpactAssessment(matchResult) {
 
 /**
  * Display detailed subscale comparison
+ * Component subscales only apply to dyadic relationships (2 people)
  * @param {string} supervisorId - Supervisor member ID
+ * @param {string} teamId - Team ID
  */
-function displaySubscaleComparison(supervisorId) {
+function displaySubscaleComparison(supervisorId, teamId) {
     const container = document.getElementById('subscaleComparison');
+    
+    // Get team info to check size
+    const team = window.sampleTeams?.find(t => t.id === teamId);
+    
+    // Check if team has 3+ members - subscales only apply to dyads
+    if (team && team.memberCount >= 3) {
+        container.innerHTML = `
+            <p style="color: var(--text-secondary); line-height: 1.6; padding: 12px; background: var(--card-bg); border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                <strong>Note:</strong> Component subscales (Understanding, Trust, Ease, Integration) apply to dyadic (2-person) relationships only. 
+                The overall team chemistry score of <strong>${team.chemistry}%</strong> provides the assessment for supervisor matching.
+            </p>
+        `;
+        console.log('[Match Supervisor] Subscales hidden - team has', team.memberCount, 'members (subscales apply to dyads only)');
+        return;
+    }
     
     // Get supervisor's subscales
     const supervisor = memberPools.team.find(m => m.id === supervisorId);
@@ -3941,7 +3976,7 @@ function displaySubscaleComparison(supervisorId) {
     
     // For demo, we'll use average team subscales
     // In real app, this would come from selected team's actual data
-    const teamSubscales = {
+    const teamSubscales = team?.subscales || {
         understanding: 75,
         trust: 78,
         ease: 73,
