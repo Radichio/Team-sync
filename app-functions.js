@@ -4438,15 +4438,15 @@ const teamConfigurations = {
         name: 'Engineering Alpha',
         core: ['riley-lee', 'jordan-davis', 'sam-johnson', 'morgan-chen'],
         extended: [],
-        bench: ['alex-smith', 'avery-white'],
-        available: ['taylor-park', 'casey-brown']
+        bench: ['taylor-park', 'casey-brown'],
+        available: ['alex-smith', 'avery-white']
     },
     'beta': {
         name: 'Sales Division Beta',
-        core: ['sam-johnson', 'morgan-chen', 'taylor-park', 'casey-brown'],
+        core: ['jordan-davis', 'morgan-chen', 'avery-white', 'taylor-park'],
         extended: [],
-        bench: ['riley-lee', 'jordan-davis'],
-        available: ['alex-smith', 'avery-white']
+        bench: ['alex-smith', 'casey-brown'],
+        available: ['riley-lee', 'sam-johnson']
     },
     'innovation': {
         name: 'Product Innovation',
