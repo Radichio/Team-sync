@@ -4436,17 +4436,17 @@ function discardChanges() {
 const teamConfigurations = {
     'alpha': {
         name: 'Engineering Alpha',
-        core: ['alex-smith', 'sam-johnson', 'morgan-chen', 'avery-white'],
+        core: ['riley-lee', 'jordan-davis', 'sam-johnson', 'morgan-chen'],
         extended: [],
-        bench: ['jordan-davis', 'riley-lee'],
+        bench: ['alex-smith', 'avery-white'],
         available: ['taylor-park', 'casey-brown']
     },
     'beta': {
         name: 'Sales Division Beta',
-        core: ['morgan-chen', 'taylor-park', 'casey-brown', 'avery-white'],
+        core: ['sam-johnson', 'morgan-chen', 'taylor-park', 'casey-brown'],
         extended: [],
-        bench: ['riley-lee'],
-        available: []
+        bench: ['riley-lee', 'jordan-davis'],
+        available: ['alex-smith', 'avery-white']
     },
     'innovation': {
         name: 'Product Innovation',
