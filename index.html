@@ -506,13 +506,13 @@
 
         <!-- Collapsible Subscale Components -->
         <div class="subscale-section">
-            <button class="subscale-toggle" id="subscaleToggle" onclick="toggleSubscales()">
+            <button class="subscale-toggle expanded" id="subscaleToggle" onclick="toggleSubscales()">
                 <span>Team Chemistry Subscale Components</span>
                 <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"/>
                 </svg>
             </button>
-            <div class="subscale-content" id="subscaleContent">
+            <div class="subscale-content expanded" id="subscaleContent" style="display: block;">
                 <div class="subscale-grid">
                     <div class="subscale-item">
                         <div class="subscale-label">Truly understanding each other:</div>
@@ -536,13 +536,13 @@
 
         <!-- Collapsible Alternative Configurations -->
         <div class="alternate-configs-section" id="alternateConfigsSection">
-            <button class="alternate-toggle" id="alternateToggle" onclick="toggleAlternates()">
+            <button class="alternate-toggle expanded" id="alternateToggle" onclick="toggleAlternates()">
                 <span>Alternative Configurations</span>
                 <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"/>
                 </svg>
             </button>
-            <div class="alternate-configs-content" id="alternateConfigsContent" style="display: none;">
+            <div class="alternate-configs-content" id="alternateConfigsContent" style="display: block;">
                 <div class="alternate-grid" id="alternateGrid">
                     <!-- Populated by JavaScript -->
                 </div>
