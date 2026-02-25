@@ -1834,13 +1834,7 @@ function recalculateExplorerChemistry() {
     integration: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.integration || 0), 0) / teamMembers.length)
   };
   
-  // CAPPING LOGIC: No subscale can exceed the team chemistry score
-  subscales.understanding = Math.min(subscales.understanding, chemistry);
-  subscales.trust = Math.min(subscales.trust, chemistry);
-  subscales.ease = Math.min(subscales.ease, chemistry);
-  subscales.integration = Math.min(subscales.integration, chemistry);
-  
-  console.log('[Team Explorer] Capped subscales (max ' + chemistry + '%):', subscales);
+  console.log('[Team Explorer] Calculated subscales:', subscales);
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
