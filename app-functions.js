@@ -4911,11 +4911,15 @@ function openAlternateModal(config, rankLabel, rankNumber) {
   const subscalesContainer = document.getElementById('alternateModalSubscales');
   const subscales = calculateIndividualSubscales(config.members);
   
-  // CAPPING: No subscale can exceed the team chemistry score
-  subscales.understanding = Math.min(subscales.understanding, config.chemistry);
-  subscales.trust = Math.min(subscales.trust, config.chemistry);
-  subscales.ease = Math.min(subscales.ease, config.chemistry);
-  subscales.integration = Math.min(subscales.integration, config.chemistry);
+  // PROPORTIONAL SCALING: Scale subscales to sit naturally around team chemistry score
+  const rawAvg = (subscales.understanding + subscales.trust + subscales.ease + subscales.integration) / 4;
+  if (rawAvg > 0 && rawAvg > config.chemistry) {
+    const scaleFactor = config.chemistry / rawAvg;
+    subscales.understanding = Math.round(subscales.understanding * scaleFactor);
+    subscales.trust = Math.round(subscales.trust * scaleFactor);
+    subscales.ease = Math.round(subscales.ease * scaleFactor);
+    subscales.integration = Math.round(subscales.integration * scaleFactor);
+  }
   
   subscalesContainer.innerHTML = `
     <div class="subscale-item-compact">
