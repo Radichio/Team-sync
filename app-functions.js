@@ -1834,13 +1834,7 @@ function recalculateExplorerChemistry() {
     integration: Math.round(teamMembers.reduce((sum, m) => sum + (m.subscales?.integration || 0), 0) / teamMembers.length)
   };
   
-  // CAPPING LOGIC: No subscale can exceed the team chemistry score
-  subscales.understanding = Math.min(subscales.understanding, chemistry);
-  subscales.trust = Math.min(subscales.trust, chemistry);
-  subscales.ease = Math.min(subscales.ease, chemistry);
-  subscales.integration = Math.min(subscales.integration, chemistry);
-  
-  console.log('[Team Explorer] Capped subscales (max ' + chemistry + '%):', subscales);
+  console.log('[Team Explorer] Calculated subscales:', subscales);
   
   // Update hero chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
@@ -1848,11 +1842,17 @@ function recalculateExplorerChemistry() {
   // Update main chemistry score
   document.getElementById('heroChemistryScore').textContent = chemistry;
   
-  // Show subscale section for ALL team sizes
+  // Hide/show subscale section based on team size
+  // Component subscales only apply to dyadic (2-person) relationships
   const subscaleSection = document.querySelector('.subscale-section');
   if (subscaleSection) {
-    subscaleSection.style.display = 'block';
-    console.log('[Team Explorer] Subscales shown for team of', teamMembers.length);
+    if (teamMembers.length >= 3) {
+      subscaleSection.style.display = 'none';
+      console.log('[Team Explorer] Subscales hidden - team size >= 3 (subscales apply to dyads only)');
+    } else {
+      subscaleSection.style.display = 'block';
+      console.log('[Team Explorer] Subscales shown - team is dyadic');
+    }
   }
   
   // Update subscale scores (only relevant if team size is 2)
