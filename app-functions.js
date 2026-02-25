@@ -294,14 +294,8 @@ function calculateIndividualSubscales(members) {
   const subscaleScores = {};
   
   dimensions.forEach(dim => {
-    const values = members.map(m => m.subscales[dim]);
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
-    
-    // Lower variance = better alignment
-    // Variance of 0-100 scaled to alignment score of 100-60
-    const alignmentForDim = Math.max(60, 100 - variance * 0.4);
-    subscaleScores[dim] = Math.round(alignmentForDim);
+    const values = members.map(m => m.subscales?.[dim] || 0);
+    subscaleScores[dim] = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
   });
   
   return subscaleScores;
@@ -4916,6 +4910,12 @@ function openAlternateModal(config, rankLabel, rankNumber) {
   // Populate subscales
   const subscalesContainer = document.getElementById('alternateModalSubscales');
   const subscales = calculateIndividualSubscales(config.members);
+  
+  // CAPPING: No subscale can exceed the team chemistry score
+  subscales.understanding = Math.min(subscales.understanding, config.chemistry);
+  subscales.trust = Math.min(subscales.trust, config.chemistry);
+  subscales.ease = Math.min(subscales.ease, config.chemistry);
+  subscales.integration = Math.min(subscales.integration, config.chemistry);
   
   subscalesContainer.innerHTML = `
     <div class="subscale-item-compact">
